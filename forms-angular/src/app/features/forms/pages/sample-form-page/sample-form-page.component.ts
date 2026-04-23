@@ -1,24 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-
-interface SelectOption {
-  label: string;
-  value: string;
-}
+import { SelectFieldComponent, SelectFieldOption } from '../../../../shared/components/custom-controls/select-field/select-field.component';
+import { TextFieldComponent } from '../../../../shared/components/custom-controls/text-field/text-field.component';
+import { TextareaFieldComponent } from '../../../../shared/components/custom-controls/textarea-field/textarea-field.component';
 
 @Component({
   selector: 'app-sample-form-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TextFieldComponent, TextareaFieldComponent, SelectFieldComponent],
   templateUrl: './sample-form-page.component.html',
-  styleUrl: './sample-form-page.component.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  styleUrl: './sample-form-page.component.scss'
 })
 export class SampleFormPageComponent implements OnInit {
   form!: FormGroup;
 
-  readonly categoryOptions: SelectOption[] = [
+  readonly categoryOptions: SelectFieldOption[] = [
     { label: 'General', value: 'general' },
     { label: 'Support', value: 'support' },
     { label: 'Feedback', value: 'feedback' }

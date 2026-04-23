@@ -4,7 +4,7 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     <div class="form-row">
       <label for="name">Name</label>
-      <text-field id="name" formControlName="name"></text-field>
+      <text-field formControlName="name"></text-field>
       @if (hasError('name', 'required')) {
         <p class="error-message">Name is required.</p>
       }
@@ -12,7 +12,7 @@
 
     <div class="form-row">
       <label for="description">Description</label>
-      <textarea-field id="description" formControlName="description"></textarea-field>
+      <textarea-field formControlName="description"></textarea-field>
       @if (hasError('description', 'minlength')) {
         <p class="error-message">Description must be at least 10 characters.</p>
       }
@@ -20,7 +20,7 @@
 
     <div class="form-row">
       <label for="category">Category</label>
-      <select-field id="category" formControlName="category" [options]="categoryOptions"></select-field>
+      <select-field formControlName="category" [options]="categoryOptions"></select-field>
       @if (hasError('category', 'required')) {
         <p class="error-message">Category is required.</p>
       }
