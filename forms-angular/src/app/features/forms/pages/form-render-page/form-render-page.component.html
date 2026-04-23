@@ -1,0 +1,30 @@
+<app-page-shell
+  eyebrow="React Form"
+  title="Form route migration"
+  description="Angular equivalent of the React Form entrypoint: it loads form metadata by key, then hands the resolved schema to the shared form container."
+>
+  <div class="feature-card">
+    <p><strong>Route config</strong>: <code>?formKey=&lt;guid&gt;&amp;language={{ language() }}&amp;baseUrl={{ baseUrl() }}</code></p>
+    @if (optiGraphUrl()) {
+      <p><strong>Graph endpoint</strong>: <code>{{ optiGraphUrl() }}</code></p>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="feature-card" role="status">Loading form metadata…</div>
+  }
+
+  @if (!loading() && error()) {
+    <div class="feature-card feature-card--warning" role="alert">{{ error() }}</div>
+  }
+
+  @if (!loading() && !formKey()) {
+    <div class="feature-card">
+      <p><strong>Missing form key</strong>: add <code>?formKey=&lt;guid&gt;</code> to load a real Optimizely form.</p>
+    </div>
+  }
+
+  @if (!loading() && form(); as resolvedForm) {
+    <app-form-container [form]="resolvedForm" [baseUrl]="baseUrl()" [currentPageUrl]="currentPageUrl()" />
+  }
+</app-page-shell>

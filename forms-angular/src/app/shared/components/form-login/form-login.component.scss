@@ -1,0 +1,69 @@
+.Form__Login__Username,
+.Form__Login__Password {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.Form__Login label {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.Form__Login input {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: #fff;
+  color: #0f172a;
+}
+
+.Form__Login input:focus {
+  outline: 2px solid rgba(249, 115, 22, 0.25);
+  outline-offset: 1px;
+  border-color: #f97316;
+}
+
+.Form__Login {
+  display: grid;
+  gap: 1rem;
+  max-width: 28rem;
+}
+
+.Form__Login__Submit {
+  min-width: 8rem;
+  padding: 0.8rem 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.Form__Login__Submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.Form__Authenticated {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: fit-content;
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-weight: 700;
+}
+
+.Form__Login__Error {
+  margin: 0;
+  color: #b91c1c;
+}
+
+.Form__Login__Hint {
+  margin: 0;
+  color: #475569;
+}

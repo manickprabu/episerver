@@ -1,0 +1,23 @@
+<div class="app-shell">
+  <header class="app-shell__header">
+    <div>
+      <p class="app-shell__eyebrow">Angular 21 scaffold</p>
+      <h1 class="app-shell__title">forms-angular</h1>
+      <p class="app-shell__subtitle">
+        Placeholder route shell for migrating the React forms experience.
+      </p>
+    </div>
+
+    <nav class="app-shell__nav" aria-label="Primary">
+      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      <a routerLink="/forms" routerLinkActive="is-active">Form</a>
+      <a routerLink="/forms/container" routerLinkActive="is-active">Container</a>
+      <a routerLink="/forms/login" routerLinkActive="is-active">Login</a>
+      <a routerLink="/forms/steps/sample-step" routerLinkActive="is-active">Step</a>
+    </nav>
+  </header>
+
+  <main class="app-shell__content">
+    <router-outlet />
+  </main>
+</div>

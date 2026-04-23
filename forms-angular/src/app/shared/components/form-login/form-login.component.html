@@ -1,0 +1,29 @@
+@if (loginState.isAuthenticated()) {
+  <div class="Form__Authenticated">Authenticated</div>
+} @else {
+  <form class="Form__Login" [formGroup]="loginForm" (ngSubmit)="submit()">
+    <div class="Form__Login__Username">
+      <label for="username">Username:</label>
+      <input id="username" name="username" type="text" formControlName="username" />
+    </div>
+
+    <div class="Form__Login__Password">
+      <label for="password">Password:</label>
+      <input id="password" name="password" type="password" formControlName="password" />
+    </div>
+
+    @if (loginState.errorMessage()) {
+      <p class="Form__Login__Error" role="alert">{{ loginState.errorMessage() }}</p>
+    }
+
+    @if (!authBaseUrl().trim()) {
+      <p class="Form__Login__Hint" role="status">Add an auth base URL to enable login.</p>
+    }
+
+    <div>
+      <button class="Form__Login__Submit" type="submit" [disabled]="!canSubmit()">
+        {{ loginState.isSubmitting() ? 'Logging in...' : 'Login' }}
+      </button>
+    </div>
+  </form>
+}

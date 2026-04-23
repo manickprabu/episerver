@@ -1,0 +1,19 @@
+<div class="Form__Element FormSelection">
+  <label [for]="field().key" class="Form__Element__Caption">{{ field().properties.label }}</label>
+  <select
+    [id]="field().key"
+    [multiple]="!!field().properties.allowMultiSelect"
+    [value]="$any(control())?.value"
+    [attr.aria-describedby]="field().key + '_desc'"
+    [attr.autocomplete]="field().properties.autoComplete || null"
+    (change)="field().properties.allowMultiSelect ? onMultiSelectChange($event) : onSingleSelectChange($any($event.target).value)"
+  >
+    @if (!field().properties.allowMultiSelect) {
+      <option value="">{{ field().properties.placeHolder || 'Select an option' }}</option>
+    }
+    @for (item of field().properties.items ?? []; track item.value) {
+      <option [value]="item.value || ''">{{ item.caption }}</option>
+    }
+  </select>
+  <app-validation-message [field]="field()" [control]="control()" [submitted]="submitted()" />
+</div>

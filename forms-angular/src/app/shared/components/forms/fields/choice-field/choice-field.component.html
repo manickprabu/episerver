@@ -1,0 +1,20 @@
+<div class="Form__Element FormChoice">
+  <fieldset [attr.aria-describedby]="field().key + '_desc'">
+    <legend class="Form__Element__Caption">{{ field().properties.label }}</legend>
+    @for (item of field().properties.items ?? []; track item.value; let idx = $index) {
+      <div>
+        <input
+          [id]="field().key + '_' + idx"
+          [name]="field().key"
+          [type]="field().properties.allowMultiSelect ? 'checkbox' : 'radio'"
+          [class]="field().properties.allowMultiSelect ? 'FormChoice__Input FormChoice__Input--Checkbox' : 'FormChoice__Input FormChoice__Input--Radio'"
+          [checked]="isChecked(item.value)"
+          [value]="item.value || ''"
+          (change)="toggleValue(item.value, $any($event.target).checked)"
+        />
+        <label [for]="field().key + '_' + idx" class="FormChoice__Label">{{ item.caption }}</label>
+      </div>
+    }
+  </fieldset>
+  <app-validation-message [field]="field()" [control]="control()" [submitted]="submitted()" />
+</div>

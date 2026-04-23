@@ -1,0 +1,146 @@
+.EPiServerForms {
+  color: #333;
+
+  .Form__Description {
+    margin-bottom: 1rem;
+  }
+
+  .Form__Status {
+    .Form__Status__Message {
+      display: block;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 0.75rem;
+      background: #fff7ed;
+      color: #9a3412;
+    }
+
+    .Form__Success__Message {
+      background-color: #84c8e4;
+      color: #333;
+    }
+
+    .Form__Warning__Message {
+      background-color: #fff8aa;
+      color: red;
+    }
+  }
+
+  .Form__NavigationBar {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+
+    .Form__NavigationBar__Action {
+      display: inline-block;
+      vertical-align: middle;
+      text-align: center;
+      border: 1px solid rgba(41, 128, 189, 0.5);
+      border-radius: 4px;
+      font-size: inherit;
+      min-height: 2.5rem;
+      min-width: 8rem;
+      color: inherit;
+      background-image: linear-gradient(to top, #fff, #e6e6e6);
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.4;
+      }
+    }
+
+    .Form__NavigationBar__ProgressBar {
+      flex: 1;
+      border: 1px solid rgba(41, 128, 189, 0.5);
+      height: 1rem;
+      border-radius: 999px;
+      overflow: hidden;
+
+      .Form__NavigationBar__ProgressBar--Progress {
+        background-color: rgba(41, 128, 189, 0.5);
+        height: 100%;
+      }
+    }
+
+    .Form__NavigationBar__ProgressBar--Text {
+      min-width: 4.5rem;
+    }
+  }
+
+  .Form__Element {
+    margin: 0 0 1.5rem;
+
+    .Form__Element__Caption {
+      display: inline-block;
+      min-width: 15%;
+      vertical-align: top;
+      margin-bottom: 0.35rem;
+      font-weight: 600;
+    }
+
+    .Form__Element__ValidationError {
+      color: #e9322d;
+      display: block;
+      word-wrap: break-word;
+      margin-top: 0.35rem;
+    }
+  }
+
+  .FormTextbox__Input,
+  .FormSelection select,
+  .FormFileUpload__Input,
+  .FormRange__Input {
+    width: min(100%, 40rem);
+    padding: 0.7rem 0.8rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(148, 163, 184, 0.6);
+    background: #fff;
+  }
+
+  textarea.FormTextbox__Input {
+    min-height: 9rem;
+    resize: vertical;
+  }
+
+  .FormChoice__Label {
+    display: inline-block;
+    margin-left: 0.4rem;
+  }
+
+  .FormChoice--Image__Item {
+    display: inline-block;
+    max-width: 40%;
+    text-align: center;
+    margin: 0.5rem;
+  }
+
+  .FormRange__Output {
+    display: inline-block;
+    margin-left: 0.75rem;
+  }
+
+  .FormSubmitButton,
+  .FormResetButton {
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(41, 128, 189, 0.5);
+    background: #fff;
+  }
+
+  .FormSubmitButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
+  .FormStep__Description {
+    margin-bottom: 1rem;
+  }
+
+  &.ValidationFail {
+    input,
+    textarea,
+    select {
+      border-color: #e9322d;
+    }
+  }
+}

@@ -1,0 +1,5 @@
+@if (message()) {
+  <span class="Form__Element__ValidationError" [id]="field().key + '_desc'" role="alert">
+    {{ message() }}
+  </span>
+}

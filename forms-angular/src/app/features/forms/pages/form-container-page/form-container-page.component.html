@@ -1,0 +1,23 @@
+<app-page-shell
+  eyebrow="React FormContainerBlock"
+  title="Form container migration"
+  description="This page exercises the Angular forms foundation with a real multi-step schema, Reactive Forms validation, and the same submission endpoint contract used by the React package."
+>
+  <div class="migration-note">
+    <p><strong>Current endpoint</strong>: <code>{{ baseUrl() }}_forms/v1/forms</code></p>
+    <p>The sample schema mirrors the React library’s field ordering, step navigation, status messaging, and thank-you flow.</p>
+  </div>
+
+  <app-form-container
+    [form]="form"
+    [baseUrl]="baseUrl()"
+    [currentPageUrl]="currentPageUrl()"
+    (submitted)="handleSubmitted($event)"
+  />
+
+  @if (lastSubmission(); as submission) {
+    <section class="submission-meta" aria-live="polite">
+      <p><strong>Last submission key</strong>: {{ submission.submissionKey || 'Pending from API' }}</p>
+    </section>
+  }
+</app-page-shell>

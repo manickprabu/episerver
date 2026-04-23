@@ -1,0 +1,15 @@
+.feature-card {
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #ecfeff, #f8fafc);
+  border: 1px solid rgba(8, 145, 178, 0.2);
+}
+
+.feature-card--warning {
+  background: linear-gradient(135deg, #fff7ed, #fff1f2);
+  border-color: rgba(234, 88, 12, 0.25);
+}
+
+code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}

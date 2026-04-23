@@ -1,0 +1,40 @@
+<section class="FormLoginPage">
+  <header class="FormLoginPage__Header">
+    <p class="FormLoginPage__Eyebrow">Migrated from React</p>
+    <h2 class="FormLoginPage__Title">Form login</h2>
+    <p class="FormLoginPage__Description">
+      Angular standalone route equivalent of the React <code>FormLogin</code> component.
+    </p>
+    <p class="FormLoginPage__Description">
+      Route defaults come from Angular Router data, and you can override them with
+      <code>?clientId=...</code> and <code>&amp;authBaseUrl=...</code>.
+    </p>
+  </header>
+
+  <div class="FormLoginPage__Config">
+    <label class="FormLoginPage__ConfigField">
+      <span>Client ID</span>
+      <input
+        type="text"
+        [value]="clientId()"
+        (input)="clientId.set(($any($event.target).value ?? '').trim())"
+      />
+    </label>
+
+    <label class="FormLoginPage__ConfigField">
+      <span>Auth base URL</span>
+      <input
+        type="url"
+        [value]="authBaseUrl()"
+        (input)="authBaseUrl.set(($any($event.target).value ?? '').trim())"
+        placeholder="https://example.com/connect/token"
+      />
+    </label>
+  </div>
+
+  <app-form-login
+    [clientId]="clientId()"
+    [authBaseUrl]="authBaseUrl()"
+    (onAuthenticated)="handleAuthenticated($event)"
+  />
+</section>

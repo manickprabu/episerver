@@ -1,0 +1,50 @@
+<form class="EPiServerForms {{ validationCssClass() }}" [formGroup]="formGroup()" (ngSubmit)="submitForm()" novalidate>
+  @if (form().properties.title) {
+    <h2 class="Form__Title">{{ form().properties.title }}</h2>
+  }
+
+  @if (form().properties.description) {
+    <aside class="Form__Description">{{ form().properties.description }}</aside>
+  }
+
+  <div class="Form__Status">
+    @if (statusMessage()) {
+      <div
+        role="status"
+        class="Form__Status__Message"
+        [class.Form__Success__Message]="submitSucceeded()"
+        [class.Form__Warning__Message]="isWarningStatus()"
+      >
+        <div [innerHTML]="statusMessage()"></div>
+      </div>
+    }
+  </div>
+
+  @if (showFormBody() && currentStep(); as step) {
+    <div class="Form__MainBody">
+      <section class="Form__Element__Step">
+        @for (field of step.elements; track field.key) {
+          <app-dynamic-field
+            [field]="field"
+            [formGroup]="formGroup()"
+            [submitted]="hasSubmitted()"
+            [submitDisabled]="isSubmitting()"
+            (reset)="handleReset()"
+          />
+        }
+      </section>
+
+      <app-form-step-navigation
+        [currentStepIndex]="currentStepIndex()"
+        [stepCount]="steps().length"
+        [showNavigation]="form().properties.showNavigationBar !== false"
+        [isFormFinalized]="isFormFinalized()"
+        [previousButtonLabel]="previousButtonLabel()"
+        [nextButtonLabel]="nextButtonLabel()"
+        [progressLabel]="progressLabel()"
+        (previous)="previousStep()"
+        (next)="nextStep()"
+      />
+    </div>
+  }
+</form>

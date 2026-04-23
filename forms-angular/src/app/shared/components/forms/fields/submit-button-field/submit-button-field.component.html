@@ -1,0 +1,7 @@
+<button type="submit" class="Form__Element FormSubmitButton" [disabled]="disabled()">
+  @if (field().properties.image) {
+    <img [src]="$any(field().properties.image)" [alt]="field().properties.label || 'Submit'" />
+  } @else {
+    {{ field().properties.label || 'Submit' }}
+  }
+</button>

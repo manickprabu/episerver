@@ -1,0 +1,43 @@
+.EPiServerForms {
+  display: grid;
+  gap: 1rem;
+}
+
+.Form__Status__Message {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.Form__Success__Message {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.Form__NavigationBar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.Form__NavigationBar__Action {
+  min-width: 6rem;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: white;
+}
+
+.Form__NavigationBar__ProgressBar {
+  flex: 1;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.2);
+  overflow: hidden;
+}
+
+.Form__NavigationBar__ProgressBar--Progress {
+  height: 100%;
+  background: rgba(59, 130, 246, 0.7);
+}

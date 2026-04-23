@@ -1,0 +1,47 @@
+@switch (field().contentType) {
+  @case ('TextboxElementBlock') {
+    <app-text-field [field]="field()" [formGroup]="formGroup()" [submitted]="submitted()" />
+  }
+  @case ('TextareaElementBlock') {
+    <app-textarea-field [field]="field()" [formGroup]="formGroup()" [submitted]="submitted()" />
+  }
+  @case ('NumberElementBlock') {
+    <app-number-field [field]="field()" [formGroup]="formGroup()" [submitted]="submitted()" />
+  }
+  @case ('PredefinedHiddenElementBlock') {
+    <app-hidden-field [field]="field()" [formGroup]="formGroup()" />
+  }
+  @case ('ChoiceElementBlock') {
+    <app-choice-field [field]="field()" [formGroup]="formGroup()" [submitted]="submitted()" />
+  }
+  @case ('RangeElementBlock') {
+    <app-range-field [field]="field()" [formGroup]="formGroup()" [submitted]="submitted()" />
+  }
+  @case ('FormStepBlock') {
+    <app-form-step-field [field]="field()" />
+  }
+  @case ('SelectionElementBlock') {
+    <app-select-field [field]="field()" [formGroup]="formGroup()" [submitted]="submitted()" />
+  }
+  @case ('UrlElementBlock') {
+    <app-url-field [field]="field()" [formGroup]="formGroup()" [submitted]="submitted()" />
+  }
+  @case ('ImageChoiceElementBlock') {
+    <app-image-choice-field [field]="field()" [formGroup]="formGroup()" [submitted]="submitted()" />
+  }
+  @case ('FileUploadElementBlock') {
+    <app-file-upload-field [field]="field()" [formGroup]="formGroup()" [submitted]="submitted()" />
+  }
+  @case ('ResetButtonElementBlock') {
+    <app-reset-button-field [field]="field()" (triggered)="reset.emit()" />
+  }
+  @case ('SubmitButtonElementBlock') {
+    <app-submit-button-field [field]="field()" [disabled]="submitDisabled()" />
+  }
+  @case ('ParagraphTextElementBlock') {
+    <app-paragraph-field [field]="field()" />
+  }
+  @default {
+    <p class="Form__Element">Cannot render {{ field().contentType }}.</p>
+  }
+}

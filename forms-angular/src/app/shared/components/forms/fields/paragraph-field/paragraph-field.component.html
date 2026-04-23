@@ -1,0 +1,6 @@
+<div class="Form__Element FormParagraphText Form__Element--NonData">
+  @if (field().properties.label) {
+    <div class="Form__Element__Caption">{{ field().properties.label }}</div>
+  }
+  <div [innerHTML]="field().properties.paragraphText || ''"></div>
+</div>

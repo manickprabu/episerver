@@ -1,0 +1,19 @@
+@if (shouldShowNavigation()) {
+  <nav role="navigation" class="Form__NavigationBar" aria-label="Form step navigation">
+    <button type="button" class="Form__NavigationBar__Action FormExcludeDataRebind btnPrev" [disabled]="!canGoPrevious()" (click)="previous.emit()">
+      {{ previousButtonLabel() }}
+    </button>
+
+    <div class="Form__NavigationBar__ProgressBar">
+      <div class="Form__NavigationBar__ProgressBar--Progress" [style.width.%]="progressWidth()"></div>
+      <div class="Form__NavigationBar__ProgressBar--Text">
+        <span class="Form__NavigationBar__ProgressBar__ProgressLabel">{{ progressLabel() }}</span>
+        <span class="Form__NavigationBar__ProgressBar__CurrentStep">{{ currentDisplayStepIndex() }}</span>/<span class="Form__NavigationBar__ProgressBar__StepsCount">{{ stepCount() }}</span>
+      </div>
+    </div>
+
+    <button type="button" class="Form__NavigationBar__Action FormExcludeDataRebind btnNext" [disabled]="!canGoNext()" (click)="next.emit()">
+      {{ nextButtonLabel() }}
+    </button>
+  </nav>
+}

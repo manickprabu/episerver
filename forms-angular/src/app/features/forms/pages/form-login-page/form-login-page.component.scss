@@ -1,0 +1,71 @@
+.FormLoginPage {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 44rem;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+}
+
+.FormLoginPage__Header {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.FormLoginPage__Eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #c2410c;
+}
+
+.FormLoginPage__Title {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+}
+
+.FormLoginPage__Description {
+  margin: 0;
+  color: #475569;
+}
+
+.FormLoginPage__Config {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.FormLoginPage__ConfigField {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.FormLoginPage__ConfigField span {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.FormLoginPage input {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: #fff;
+  color: #0f172a;
+}
+
+.FormLoginPage input:focus {
+  outline: 2px solid rgba(249, 115, 22, 0.25);
+  outline-offset: 1px;
+  border-color: #f97316;
+}
+
+@media (max-width: 640px) {
+  .FormLoginPage {
+    padding: 1.15rem;
+  }
+}
