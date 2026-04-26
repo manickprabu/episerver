@@ -1,6 +1,6 @@
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, interval, map, tap } from 'rxjs';
+import { EMPTY, Observable, catchError, finalize, interval, map, tap } from 'rxjs';
 import { FormAuthService, IdentityInfo } from './form-auth.service';
 
 @Injectable()
@@ -31,14 +31,15 @@ export class FormLoginStateService {
         next: (identityInfo) => {
           this.formAuthService.storeAccessToken(identityInfo.accessToken);
           this.isAuthenticated.set(true);
-          this.isSubmitting.set(false);
-        },
-        error: () => {
-          console.log('Wrong credentials!');
-          this.errorMessage.set('Wrong credentials!');
-          this.isAuthenticated.set(false);
-          this.isSubmitting.set(false);
         }
+      }),
+      catchError(() => {
+        this.errorMessage.set('Wrong credentials!');
+        this.isAuthenticated.set(false);
+        return EMPTY;
+      }),
+      finalize(() => {
+        this.isSubmitting.set(false);
       })
     );
   }

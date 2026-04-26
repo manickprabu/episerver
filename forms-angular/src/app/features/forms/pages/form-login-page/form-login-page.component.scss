@@ -1,11 +1,14 @@
 .FormLoginPage {
   display: grid;
   gap: 1.5rem;
-  max-width: 44rem;
-  padding: 1.5rem;
-  border-radius: 1.5rem;
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 1.75rem;
+  border-radius: 1.75rem;
+  background:
+    radial-gradient(circle at top right, rgba(251, 191, 36, 0.16), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
+  border: 1px solid rgba(148, 163, 184, 0.22);
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
 }
 
@@ -26,6 +29,7 @@
 .FormLoginPage__Title {
   margin: 0;
   font-size: clamp(1.6rem, 4vw, 2.3rem);
+  color: #0f172a;
 }
 
 .FormLoginPage__Description {
@@ -33,10 +37,36 @@
   color: #475569;
 }
 
+.FormLoginPage__Layout {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.9fr);
+  align-items: start;
+}
+
+.FormLoginPage__Panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.FormLoginPage__Panel--info {
+  background:
+    linear-gradient(145deg, rgba(255, 247, 237, 0.95), rgba(255, 255, 255, 0.92));
+}
+
+.FormLoginPage__PanelTitle {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #0f172a;
+}
+
 .FormLoginPage__Config {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .FormLoginPage__ConfigField {
@@ -64,8 +94,45 @@
   border-color: #f97316;
 }
 
+.FormLoginPage code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+.FormLoginPage__Summary {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+}
+
+.FormLoginPage__Summary div {
+  display: grid;
+  gap: 0.2rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.FormLoginPage__Summary dt {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #c2410c;
+}
+
+.FormLoginPage__Summary dd {
+  margin: 0;
+  color: #0f172a;
+  word-break: break-word;
+}
+
 @media (max-width: 640px) {
   .FormLoginPage {
     padding: 1.15rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .FormLoginPage__Layout {
+    grid-template-columns: 1fr;
   }
 }

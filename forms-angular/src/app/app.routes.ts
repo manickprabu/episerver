@@ -59,6 +59,14 @@ export const routes: Routes = [
             (m) => m.SampleFormPageComponent
           ),
         title: 'Sample Form'
+      },
+      {
+        path: 'dynamic-json',
+        loadComponent: () =>
+          import('./features/forms/pages/dynamic-json-form-page/dynamic-json-form-page.component').then(
+            (m) => m.DynamicJsonFormPageComponent
+          ),
+        title: 'Dynamic JSON Form'
       }
     ]
   },

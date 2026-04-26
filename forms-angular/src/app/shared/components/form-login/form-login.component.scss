@@ -27,7 +27,7 @@
 .Form__Login {
   display: grid;
   gap: 1rem;
-  max-width: 28rem;
+  width: 100%;
 }
 
 .Form__Login__Submit {
@@ -60,10 +60,16 @@
 
 .Form__Login__Error {
   margin: 0;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.85rem;
+  background: rgba(254, 226, 226, 0.9);
   color: #b91c1c;
 }
 
 .Form__Login__Hint {
   margin: 0;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.85rem;
+  background: rgba(241, 245, 249, 0.9);
   color: #475569;
 }

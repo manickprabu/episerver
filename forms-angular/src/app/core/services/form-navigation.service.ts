@@ -114,22 +114,22 @@ export class FormNavigationService {
 
   private buildSteps(form: FormSchema): Array<{ formStep: FormField }> {
     const steps: Array<{ formStep: FormField }> = [];
-    let currentStep = form.formElements.find((field) => field.contentType === 'FormStepBlock') ?? {
+    let currentStep: FormField = {
       key: form.key + '-step-0',
       contentType: 'FormStepBlock',
       properties: { label: form.properties.title }
     };
 
-    for (const field of form.formElements) {
+    form.formElements.forEach((field, index) => {
       if (field.contentType === 'FormStepBlock') {
+        if (index !== 0) {
+          steps.push({ formStep: currentStep });
+        }
         currentStep = field;
-        steps.push({ formStep: currentStep });
       }
-    }
+    });
 
-    if (steps.length === 0) {
-      steps.push({ formStep: currentStep });
-    }
+    steps.push({ formStep: currentStep });
 
     return steps;
   }

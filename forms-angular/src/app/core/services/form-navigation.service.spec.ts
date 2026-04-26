@@ -33,6 +33,29 @@ const linkedStepForm: FormSchema = {
   ]
 };
 
+const delayedStepForm: FormSchema = {
+  key: 'delayed-step-form',
+  locale: 'en',
+  properties: { title: 'Delayed step form', showNavigationBar: true },
+  formElements: [
+    {
+      key: 'intro',
+      contentType: 'TextboxElementBlock',
+      properties: { label: 'Intro' }
+    },
+    {
+      key: 'step-2',
+      contentType: 'FormStepBlock',
+      properties: { label: 'Step two' }
+    },
+    {
+      key: 'details',
+      contentType: 'TextareaElementBlock',
+      properties: { label: 'Details' }
+    }
+  ]
+};
+
 describe('FormNavigationService', () => {
   let service: FormNavigationService;
   const navigateByUrl = vi.fn().mockResolvedValue(true);
@@ -78,5 +101,10 @@ describe('FormNavigationService', () => {
     expect(localStorage.getItem('form_current_step_linked-form')).toBe('1');
     expect(sessionStorage.getItem('linked-form')).toContain('Ada');
     expect(navigateByUrl).toHaveBeenCalledWith('/forms/steps/two');
+  });
+
+  it('counts the implicit first step before a later FormStepBlock', () => {
+    expect(service.findNextStep(delayedStepForm, 0)).toBe(1);
+    expect(service.findPreviousStep(delayedStepForm, 1)).toBe(0);
   });
 });

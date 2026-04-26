@@ -1,0 +1,55 @@
+<app-page-shell title="">
+  <section class="dynamic-json-form-page">
+    <div class="dynamic-json-form-page__meta">
+      <p><strong>Form name:</strong> {{ source().name }}</p>
+      <p><strong>Form GUID:</strong> {{ source().contentGuid }}</p>
+      <p><strong>Partial submit:</strong> {{ draftModeLabel() }}</p>
+    </div>
+
+    <form class="EPiServerForms {{ validationCssClass() }}" [formGroup]="formGroup()" (ngSubmit)="submitFinal()" novalidate>
+      @if (form().properties.title) {
+        <h2 class="Form__Title">{{ form().properties.title }}</h2>
+      }
+
+      <div class="Form__Status">
+        @if (statusMessage()) {
+          <div
+            role="status"
+            class="Form__Status__Message"
+            [class.Form__Success__Message]="submitSucceeded()"
+            [class.Form__Warning__Message]="isWarningStatus()"
+          >
+            <div [innerHTML]="statusMessage()"></div>
+          </div>
+        }
+      </div>
+
+      @if (currentStep(); as step) {
+        <div class="Form__MainBody">
+          <section class="Form__Element__Step">
+            @for (field of step.elements; track field.key) {
+              <app-dynamic-field
+                [field]="field"
+                [formGroup]="formGroup()"
+                [submitted]="hasSubmitted()"
+                [submitDisabled]="isSubmitting()"
+                (reset)="handleReset()"
+              />
+            }
+          </section>
+
+          <app-form-step-navigation
+            [currentStepIndex]="currentStepIndex()"
+            [stepCount]="steps().length"
+            [showNavigation]="hasMultipleSteps()"
+            [previousButtonLabel]="previousButtonLabel()"
+            [nextButtonLabel]="nextButtonLabel()"
+            [progressLabel]="progressLabel()"
+            (previous)="previousStep()"
+            (next)="nextStep()"
+          />
+        </div>
+      }
+    </form>
+  </section>
+</app-page-shell>

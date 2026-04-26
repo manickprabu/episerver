@@ -5,36 +5,62 @@
     <p class="FormLoginPage__Description">
       Angular standalone route equivalent of the React <code>FormLogin</code> component.
     </p>
-    <p class="FormLoginPage__Description">
-      Route defaults come from Angular Router data, and you can override them with
-      <code>?clientId=...</code> and <code>&amp;authBaseUrl=...</code>.
-    </p>
   </header>
 
-  <div class="FormLoginPage__Config">
-    <label class="FormLoginPage__ConfigField">
-      <span>Client ID</span>
-      <input
-        type="text"
-        [value]="clientId()"
-        (input)="clientId.set(($any($event.target).value ?? '').trim())"
-      />
-    </label>
+  <div class="FormLoginPage__Layout">
+    <aside class="FormLoginPage__Panel FormLoginPage__Panel--info">
+      <h3 class="FormLoginPage__PanelTitle">Connection settings</h3>
+      <p class="FormLoginPage__Description">
+        Route defaults come from Angular Router data. You can override them with
+        <code>?clientId=...</code> and <code>&amp;authBaseUrl=...</code>.
+      </p>
 
-    <label class="FormLoginPage__ConfigField">
-      <span>Auth base URL</span>
-      <input
-        type="url"
-        [value]="authBaseUrl()"
-        (input)="authBaseUrl.set(($any($event.target).value ?? '').trim())"
-        placeholder="https://example.com/connect/token"
+      <div class="FormLoginPage__Config">
+        <label class="FormLoginPage__ConfigField">
+          <span>Client ID</span>
+          <input
+            type="text"
+            [value]="clientId()"
+            (input)="clientId.set(($any($event.target).value ?? '').trim())"
+          />
+        </label>
+
+        <label class="FormLoginPage__ConfigField">
+          <span>Auth base URL</span>
+          <input
+            type="url"
+            [value]="authBaseUrl()"
+            (input)="authBaseUrl.set(($any($event.target).value ?? '').trim())"
+            placeholder="https://example.com/connect/token"
+          />
+        </label>
+      </div>
+
+      <dl class="FormLoginPage__Summary">
+        <div>
+          <dt>Active client</dt>
+          <dd>{{ clientId() || 'Not set' }}</dd>
+        </div>
+        <div>
+          <dt>Auth endpoint</dt>
+          <dd>{{ authBaseUrl() || 'Add an auth base URL to enable login' }}</dd>
+        </div>
+        @if (identityInfo(); as identity) {
+          <div>
+            <dt>Authenticated user</dt>
+            <dd>{{ identity.username }}</dd>
+          </div>
+        }
+      </dl>
+    </aside>
+
+    <section class="FormLoginPage__Panel FormLoginPage__Panel--login">
+      <h3 class="FormLoginPage__PanelTitle">Sign in</h3>
+      <app-form-login
+        [clientId]="clientId()"
+        [authBaseUrl]="authBaseUrl()"
+        (onAuthenticated)="handleAuthenticated($event)"
       />
-    </label>
+    </section>
   </div>
-
-  <app-form-login
-    [clientId]="clientId()"
-    [authBaseUrl]="authBaseUrl()"
-    (onAuthenticated)="handleAuthenticated($event)"
-  />
 </section>
