@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { FormLoaderService } from '../../../../core/services/form-loader.service';
+import { FormLoaderService } from '../../../../episerver-forms/services/form-loader.service';
 import { FormRenderPageComponent } from './form-render-page.component';
 import { sampleSupportRequestForm } from '../form-container-page/form-container-page.schema';
 

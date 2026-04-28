@@ -1,4 +1,4 @@
-import { DynamicEpiServerForm } from '../../../../core/models/dynamic-episerver-form.model';
+import { DynamicEpiServerForm } from '../../../../episerver-forms/models/dynamic-episerver-form.model';
 
 export const SAMPLE_DYNAMIC_JSON_FORM: DynamicEpiServerForm = {
   formId: 31777,

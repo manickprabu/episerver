@@ -1,23 +1,21 @@
 import { DOCUMENT } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { PageShellComponent } from '../../../../shared/components/page-shell/page-shell.component';
-import { DynamicFieldComponent } from '../../../../shared/components/forms/dynamic-field/dynamic-field.component';
-import { FormStepNavigationComponent } from '../../../../shared/components/forms/form-step-navigation/form-step-navigation.component';
-import { DynamicEpiServerForm } from '../../../../core/models/dynamic-episerver-form.model';
-import { FormSchema, FormSubmissionResult } from '../../../../core/models/form-schema.model';
-import { DynamicFormAdapterService } from '../../../../core/services/dynamic-form-adapter.service';
-import { FormNavigationService } from '../../../../core/services/form-navigation.service';
-import { FormSchemaFormService } from '../../../../core/services/form-schema-form.service';
-import { FormSubmissionService } from '../../../../core/services/form-submission.service';
+import { EpiserverFormsModule } from '../../../../episerver-forms/episerver-forms.module';
+import { DynamicEpiServerForm } from '../../../../episerver-forms/models/dynamic-episerver-form.model';
+import { FormField, FormSchema, FormStep, FormSubmissionResult } from '../../../../episerver-forms/models/form-schema.model';
+import { DynamicFormAdapterService } from '../../../../episerver-forms/services/dynamic-form-adapter.service';
+import { FormNavigationService } from '../../../../episerver-forms/services/form-navigation.service';
+import { FormSchemaFormService } from '../../../../episerver-forms/services/form-schema-form.service';
+import { FormSubmissionService } from '../../../../episerver-forms/services/form-submission.service';
 import { SAMPLE_DYNAMIC_JSON_FORM } from './dynamic-json-form-page.data';
 
 @Component({
-  selector: 'app-dynamic-json-form-page',
+  selector: 'lib-dynamic-json-form-page',
   standalone: true,
-  imports: [PageShellComponent, ReactiveFormsModule, DynamicFieldComponent, FormStepNavigationComponent],
+  imports: [PageShellComponent, EpiserverFormsModule],
   templateUrl: './dynamic-json-form-page.component.html',
   styleUrl: './dynamic-json-form-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -92,8 +90,7 @@ export class DynamicJsonFormPageComponent {
 
     if (this.canGoNext()) {
       const nextStepIndex = this.formNavigationService.findNextStep(this.form(), this.currentStepIndex());
-      this.currentStepIndex.set(nextStepIndex);
-      this.formNavigationService.goToStep(this.form(), nextStepIndex, this.formGroup());
+      this.openStep(nextStepIndex);
     }
   }
 
@@ -103,8 +100,56 @@ export class DynamicJsonFormPageComponent {
     }
 
     const previousStepIndex = this.formNavigationService.findPreviousStep(this.form(), this.currentStepIndex());
-    this.currentStepIndex.set(previousStepIndex);
-    this.formNavigationService.goToStep(this.form(), previousStepIndex, this.formGroup());
+    this.openStep(previousStepIndex);
+  }
+
+  protected openStep(stepIndex: number): void {
+    if (!this.isStepAccessible(stepIndex)) {
+      return;
+    }
+
+    this.currentStepIndex.set(stepIndex);
+    this.formNavigationService.goToStep(this.form(), stepIndex, this.formGroup());
+  }
+
+  protected isStepOpen(stepIndex: number): boolean {
+    return this.currentStepIndex() === stepIndex;
+  }
+
+  protected isStepAccessible(stepIndex: number): boolean {
+    if (stepIndex <= 0) {
+      return true;
+    }
+
+    for (let index = 0; index < stepIndex; index += 1) {
+      if (!this.isStepComplete(index)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  protected isStepComplete(stepIndex: number): boolean {
+    const step = this.steps()[stepIndex];
+    if (!step) {
+      return false;
+    }
+
+    const controls = this.controlsForStep(step);
+    return controls.length === 0 || controls.every((control) => control.valid);
+  }
+
+  protected stepHeading(step: FormStep, stepIndex: number): string {
+    if (step.formStep.properties.label && !step.formStep.key.endsWith('-step-0')) {
+      return String(step.formStep.properties.label);
+    }
+
+    return 'Step ' + (stepIndex + 1);
+  }
+
+  protected visibleStepFields(step: FormStep): FormField[] {
+    return step.elements.filter((field) => field.contentType !== 'FormStepBlock');
   }
 
   protected savePartial(): void {
@@ -142,6 +187,10 @@ export class DynamicJsonFormPageComponent {
     this.statusMessage.set('');
     this.submissionKey.set(this.dynamicFormAdapterService.initialSubmissionKey(this.source()));
     this.formNavigationService.clearNavigationState(this.form().key);
+  }
+
+  protected trackStep(_index: number, step: FormStep): string {
+    return step.formStep.key;
   }
 
   private submit(isFinalized: boolean): void {
@@ -214,6 +263,12 @@ export class DynamicJsonFormPageComponent {
 
     const invalidElement = this.document.getElementById(invalidKey) as HTMLElement | null;
     invalidElement?.focus();
+  }
+
+  private controlsForStep(step: FormStep) {
+    return this.visibleStepFields(step)
+      .map((field) => this.formGroup().get(field.key))
+      .filter((control) => !!control);
   }
 
   private setWarningStatus(message: string): void {

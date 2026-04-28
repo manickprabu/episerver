@@ -1,0 +1,13 @@
+<div class="Form__Element FormTextbox FormTextbox--Number">
+  <label [for]="field().key" class="Form__Element__Caption">{{ field().properties.label }}</label>
+  <input
+    [id]="field().key"
+    [formControl]="$any(control())"
+    type="number"
+    step="any"
+    class="FormTextbox__Input"
+    [attr.placeholder]="field().properties.placeHolder || null"
+    [attr.aria-describedby]="field().key + '_desc'"
+  />
+  <lib-validation-message [field]="field()" [control]="control()" [submitted]="submitted()" />
+</div>

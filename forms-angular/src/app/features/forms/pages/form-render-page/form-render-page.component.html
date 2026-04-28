@@ -25,6 +25,6 @@
   }
 
   @if (!loading() && form(); as resolvedForm) {
-    <app-form-container [form]="resolvedForm" [baseUrl]="baseUrl()" [currentPageUrl]="currentPageUrl()" />
+    <lib-form-container [form]="resolvedForm" [baseUrl]="baseUrl()" [currentPageUrl]="currentPageUrl()" />
   }
 </app-page-shell>

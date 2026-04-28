@@ -1,16 +1,16 @@
 import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormSchema } from '../../../../core/models/form-schema.model';
-import { FormLoaderService } from '../../../../core/services/form-loader.service';
-import { FormContainerComponent } from '../../../../shared/components/forms/form-container/form-container.component';
+import { ActivatedRoute } from '@angular/router';
 import { PageShellComponent } from '../../../../shared/components/page-shell/page-shell.component';
+import { EpiserverFormsModule } from '../../../../episerver-forms/episerver-forms.module';
+import { FormSchema } from '../../../../episerver-forms/models/form-schema.model';
+import { FormLoaderService } from '../../../../episerver-forms/services/form-loader.service';
 
 @Component({
-  selector: 'app-form-render-page',
+  selector: 'lib-form-render-page',
   standalone: true,
-  imports: [PageShellComponent, FormContainerComponent],
+  imports: [PageShellComponent, EpiserverFormsModule],
   templateUrl: './form-render-page.component.html',
   styleUrl: './form-render-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

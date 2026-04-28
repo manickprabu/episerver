@@ -1,4 +1,4 @@
-import { FormSchema } from '../../../../core/models/form-schema.model';
+import { FormSchema } from '../../../../episerver-forms/models/form-schema.model';
 
 export const sampleSupportRequestForm: FormSchema = {
   key: 'support-request',

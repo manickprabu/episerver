@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { IdentityInfo } from '../../../../core/services/form-auth.service';
-import { FormLoginComponent } from '../../../../shared/components/form-login/form-login.component';
+import { ActivatedRoute } from '@angular/router';
+import { EpiserverFormsModule } from '../../../../episerver-forms/episerver-forms.module';
+import { IdentityInfo } from '../../../../episerver-forms/services/form-auth.service';
 
 @Component({
-  selector: 'app-form-login-page',
+  selector: 'lib-form-login-page',
   standalone: true,
-  imports: [FormLoginComponent],
+  imports: [EpiserverFormsModule],
   templateUrl: './form-login-page.component.html',
   styleUrl: './form-login-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
