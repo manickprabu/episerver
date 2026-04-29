@@ -18,23 +18,7 @@ import { UrlFieldComponent } from '../fields/url-field/url-field.component';
 
 @Component({
   selector: 'lib-dynamic-field',
-  standalone: true,
-  imports: [
-    ChoiceFieldComponent,
-    FileUploadFieldComponent,
-    FormStepFieldComponent,
-    HiddenFieldComponent,
-    ImageChoiceFieldComponent,
-    NumberFieldComponent,
-    ParagraphFieldComponent,
-    RangeFieldComponent,
-    ResetButtonFieldComponent,
-    SelectFieldComponent,
-    SubmitButtonFieldComponent,
-    TextFieldComponent,
-    TextareaFieldComponent,
-    UrlFieldComponent
-  ],
+  standalone: false,
   templateUrl: './dynamic-field.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

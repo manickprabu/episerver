@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormField } from '../../../../models/form-schema.model';
 import { FormSchemaFormService } from '../../../../services/form-schema-form.service';
@@ -6,13 +6,13 @@ import { ValidationMessageComponent } from '../../validation-message/validation-
 
 @Component({
   selector: 'lib-text-field',
-  standalone: true,
-  imports: [ReactiveFormsModule, ValidationMessageComponent],
+  standalone: false,
   templateUrl: './text-field.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextFieldComponent {
-  private readonly formSchemaFormService = inject(FormSchemaFormService);
+  constructor(private readonly formSchemaFormService: FormSchemaFormService) {}
+
   readonly field = input.required<FormField>();
   readonly formGroup = input.required<FormGroup>();
   readonly submitted = input(false);

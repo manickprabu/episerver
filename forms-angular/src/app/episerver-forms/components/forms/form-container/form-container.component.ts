@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { FormSchema, FormSubmissionResult, IdentityInfo } from '../../../models/form-schema.model';
+import { ChangeDetectionStrategy, Component, Inject, computed, effect, input, output, signal } from '@angular/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormSchema, FormStep, FormSubmissionResult, IdentityInfo } from '../../../models/form-schema.model';
 import { FormConfirmationService } from '../../../services/form-confirmation.service';
 import { FormNavigationService } from '../../../services/form-navigation.service';
 import { FormSchemaFormService } from '../../../services/form-schema-form.service';
@@ -11,19 +11,12 @@ import { FormStepNavigationComponent } from '../form-step-navigation/form-step-n
 
 @Component({
   selector: 'lib-form-container',
-  standalone: true,
-  imports: [ReactiveFormsModule, DynamicFieldComponent, FormStepNavigationComponent],
+  standalone: false,
   templateUrl: './form-container.component.html',
   styleUrl: './form-container.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormContainerComponent {
-  private readonly document = inject(DOCUMENT);
-  private readonly formConfirmationService = inject(FormConfirmationService);
-  private readonly formNavigationService = inject(FormNavigationService);
-  private readonly formSchemaFormService = inject(FormSchemaFormService);
-  private readonly formSubmissionService = inject(FormSubmissionService);
-
   readonly form = input.required<FormSchema>();
   readonly baseUrl = input('');
   readonly currentPageUrl = input('');
@@ -41,20 +34,8 @@ export class FormContainerComponent {
   protected readonly isWarningStatus = signal(false);
   protected readonly isFormFinalized = signal(false);
   protected readonly storedSubmissionKey = signal('');
-  protected readonly formGroup = signal(
-    this.formSchemaFormService.buildForm({
-      key: 'placeholder',
-      properties: {},
-      formElements: []
-    }).formGroup
-  );
-  protected readonly steps = signal(
-    this.formSchemaFormService.buildSteps({
-      key: 'placeholder',
-      properties: {},
-      formElements: []
-    })
-  );
+  protected readonly formGroup = signal(new FormGroup({}));
+  protected readonly steps = signal<FormStep[]>([]);
   private initialValue: Record<string, unknown> = {};
 
   protected readonly currentStep = computed(() => this.steps()[this.currentStepIndex()] ?? null);
@@ -76,7 +57,13 @@ export class FormContainerComponent {
   protected readonly showFormBody = computed(() => !(this.hideFormOnSuccess() && this.submitSucceeded()));
   protected readonly validationCssClass = computed(() => (this.hasSubmitted() && this.formGroup().invalid ? 'ValidationFail' : 'ValidationSuccess'));
 
-  constructor() {
+  constructor(
+    @Inject(DOCUMENT) private readonly document: Document,
+    private readonly formConfirmationService: FormConfirmationService,
+    private readonly formNavigationService: FormNavigationService,
+    private readonly formSchemaFormService: FormSchemaFormService,
+    private readonly formSubmissionService: FormSubmissionService
+  ) {
     effect(() => {
       const builtForm = this.formSchemaFormService.buildForm(this.form());
       const savedDraft = this.formNavigationService.loadDraft(this.form().key);

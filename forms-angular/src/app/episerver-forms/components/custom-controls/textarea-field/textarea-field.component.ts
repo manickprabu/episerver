@@ -3,7 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'lib-control-textarea-field',
-  standalone: true,
+  standalone: false,
   template: `
     <textarea
       class="sample-control sample-control--textarea"

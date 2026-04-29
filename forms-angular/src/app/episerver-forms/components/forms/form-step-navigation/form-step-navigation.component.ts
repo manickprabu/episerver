@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 
 @Component({
   selector: 'lib-form-step-navigation',
-  standalone: true,
+  standalone: false,
   templateUrl: './form-step-navigation.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

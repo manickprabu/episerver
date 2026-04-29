@@ -8,7 +8,7 @@ export interface SelectFieldOption {
 
 @Component({
   selector: 'lib-control-select-field',
-  standalone: true,
+  standalone: false,
   template: `
     <select
       class="sample-control"

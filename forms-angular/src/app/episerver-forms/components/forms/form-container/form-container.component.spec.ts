@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { FormConfirmationService } from '../../../services/form-confirmation.service';
 import { FormNavigationService } from '../../../services/form-navigation.service';
 import { FormSubmissionService } from '../../../services/form-submission.service';
+import { EpiserverFormsModule } from '../../../episerver-forms.module';
 import { FormContainerComponent } from './form-container.component';
 import { sampleSupportRequestForm } from '../../../../features/forms/pages/form-container-page/form-container-page.schema';
 
@@ -63,7 +64,7 @@ describe('FormContainerComponent', () => {
     vi.mocked(navigationService.findNextStep).mockImplementation((_form, stepIndex) => Math.min(stepIndex + 1, 1));
 
     await TestBed.configureTestingModule({
-      imports: [FormContainerComponent],
+      imports: [EpiserverFormsModule],
       providers: [
         { provide: FormSubmissionService, useValue: submissionService },
         { provide: FormConfirmationService, useValue: confirmationService },

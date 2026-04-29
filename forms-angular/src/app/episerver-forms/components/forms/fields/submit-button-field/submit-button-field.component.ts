@@ -3,7 +3,7 @@ import { FormField } from '../../../../models/form-schema.model';
 
 @Component({
   selector: 'lib-submit-button-field',
-  standalone: true,
+  standalone: false,
   templateUrl: './submit-button-field.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

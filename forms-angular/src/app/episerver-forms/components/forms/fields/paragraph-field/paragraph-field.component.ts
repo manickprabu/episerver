@@ -3,7 +3,7 @@ import { FormField } from '../../../../models/form-schema.model';
 
 @Component({
   selector: 'lib-paragraph-field',
-  standalone: true,
+  standalone: false,
   templateUrl: './paragraph-field.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

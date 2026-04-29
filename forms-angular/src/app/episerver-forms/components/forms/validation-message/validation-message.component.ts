@@ -1,16 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 import { FormField } from '../../../models/form-schema.model';
 import { FormSchemaFormService } from '../../../services/form-schema-form.service';
 
 @Component({
   selector: 'lib-validation-message',
-  standalone: true,
+  standalone: false,
   templateUrl: './validation-message.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ValidationMessageComponent {
-  private readonly formSchemaFormService = inject(FormSchemaFormService);
+  
+  constructor(private readonly formSchemaFormService: FormSchemaFormService) {}
 
   readonly field = input.required<FormField>();
   readonly control = input<AbstractControl | null>(null);

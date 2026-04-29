@@ -51,7 +51,8 @@ const EPISERVER_FORMS_COMPONENTS = [
 ] as const;
 
 @NgModule({
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule, ...EPISERVER_FORMS_COMPONENTS],
+  declarations: [...EPISERVER_FORMS_COMPONENTS],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule],
   exports: [CommonModule, FormsModule, ReactiveFormsModule, ...EPISERVER_FORMS_COMPONENTS]
 })
 export class EpiserverFormsModule {}

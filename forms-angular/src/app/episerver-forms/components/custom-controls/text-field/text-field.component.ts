@@ -3,7 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'lib-control-text-field',
-  standalone: true,
+  standalone: false,
   template: `
     <input
       class="sample-control"

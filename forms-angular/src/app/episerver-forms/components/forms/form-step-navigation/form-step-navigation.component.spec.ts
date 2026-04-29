@@ -1,10 +1,11 @@
 import { TestBed } from '@angular/core/testing';
+import { EpiserverFormsModule } from '../../../episerver-forms.module';
 import { FormStepNavigationComponent } from './form-step-navigation.component';
 
 describe('FormStepNavigationComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FormStepNavigationComponent]
+      imports: [EpiserverFormsModule]
     }).compileComponents();
   });
 

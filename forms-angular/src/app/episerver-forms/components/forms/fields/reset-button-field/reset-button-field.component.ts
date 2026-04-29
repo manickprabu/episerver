@@ -3,7 +3,7 @@ import { FormField } from '../../../../models/form-schema.model';
 
 @Component({
   selector: 'lib-reset-button-field',
-  standalone: true,
+  standalone: false,
   templateUrl: './reset-button-field.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
