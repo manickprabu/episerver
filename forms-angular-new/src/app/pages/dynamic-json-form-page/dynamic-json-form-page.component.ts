@@ -1,8 +1,6 @@
 import { DOCUMENT } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 
 import { FormSubmission } from '../../episerver-forms/episerver-sdk';
 import { DynamicEpiServerForm } from '../../episerver-forms/models/dynamic-episerver-form.model';
@@ -11,7 +9,7 @@ import { DynamicFormAdapterService } from '../../episerver-forms/services/dynami
 import { FormNavigationService } from '../../episerver-forms/services/form-navigation.service';
 import { FormSchemaFormService } from '../../episerver-forms/services/form-schema-form.service';
 import { FormSubmissionService } from '../../episerver-forms/services/form-submission.service';
-import { SAMPLE_DYNAMIC_JSON_FORM } from './dynamic-json-form-page.data';
+import { DynamicJsonFormPageService } from './dynamic-json-form-page.service';
 
 @Component({
   selector: 'app-dynamic-json-form-page',
@@ -21,15 +19,16 @@ import { SAMPLE_DYNAMIC_JSON_FORM } from './dynamic-json-form-page.data';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DynamicJsonFormPageComponent {
-  protected readonly source: DynamicEpiServerForm = SAMPLE_DYNAMIC_JSON_FORM;
-  protected readonly form: FormSchema;
-  protected readonly formGroup: FormGroup;
-  protected readonly steps: FormStep[];
-  protected readonly baseUrl: string;
-  protected readonly draftModeLabel: string;
-  protected readonly progressLabel: string;
-  protected readonly nextButtonLabel: string;
-  protected readonly previousButtonLabel: string;
+  protected isLoading = true;
+  protected source!: DynamicEpiServerForm;
+  protected form!: FormSchema;
+  protected formGroup!: FormGroup;
+  protected steps: FormStep[] = [];
+  protected endpoint = '';
+  protected draftModeLabel = '';
+  protected progressLabel = 'Page';
+  protected nextButtonLabel = 'Next';
+  protected previousButtonLabel = 'Previous';
 
   protected currentStepIndex = 0;
   protected isSubmitting = false;
@@ -40,29 +39,23 @@ export class DynamicJsonFormPageComponent {
   protected submissionKey = '';
 
   constructor(
-    private readonly activatedRoute: ActivatedRoute,
     @Inject(DOCUMENT) private readonly document: Document,
-    private readonly httpClient: HttpClient,
     private readonly dynamicFormAdapterService: DynamicFormAdapterService,
     private readonly formNavigationService: FormNavigationService,
     private readonly formSchemaFormService: FormSchemaFormService,
-    private readonly formSubmissionService: FormSubmissionService
+    private readonly formSubmissionService: FormSubmissionService,
+    private readonly dynamicJsonFormPageService: DynamicJsonFormPageService
   ) {
-    this.form = this.dynamicFormAdapterService.adaptForm(this.source);
-    const builtForm = this.formSchemaFormService.buildForm(this.form);
-    this.formGroup = builtForm.formGroup;
-    this.steps = builtForm.steps;
-    this.submissionKey = this.dynamicFormAdapterService.initialSubmissionKey(this.source);
-    this.baseUrl = this.activatedRoute.snapshot.queryParamMap.get('baseUrl') ?? '';
-    this.draftModeLabel = this.baseUrl
-      ? 'Save progress to the form API as a partial submission.'
-      : 'Save progress locally. Add ?baseUrl=https://your-site/ to enable server partial submissions.';
-    this.progressLabel = this.form.localizations?.['pageButtonLabel'] || 'Page';
-    this.nextButtonLabel = this.form.localizations?.['nextButtonLabel'] || 'Next';
-    this.previousButtonLabel = this.form.localizations?.['previousButtonLabel'] || 'Previous';
+    this.endpoint = this.dynamicJsonFormPageService.endpoint;
+    this.draftModeLabel = 'Save progress to http://localhost:8000/test-episerver-form as a partial submission.';
 
-    this.patchDraftValues(this.formNavigationService.loadDraft(this.form));
-    this.currentStepIndex = this.formNavigationService.resolveInitialStepIndex(this.form, this.currentPageUrl());
+    this.dynamicJsonFormPageService.loadForm().subscribe({
+      next: (source) => this.initializeForm(source),
+      error: () => {
+        this.isLoading = false;
+        this.setWarningStatus('Unable to load form from http://localhost:8000/test-episerver-form.');
+      }
+    });
   }
 
   protected get validationCssClass(): string {
@@ -168,14 +161,6 @@ export class DynamicJsonFormPageComponent {
 
   protected savePartial(): void {
     this.persistNavigationState();
-
-    if (!this.baseUrl) {
-      this.submitSucceeded = false;
-      this.isWarningStatus = false;
-      this.statusMessage = 'Draft saved locally in session storage.';
-      return;
-    }
-
     this.submit(false);
   }
 
@@ -213,11 +198,6 @@ export class DynamicJsonFormPageComponent {
   }
 
   private submit(isFinalized: boolean): void {
-    if (!this.baseUrl) {
-      this.setWarningStatus('No base URL configured. Use ?baseUrl=https://your-site/ to send this form to the API.');
-      return;
-    }
-
     this.isSubmitting = true;
     const submissions = this.formSubmissionService.toFormSubmissions(this.form, this.formGroup);
     const model = this.formSubmissionService.buildSubmitModel(
@@ -230,8 +210,11 @@ export class DynamicJsonFormPageComponent {
       this.submissionKey
     );
 
-    this.httpClient
-      .put<FormSubmissionResult>(this.baseUrl + '_forms/v1/forms', this.toFormData(model), { headers: this.buildHeaders() })
+    const request = isFinalized
+      ? this.dynamicJsonFormPageService.submitFinal(this.source, model)
+      : this.dynamicJsonFormPageService.savePartial(this.source, model);
+
+    request
       .subscribe({
         next: (result) => {
           this.submissionKey = result.submissionKey ?? this.submissionKey;
@@ -266,66 +249,24 @@ export class DynamicJsonFormPageComponent {
     );
   }
 
-  private buildHeaders(): HttpHeaders | undefined {
-    const antiforgery = this.source.antiforgery;
-    if (!antiforgery) {
-      return undefined;
-    }
-
-    return new HttpHeaders({ [antiforgery.headerName]: antiforgery.token });
-  }
-
-  private toFormData(model: { formKey: string; locale: string; isFinalized: boolean; partialSubmissionKey: string; hostedPageUrl: string; currentStepIndex: number; submissionData: FormSubmission[] }): FormData {
-    const formData = new FormData();
-    const fields: Record<string, unknown> = {};
-
-    model.submissionData.forEach((submission) => {
-      const value = submission.value;
-      if (value === null || value === undefined || value === '') {
-        return;
-      }
-
-      if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object') {
-        const files = value as Array<{ name: string; file?: File }>;
-        let fileNames = '';
-
-        for (let index = 0; index < files.length; index += 1) {
-          const file = files[index].file;
-          if (file) {
-            formData.append(submission.elementKey + '_file_' + index, file);
-          }
-
-          if (index > 0) {
-            fileNames += ' | ';
-          }
-          fileNames += files[index].name;
-        }
-
-        fields[submission.elementKey] = fileNames;
-        return;
-      }
-
-      fields[submission.elementKey] = value;
-    });
-
-    formData.append(
-      'data',
-      JSON.stringify({
-        FormKey: model.formKey,
-        Locale: model.locale,
-        IsFinalized: model.isFinalized,
-        SubmissionKey: model.partialSubmissionKey,
-        HostedPageUrl: model.hostedPageUrl,
-        CurrentStep: model.currentStepIndex,
-        Fields: fields
-      })
-    );
-
-    return formData;
-  }
-
   private currentPageUrl(): string {
     return this.document.location?.href || this.document.baseURI || '';
+  }
+
+  private initializeForm(source: DynamicEpiServerForm): void {
+    this.source = source;
+    this.form = this.dynamicFormAdapterService.adaptForm(source);
+    const builtForm = this.formSchemaFormService.buildForm(this.form);
+    this.formGroup = builtForm.formGroup;
+    this.steps = builtForm.steps;
+    this.submissionKey = this.dynamicFormAdapterService.initialSubmissionKey(source);
+    this.progressLabel = this.form.localizations?.['pageButtonLabel'] || 'Page';
+    this.nextButtonLabel = this.form.localizations?.['nextButtonLabel'] || 'Next';
+    this.previousButtonLabel = this.form.localizations?.['previousButtonLabel'] || 'Previous';
+
+    this.patchDraftValues(this.formNavigationService.loadDraft(this.form));
+    this.currentStepIndex = this.formNavigationService.resolveInitialStepIndex(this.form, this.currentPageUrl());
+    this.isLoading = false;
   }
 
   private focusFirstInvalidControl(allowedKeys?: string[]): void {
