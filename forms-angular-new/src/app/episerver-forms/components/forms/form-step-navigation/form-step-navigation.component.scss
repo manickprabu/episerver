@@ -1,0 +1,51 @@
+.Form__NavigationBar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.Form__NavigationBar__Action {
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+  border: 1px solid rgba(41, 128, 189, 0.5);
+  border-radius: 4px;
+  font-size: inherit;
+  min-height: 2.5rem;
+  min-width: 8rem;
+  color: inherit;
+  background-image: linear-gradient(to top, #fff, #e6e6e6);
+}
+
+.Form__NavigationBar__Action:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.Form__NavigationBar__ProgressBar {
+  position: relative;
+  flex: 1;
+  border: 1px solid rgba(41, 128, 189, 0.5);
+  height: 1rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.Form__NavigationBar__ProgressBar--Progress {
+  background-color: rgba(41, 128, 189, 0.5);
+  height: 100%;
+}
+
+.Form__NavigationBar__ProgressBar--Text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  min-width: 4.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1f2937;
+}

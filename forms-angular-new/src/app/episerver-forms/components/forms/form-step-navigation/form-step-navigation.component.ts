@@ -4,6 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
   selector: 'lib-form-step-navigation',
   standalone: false,
   templateUrl: './form-step-navigation.component.html',
+  styleUrls: ['./form-step-navigation.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormStepNavigationComponent {
