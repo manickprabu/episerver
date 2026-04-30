@@ -1,0 +1,24 @@
+<lib-element-wrapper className="FormChoice FormChoice--Image" [control]="control()" [submitted]="submitted()">
+  <fieldset [attr.aria-describedby]="field().key + '_desc'">
+    <lib-element-caption [field]="field()" [variant]="'legend'" />
+    @for (item of field().properties.items ?? []; track item.text; let idx = $index) {
+      <label [for]="field().key + '_' + idx" class="FormChoice--Image__Item">
+        <input
+          [id]="field().key + '_' + idx"
+          [type]="field().properties.allowMultiSelect ? 'checkbox' : 'radio'"
+          [checked]="isChecked(item.text)"
+          [value]="item.text || ''"
+          [class]="field().properties.allowMultiSelect ? 'FormChoice__Input FormChoice__Input--Checkbox' : 'FormChoice__Input FormChoice__Input--Radio'"
+          [class.visually-hidden]="field().properties.showSelectionInputControl === false"
+          [attr.title]="field().properties.description || null"
+          (change)="toggleValue(item.text, $any($event.target).checked)"
+        />
+        <span class="FormChoice--Image__Item__Caption">{{ item.text }}</span>
+        @if (item.url) {
+          <img [src]="item.url" [title]="item.title || item.text || ''" [alt]="item.title || item.text || ''" />
+        }
+      </label>
+    }
+  </fieldset>
+  <lib-validation-message [field]="field()" [control]="control()" [submitted]="submitted()" />
+</lib-element-wrapper>

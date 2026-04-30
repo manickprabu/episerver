@@ -1,0 +1,14 @@
+<lib-element-wrapper className="FormFileUpload" [control]="control()" [submitted]="submitted()">
+  <lib-element-caption [field]="field()" [forId]="field().key" />
+  <input
+    [id]="field().key"
+    type="file"
+    class="FormFileUpload__Input"
+    [multiple]="!!field().properties.allowMultiple"
+    [attr.accept]="field().properties.fileTypes || null"
+    [attr.title]="field().properties.description || null"
+    [attr.aria-describedby]="field().key + '_desc'"
+    (change)="onFileChange($event)"
+  />
+  <lib-validation-message [field]="field()" [control]="control()" [submitted]="submitted()" />
+</lib-element-wrapper>

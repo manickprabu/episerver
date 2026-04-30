@@ -1,0 +1,14 @@
+<lib-element-wrapper className="FormTextbox FormTextbox--Number" [control]="control()" [submitted]="submitted()">
+  <lib-element-caption [field]="field()" [forId]="field().key" />
+  <input
+    [id]="field().key"
+    [formControl]="$any(control())"
+    type="number"
+    step="any"
+    class="FormTextbox__Input"
+    [attr.placeholder]="field().properties.placeHolder || null"
+    [attr.title]="field().properties.description || null"
+    [attr.aria-describedby]="field().key + '_desc'"
+  />
+  <lib-validation-message [field]="field()" [control]="control()" [submitted]="submitted()" />
+</lib-element-wrapper>

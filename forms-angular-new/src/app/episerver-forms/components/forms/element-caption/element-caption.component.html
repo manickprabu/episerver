@@ -1,0 +1,13 @@
+@if (field().properties.label) {
+  @switch (variant()) {
+    @case ('legend') {
+      <legend class="Form__Element__Caption">{{ field().properties.label }}</legend>
+    }
+    @case ('div') {
+      <div class="Form__Element__Caption">{{ field().properties.label }}</div>
+    }
+    @default {
+      <label [for]="forId() || field().key" class="Form__Element__Caption">{{ field().properties.label }}</label>
+    }
+  }
+}

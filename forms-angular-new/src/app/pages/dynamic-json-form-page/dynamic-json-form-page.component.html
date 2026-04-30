@@ -1,0 +1,90 @@
+<section class="dynamic-json-form-page">
+  <div class="dynamic-json-form-page__meta">
+    <p><strong>Form name:</strong> {{ source.name }}</p>
+    <p><strong>Form GUID:</strong> {{ source.contentGuid }}</p>
+    <p><strong>Partial submit:</strong> {{ draftModeLabel }}</p>
+  </div>
+
+  <form class="EPiServerForms {{ validationCssClass }}" [formGroup]="formGroup" (ngSubmit)="submitFinal()" novalidate>
+    @if (form.properties.title) {
+      <h2 class="Form__Title">{{ form.properties.title }}</h2>
+    }
+
+    <div class="Form__Status">
+      @if (statusMessage) {
+        <div
+          role="status"
+          class="Form__Status__Message"
+          [class.Form__Success__Message]="submitSucceeded"
+          [class.Form__Warning__Message]="isWarningStatus"
+        >
+          <div [innerHTML]="statusMessage"></div>
+        </div>
+      }
+    </div>
+
+    <div class="Form__MainBody dynamic-json-form-page__accordion">
+      @for (step of steps; track trackStep($index, step); let stepIndex = $index) {
+        <section
+          class="dynamic-json-form-page__accordion-item"
+          [class.dynamic-json-form-page__accordion-item--open]="isStepOpen(stepIndex)"
+          [class.dynamic-json-form-page__accordion-item--complete]="isStepComplete(stepIndex)"
+          [class.dynamic-json-form-page__accordion-item--locked]="!isStepAccessible(stepIndex)"
+        >
+          <button
+            type="button"
+            class="dynamic-json-form-page__accordion-trigger"
+            [attr.aria-expanded]="isStepOpen(stepIndex)"
+            [attr.aria-controls]="'accordion-panel-' + stepIndex"
+            [disabled]="!isStepAccessible(stepIndex)"
+            (click)="openStep(stepIndex)"
+          >
+            <span>{{ stepHeading(step, stepIndex) }}</span>
+            <span class="dynamic-json-form-page__accordion-state">
+              @if (isStepComplete(stepIndex)) {
+                Complete
+              } @else if (isStepAccessible(stepIndex)) {
+                In progress
+              } @else {
+                Locked
+              }
+            </span>
+          </button>
+
+          @if (isStepOpen(stepIndex)) {
+            <div [id]="'accordion-panel-' + stepIndex" class="dynamic-json-form-page__accordion-panel">
+              <section class="Form__Element__Step">
+                @for (field of visibleStepFields(step); track field.key) {
+                  <lib-dynamic-field
+                    [field]="field"
+                    [formGroup]="formGroup"
+                    [submitted]="hasSubmitted"
+                    [submitDisabled]="isSubmitting"
+                    (reset)="handleReset()"
+                  />
+                }
+              </section>
+
+              <div class="dynamic-json-form-page__actions">
+                <button type="button" class="dynamic-json-form-page__draft" [disabled]="isSubmitting" (click)="savePartial()">
+                  Save progress
+                </button>
+              </div>
+
+              <lib-form-step-navigation
+                [currentStepIndex]="currentStepIndex"
+                [stepCount]="steps.length"
+                [showNavigation]="hasMultipleSteps"
+                [previousButtonLabel]="previousButtonLabel"
+                [nextButtonLabel]="nextButtonLabel"
+                [progressLabel]="progressLabel"
+                (previous)="previousStep()"
+                (next)="nextStep()"
+              />
+            </div>
+          }
+        </section>
+      }
+    </div>
+  </form>
+</section>

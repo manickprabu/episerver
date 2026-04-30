@@ -1,0 +1,387 @@
+import { DOCUMENT } from '@angular/common';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+
+import { FormSubmission } from '../../episerver-forms/sdk';
+import { DynamicEpiServerForm } from '../../episerver-forms/models/dynamic-episerver-form.model';
+import { FormField, FormSchema, FormStep, FormSubmissionResult } from '../../episerver-forms/models/form-schema.model';
+import { DynamicFormAdapterService } from '../../episerver-forms/services/dynamic-form-adapter.service';
+import { FormNavigationService } from '../../episerver-forms/services/form-navigation.service';
+import { FormSchemaFormService } from '../../episerver-forms/services/form-schema-form.service';
+import { FormSubmissionService } from '../../episerver-forms/services/form-submission.service';
+import { SAMPLE_DYNAMIC_JSON_FORM } from './dynamic-json-form-page.data';
+
+@Component({
+  selector: 'app-dynamic-json-form-page',
+  standalone: false,
+  templateUrl: './dynamic-json-form-page.component.html',
+  styleUrl: './dynamic-json-form-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class DynamicJsonFormPageComponent {
+  protected readonly source: DynamicEpiServerForm = SAMPLE_DYNAMIC_JSON_FORM;
+  protected readonly form: FormSchema;
+  protected readonly formGroup: FormGroup;
+  protected readonly steps: FormStep[];
+  protected readonly baseUrl: string;
+  protected readonly draftModeLabel: string;
+  protected readonly progressLabel: string;
+  protected readonly nextButtonLabel: string;
+  protected readonly previousButtonLabel: string;
+
+  protected currentStepIndex = 0;
+  protected isSubmitting = false;
+  protected hasSubmitted = false;
+  protected submitSucceeded = false;
+  protected isWarningStatus = false;
+  protected statusMessage = '';
+  protected submissionKey = '';
+
+  constructor(
+    private readonly activatedRoute: ActivatedRoute,
+    @Inject(DOCUMENT) private readonly document: Document,
+    private readonly httpClient: HttpClient,
+    private readonly dynamicFormAdapterService: DynamicFormAdapterService,
+    private readonly formNavigationService: FormNavigationService,
+    private readonly formSchemaFormService: FormSchemaFormService,
+    private readonly formSubmissionService: FormSubmissionService
+  ) {
+    this.form = this.dynamicFormAdapterService.adaptForm(this.source);
+    const builtForm = this.formSchemaFormService.buildForm(this.form);
+    this.formGroup = builtForm.formGroup;
+    this.steps = builtForm.steps;
+    this.submissionKey = this.dynamicFormAdapterService.initialSubmissionKey(this.source);
+    this.baseUrl = this.activatedRoute.snapshot.queryParamMap.get('baseUrl') ?? '';
+    this.draftModeLabel = this.baseUrl
+      ? 'Save progress to the form API as a partial submission.'
+      : 'Save progress locally. Add ?baseUrl=https://your-site/ to enable server partial submissions.';
+    this.progressLabel = this.form.localizations?.['pageButtonLabel'] || 'Page';
+    this.nextButtonLabel = this.form.localizations?.['nextButtonLabel'] || 'Next';
+    this.previousButtonLabel = this.form.localizations?.['previousButtonLabel'] || 'Previous';
+
+    this.patchDraftValues(this.formNavigationService.loadDraft(this.form));
+    this.currentStepIndex = this.formNavigationService.resolveInitialStepIndex(this.form, this.currentPageUrl());
+  }
+
+  protected get validationCssClass(): string {
+    return this.hasSubmitted && this.formGroup.invalid ? 'ValidationFail' : 'ValidationSuccess';
+  }
+
+  protected get hasMultipleSteps(): boolean {
+    return this.steps.length > 1;
+  }
+
+  protected get canGoPrevious(): boolean {
+    return this.currentStepIndex > 0;
+  }
+
+  protected get canGoNext(): boolean {
+    return this.currentStepIndex < this.steps.length - 1;
+  }
+
+  protected nextStep(): void {
+    const step = this.steps[this.currentStepIndex];
+    if (!step) {
+      return;
+    }
+
+    const submissions = this.formSubmissionService.collectCurrentStepSubmissions(this.form, this.formGroup, this.currentStepIndex, []);
+    const fieldKeys = this.visibleStepFields(step).map((field) => field.key);
+    this.formSubmissionService.clearValidationResults(this.formGroup, fieldKeys);
+    const results = this.formSubmissionService.validateStep(this.form, submissions);
+    this.formSubmissionService.applyValidationResults(this.formGroup, results);
+    this.markControlsTouched(step);
+
+    if (results.some((result) => !result.result.valid)) {
+      this.hasSubmitted = true;
+      this.focusFirstInvalidControl(fieldKeys);
+      return;
+    }
+
+    if (this.canGoNext) {
+      const nextStepIndex = this.formNavigationService.findNextStep(this.form, this.currentStepIndex, []);
+      this.openStep(nextStepIndex);
+    }
+  }
+
+  protected previousStep(): void {
+    if (!this.canGoPrevious) {
+      return;
+    }
+
+    const previousStepIndex = this.formNavigationService.findPreviousStep(this.form, this.currentStepIndex, []);
+    this.openStep(previousStepIndex);
+  }
+
+  protected openStep(stepIndex: number): void {
+    if (!this.isStepAccessible(stepIndex)) {
+      return;
+    }
+
+    this.currentStepIndex = stepIndex;
+    this.persistNavigationState();
+  }
+
+  protected isStepOpen(stepIndex: number): boolean {
+    return this.currentStepIndex === stepIndex;
+  }
+
+  protected isStepAccessible(stepIndex: number): boolean {
+    if (stepIndex <= 0) {
+      return true;
+    }
+
+    for (let index = 0; index < stepIndex; index += 1) {
+      if (!this.isStepComplete(index)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  protected isStepComplete(stepIndex: number): boolean {
+    const step = this.steps[stepIndex];
+    if (!step) {
+      return false;
+    }
+
+    const controls = this.controlsForStep(step);
+    return controls.length === 0 || controls.every((control) => control.valid);
+  }
+
+  protected stepHeading(step: FormStep, stepIndex: number): string {
+    const stepProperties = (step.formStep.properties ?? {}) as Record<string, unknown>;
+    const label = stepProperties['label'];
+    if (label && !step.formStep.key.endsWith('-step-0')) {
+      return String(label);
+    }
+
+    return 'Step ' + (stepIndex + 1);
+  }
+
+  protected visibleStepFields(step: FormStep): FormField[] {
+    return step.elements.filter((field) => field.contentType !== 'FormStepBlock') as FormField[];
+  }
+
+  protected savePartial(): void {
+    this.persistNavigationState();
+
+    if (!this.baseUrl) {
+      this.submitSucceeded = false;
+      this.isWarningStatus = false;
+      this.statusMessage = 'Draft saved locally in session storage.';
+      return;
+    }
+
+    this.submit(false);
+  }
+
+  protected submitFinal(): void {
+    this.hasSubmitted = true;
+
+    const fieldKeys = this.form.formElements.filter((field) => field.contentType !== 'FormStepBlock').map((field) => field.key);
+    const submissions = this.formSubmissionService.toFormSubmissions(this.form, this.formGroup);
+    this.formSubmissionService.clearValidationResults(this.formGroup, fieldKeys);
+    const results = this.formSubmissionService.validateStep(this.form, submissions);
+    this.formSubmissionService.applyValidationResults(this.formGroup, results);
+    this.markAllControlsTouched();
+
+    if (results.some((result) => !result.result.valid)) {
+      this.focusFirstInvalidControl(fieldKeys);
+      return;
+    }
+
+    this.submit(true);
+  }
+
+  protected handleReset(): void {
+    this.formGroup.reset(this.formSchemaFormService.buildForm(this.form).initialValue);
+    this.currentStepIndex = 0;
+    this.hasSubmitted = false;
+    this.submitSucceeded = false;
+    this.isWarningStatus = false;
+    this.statusMessage = '';
+    this.submissionKey = this.dynamicFormAdapterService.initialSubmissionKey(this.source);
+    this.formNavigationService.clearNavigationState(this.form);
+  }
+
+  protected trackStep(_index: number, step: FormStep): string {
+    return step.formStep.key;
+  }
+
+  private submit(isFinalized: boolean): void {
+    if (!this.baseUrl) {
+      this.setWarningStatus('No base URL configured. Use ?baseUrl=https://your-site/ to send this form to the API.');
+      return;
+    }
+
+    this.isSubmitting = true;
+    const submissions = this.formSubmissionService.toFormSubmissions(this.form, this.formGroup);
+    const model = this.formSubmissionService.buildSubmitModel(
+      this.form,
+      submissions,
+      this.currentStepIndex,
+      this.currentPageUrl(),
+      undefined,
+      isFinalized,
+      this.submissionKey
+    );
+
+    this.httpClient
+      .put<FormSubmissionResult>(this.baseUrl + '_forms/v1/forms', this.toFormData(model), { headers: this.buildHeaders() })
+      .subscribe({
+        next: (result) => {
+          this.submissionKey = result.submissionKey ?? this.submissionKey;
+          this.submitSucceeded = !!(result.success && isFinalized);
+          this.isWarningStatus = false;
+          this.statusMessage =
+            result.messages?.map((message) => message.message).join('<br>') ||
+            (isFinalized ? this.form.properties.submitSuccessMessage || 'Thanks, your form has been submitted.' : 'Draft saved.');
+          this.isSubmitting = false;
+
+          if (isFinalized && result.success) {
+            this.formNavigationService.clearNavigationState(this.form);
+          } else {
+            this.persistNavigationState();
+          }
+        },
+        error: (error: unknown) => {
+          const problem = error as { detail?: string; errors?: Record<string, string[]> };
+          this.formSubmissionService.applyServerValidation(this.formGroup, problem as never);
+          this.setWarningStatus(problem?.detail || 'Form submission failed.');
+          this.isSubmitting = false;
+          this.focusFirstInvalidControl();
+        }
+      });
+  }
+
+  private persistNavigationState(): void {
+    this.formNavigationService.goToStep(
+      this.form,
+      this.currentStepIndex,
+      this.formSubmissionService.toFormSubmissions(this.form, this.formGroup)
+    );
+  }
+
+  private buildHeaders(): HttpHeaders | undefined {
+    const antiforgery = this.source.antiforgery;
+    if (!antiforgery) {
+      return undefined;
+    }
+
+    return new HttpHeaders({ [antiforgery.headerName]: antiforgery.token });
+  }
+
+  private toFormData(model: { formKey: string; locale: string; isFinalized: boolean; partialSubmissionKey: string; hostedPageUrl: string; currentStepIndex: number; submissionData: FormSubmission[] }): FormData {
+    const formData = new FormData();
+    const fields: Record<string, unknown> = {};
+
+    model.submissionData.forEach((submission) => {
+      const value = submission.value;
+      if (value === null || value === undefined || value === '') {
+        return;
+      }
+
+      if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object') {
+        const files = value as Array<{ name: string; file?: File }>;
+        let fileNames = '';
+
+        for (let index = 0; index < files.length; index += 1) {
+          const file = files[index].file;
+          if (file) {
+            formData.append(submission.elementKey + '_file_' + index, file);
+          }
+
+          if (index > 0) {
+            fileNames += ' | ';
+          }
+          fileNames += files[index].name;
+        }
+
+        fields[submission.elementKey] = fileNames;
+        return;
+      }
+
+      fields[submission.elementKey] = value;
+    });
+
+    formData.append(
+      'data',
+      JSON.stringify({
+        FormKey: model.formKey,
+        Locale: model.locale,
+        IsFinalized: model.isFinalized,
+        SubmissionKey: model.partialSubmissionKey,
+        HostedPageUrl: model.hostedPageUrl,
+        CurrentStep: model.currentStepIndex,
+        Fields: fields
+      })
+    );
+
+    return formData;
+  }
+
+  private currentPageUrl(): string {
+    return this.document.location?.href || this.document.baseURI || '';
+  }
+
+  private focusFirstInvalidControl(allowedKeys?: string[]): void {
+    const invalidKey = this.formSubmissionService.firstInvalidControlKey(this.formGroup, allowedKeys);
+    if (!invalidKey) {
+      return;
+    }
+
+    const invalidElement = this.document.getElementById(invalidKey) as HTMLElement | null;
+    invalidElement?.focus();
+  }
+
+  private controlsForStep(step: FormStep) {
+    return this.visibleStepFields(step)
+      .map((field) => this.formGroup.get(field.key))
+      .filter((control): control is NonNullable<typeof control> => !!control);
+  }
+
+  private markControlsTouched(step: FormStep): void {
+    this.controlsForStep(step).forEach((control) => control.markAsTouched());
+  }
+
+  private markAllControlsTouched(): void {
+    Object.values(this.formGroup.controls).forEach((control) => control.markAsTouched());
+  }
+
+  private patchDraftValues(submissions: FormSubmission[]): void {
+    if (!submissions.length) {
+      return;
+    }
+
+    const patch: Record<string, unknown> = {};
+
+    submissions.forEach((submission) => {
+      const field = this.form.formElements.find((item) => item.key === submission.elementKey);
+      if (!field) {
+        return;
+      }
+
+      patch[submission.elementKey] = this.normalizeDraftValue(field as FormField, submission.value);
+    });
+
+    this.formGroup.patchValue(patch);
+  }
+
+  private normalizeDraftValue(field: FormField, value: unknown): unknown {
+    if (typeof value === 'string' && field.properties.allowMultiSelect) {
+      return value ? value.split(',').filter(Boolean) : [];
+    }
+
+    return value;
+  }
+
+  private setWarningStatus(message: string): void {
+    this.submitSucceeded = false;
+    this.isWarningStatus = true;
+    this.statusMessage = message;
+  }
+}

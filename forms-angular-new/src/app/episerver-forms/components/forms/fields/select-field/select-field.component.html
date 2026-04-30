@@ -1,0 +1,22 @@
+<lib-element-wrapper className="FormSelection" [control]="control()" [submitted]="submitted()">
+  <lib-element-caption [field]="field()" [forId]="field().key" />
+  <select
+    [id]="field().key"
+    [multiple]="!!field().properties.allowMultiSelect"
+    [value]="$any(control())?.value"
+    [attr.aria-describedby]="field().key + '_desc'"
+    [attr.autocomplete]="field().properties.autoComplete || null"
+    [attr.title]="field().properties.description || null"
+    (change)="field().properties.allowMultiSelect ? onMultiSelectChange($event) : onSingleSelectChange($any($event.target).value)"
+  >
+    @if (!field().properties.allowMultiSelect) {
+      <option value="" [disabled]="$any(control())?.value !== ''">
+        {{ field().properties.placeHolder || field().localizations['selectionDefaultPlaceholder'] || 'Select an option' }}
+      </option>
+    }
+    @for (item of field().properties.items ?? []; track item.value) {
+      <option [value]="item.value || ''">{{ item.caption }}</option>
+    }
+  </select>
+  <lib-validation-message [field]="field()" [control]="control()" [submitted]="submitted()" />
+</lib-element-wrapper>

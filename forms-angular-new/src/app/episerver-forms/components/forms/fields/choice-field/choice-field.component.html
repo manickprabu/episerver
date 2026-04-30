@@ -1,0 +1,21 @@
+<lib-element-wrapper className="FormChoice" [control]="control()" [submitted]="submitted()">
+  <fieldset [attr.aria-describedby]="field().key + '_desc'">
+    <lib-element-caption [field]="field()" [variant]="'legend'" />
+    @for (item of field().properties.items ?? []; track item.value; let idx = $index) {
+      <div>
+        <input
+          [id]="field().key + '_' + idx"
+          [name]="field().key"
+          [type]="field().properties.allowMultiSelect ? 'checkbox' : 'radio'"
+          [class]="field().properties.allowMultiSelect ? 'FormChoice__Input FormChoice__Input--Checkbox' : 'FormChoice__Input FormChoice__Input--Radio'"
+          [checked]="isChecked(item.value)"
+          [value]="item.value || ''"
+          [attr.title]="field().properties.description || null"
+          (change)="toggleValue(item.value, $any($event.target).checked)"
+        />
+        <label [for]="field().key + '_' + idx" class="FormChoice__Label">{{ item.caption }}</label>
+      </div>
+    }
+  </fieldset>
+  <lib-validation-message [field]="field()" [control]="control()" [submitted]="submitted()" />
+</lib-element-wrapper>

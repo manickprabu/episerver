@@ -1,0 +1,7 @@
+@if ((field().properties.forms_ExternalSystemsFieldMappings?.length ?? 0) > 0) {
+  <datalist [id]="field().key + '_datalist'">
+    @for (item of field().properties.forms_ExternalSystemsFieldMappings ?? []; track item) {
+      <option [value]="item"></option>
+    }
+  </datalist>
+}

@@ -1,0 +1,15 @@
+<lib-element-wrapper className="FormTextbox" [control]="control()" [submitted]="submitted()">
+  <lib-element-caption [field]="field()" [forId]="field().key" />
+  <input
+    [id]="field().key"
+    [formControl]="$any(control())"
+    type="text"
+    class="FormTextbox__Input"
+    [attr.placeholder]="field().properties.placeHolder || null"
+    [attr.title]="field().properties.description || null"
+    [attr.aria-describedby]="field().key + '_desc'"
+    [attr.autocomplete]="field().properties.autoComplete || null"
+  />
+  <lib-validation-message [field]="field()" [control]="control()" [submitted]="submitted()" />
+  <lib-data-list [field]="field()" />
+</lib-element-wrapper>

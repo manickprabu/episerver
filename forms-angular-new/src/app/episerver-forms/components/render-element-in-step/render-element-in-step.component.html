@@ -1,0 +1,11 @@
+@for (field of elements(); track field.key) {
+  @if (!inactiveElements().includes(field.key)) {
+    <lib-render-element
+      [field]="field"
+      [formGroup]="formGroup()"
+      [submitted]="submitted()"
+      [submitDisabled]="submitDisabled()"
+      (reset)="reset.emit()"
+    />
+  }
+}
