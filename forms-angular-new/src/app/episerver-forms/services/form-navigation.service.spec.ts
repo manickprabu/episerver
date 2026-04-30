@@ -2,7 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
-import { EpiserverFormsSdkModule, FormSubmission } from '../../episerver-forms/sdk';
+import { EpiserverFormsSdkModule, FormSubmission } from '../../episerver-forms/episerver-sdk';
 import { FormSchema } from '../models/form-schema.model';
 import { FormNavigationService } from './form-navigation.service';
 

@@ -6,7 +6,7 @@ import {
   FormCacheService,
   FormConstants,
   IdentityInfo
-} from '../../episerver-forms/sdk';
+} from '../../episerver-forms/episerver-sdk';
 
 @Injectable()
 export class FormAuthService {

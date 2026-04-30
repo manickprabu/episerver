@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnChanges, SimpleChanges, input } from '@angular/core';
 
-import { StepBuilderService, IdentityInfo } from '../../sdk';
+import { StepBuilderService, IdentityInfo } from '../../episerver-sdk';
 import { FormSchema } from '../../models/form-schema.model';
 
 @Component({

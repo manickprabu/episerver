@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
-import { FormSubmission } from '../../episerver-forms/sdk';
+import { FormSubmission } from '../../episerver-forms/episerver-sdk';
 import { DynamicEpiServerForm } from '../../episerver-forms/models/dynamic-episerver-form.model';
 import { FormField, FormSchema, FormStep, FormSubmissionResult } from '../../episerver-forms/models/form-schema.model';
 import { DynamicFormAdapterService } from '../../episerver-forms/services/dynamic-form-adapter.service';
@@ -17,7 +17,7 @@ import { SAMPLE_DYNAMIC_JSON_FORM } from './dynamic-json-form-page.data';
   selector: 'app-dynamic-json-form-page',
   standalone: false,
   templateUrl: './dynamic-json-form-page.component.html',
-  styleUrl: './dynamic-json-form-page.component.scss',
+  styleUrls: ['./dynamic-json-form-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DynamicJsonFormPageComponent {

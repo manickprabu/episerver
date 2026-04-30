@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-import { IdentityInfo } from '../../sdk';
+import { IdentityInfo } from '../../episerver-sdk';
 import { FormSchema } from '../../models/form-schema.model';
 
 @Component({

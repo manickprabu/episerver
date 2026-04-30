@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 
-import { StepBuilderService } from '../../episerver-forms/sdk';
+import { StepBuilderService } from '../../episerver-forms/episerver-sdk';
 import { FormField, FormFieldOption, FormFieldValidator, FormSchema, FormStep, ValidatorType } from '../models/form-schema.model';
 
 export interface BuiltForm {

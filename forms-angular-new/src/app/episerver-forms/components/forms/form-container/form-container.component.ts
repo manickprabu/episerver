@@ -10,7 +10,7 @@ import {
   FormValidationResult,
   StepHelperService,
   htmlDecodeEntities
-} from '../../../sdk';
+} from '../../../episerver-sdk';
 import { FormSchema, FormServerValidationError, FormSubmissionResult, IdentityInfo } from '../../../models/form-schema.model';
 import { FormAuthService } from '../../../services/form-auth.service';
 import { FormConfirmationService } from '../../../services/form-confirmation.service';
@@ -22,7 +22,7 @@ import { FormSubmissionService } from '../../../services/form-submission.service
   selector: 'lib-form-container',
   standalone: false,
   templateUrl: './form-container.component.html',
-  styleUrl: './form-container.component.scss',
+  styleUrls: ['./form-container.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormContainerComponent {

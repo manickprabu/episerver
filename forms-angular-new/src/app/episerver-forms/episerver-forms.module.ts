@@ -3,7 +3,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { EpiserverFormsSdkModule } from './sdk';
+import { EpiserverFormsSdkModule } from './episerver-sdk';
 import { FormBodyComponent } from './components/form-body/form-body.component';
 import { FormContainerBlockComponent } from './components/form-container-block/form-container-block.component';
 import { FormComponent } from './components/form/form.component';

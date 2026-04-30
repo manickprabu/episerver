@@ -7,7 +7,7 @@ import {
   FormSubmitModel,
   FormSubmitService as SdkFormSubmitService,
   FormValidationResult
-} from '../../episerver-forms/sdk';
+} from '../../episerver-forms/episerver-sdk';
 import { FormField, FormSchema, FormServerValidationError, FormSubmissionResult } from '../models/form-schema.model';
 
 @Injectable()

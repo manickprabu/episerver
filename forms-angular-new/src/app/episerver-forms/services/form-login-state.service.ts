@@ -1,7 +1,7 @@
 import { DestroyRef, Injectable, signal } from '@angular/core';
 import { catchError, EMPTY, finalize, interval, map, Observable, startWith } from 'rxjs';
 
-import { IdentityInfo } from '../../episerver-forms/sdk';
+import { IdentityInfo } from '../../episerver-forms/episerver-sdk';
 import { FormAuthService } from './form-auth.service';
 
 @Injectable()

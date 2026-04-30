@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
 
-import { FormLoaderService as SdkFormLoaderService } from '../../episerver-forms/sdk';
+import { FormLoaderService as SdkFormLoaderService } from '../../episerver-forms/episerver-sdk';
 import { FormSchema } from '../models/form-schema.model';
 
 export interface UseFormLoaderProps {

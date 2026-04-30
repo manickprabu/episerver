@@ -1,7 +1,7 @@
-import type { AnyFormElementProperties, FeedItem, FormContainer, FormContainerProperties, FormElementBase, Step } from '../../episerver-forms/sdk';
-import { ElementValidatorBase, FormSubmitModel, FormSubmitResult, FormValidationResult, IdentityInfo, ProblemDetail, ValidatorType } from '../../episerver-forms/sdk';
+import type { AnyFormElementProperties, FeedItem, FormContainer, FormContainerProperties, FormElementBase, Step } from '../../episerver-forms/episerver-sdk';
+import { ElementValidatorBase, FormSubmitModel, FormSubmitResult, FormValidationResult, IdentityInfo, ProblemDetail, ValidatorType } from '../../episerver-forms/episerver-sdk';
 
-export type { IdentityInfo, FormSubmission, FormValidationResult, FormSubmitModel } from '../../episerver-forms/sdk';
+export type { IdentityInfo, FormSubmission, FormValidationResult, FormSubmitModel } from '../../episerver-forms/episerver-sdk';
 export { ValidatorType };
 
 export interface FormFieldOption extends FeedItem {

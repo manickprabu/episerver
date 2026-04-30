@@ -10,7 +10,7 @@ import {
   FormSubmission,
   StepDependConditionService,
   StepHelperService
-} from '../../episerver-forms/sdk';
+} from '../../episerver-forms/episerver-sdk';
 import { FormSchema } from '../models/form-schema.model';
 
 @Injectable()

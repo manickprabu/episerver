@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
 
-import { EpiserverFormsSdkModule } from '../../episerver-forms/sdk';
+import { EpiserverFormsSdkModule } from '../../episerver-forms/episerver-sdk';
 import { FormSchema } from '../models/form-schema.model';
 import { FormSubmissionService } from './form-submission.service';
 

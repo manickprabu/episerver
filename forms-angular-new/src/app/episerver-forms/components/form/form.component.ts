@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, input } from '@angular/core';
 import { Subscription } from 'rxjs';
 
-import { IdentityInfo } from '../../sdk';
+import { IdentityInfo } from '../../episerver-sdk';
 import { FormSchema } from '../../models/form-schema.model';
 import { FormLoaderService } from '../../services/form-loader.service';
 

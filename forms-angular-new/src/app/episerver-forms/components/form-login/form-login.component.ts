@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, Signal, computed, input, output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { IdentityInfo } from '../../sdk';
+import { IdentityInfo } from '../../episerver-sdk';
 import { FormLoginStateService } from '../../services/form-login-state.service';
 
 @Component({
   selector: 'lib-form-login',
   standalone: false,
   templateUrl: './form-login.component.html',
-  styleUrl: './form-login.component.scss',
+  styleUrls: ['./form-login.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormLoginComponent {
