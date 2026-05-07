@@ -94,7 +94,7 @@ export class DynamicJsonFormPageComponent {
     }
 
     if (this.canGoNext) {
-      const nextStepIndex = this.formNavigationService.findNextStep(this.form, this.currentStepIndex, []);
+      const nextStepIndex = this.resolveNextStepIndex();
       this.openStep(nextStepIndex);
     }
   }
@@ -104,7 +104,7 @@ export class DynamicJsonFormPageComponent {
       return;
     }
 
-    const previousStepIndex = this.formNavigationService.findPreviousStep(this.form, this.currentStepIndex, []);
+    const previousStepIndex = this.resolvePreviousStepIndex();
     this.openStep(previousStepIndex);
   }
 
@@ -160,8 +160,32 @@ export class DynamicJsonFormPageComponent {
   }
 
   protected savePartial(): void {
+    const step = this.steps[this.currentStepIndex];
+    if (!step) {
+      return;
+    }
+
+    const stepIndexAtSubmit = this.currentStepIndex;
+    const submissions = this.formSubmissionService.collectCurrentStepSubmissions(this.form, this.formGroup, stepIndexAtSubmit, []);
+    const fieldKeys = this.visibleStepFields(step).map((field) => field.key);
+    this.formSubmissionService.clearValidationResults(this.formGroup, fieldKeys);
+    const results = this.formSubmissionService.validateStep(this.form, submissions);
+    this.formSubmissionService.applyValidationResults(this.formGroup, results);
+    this.markControlsTouched(step);
+
+    if (results.some((result) => !result.result.valid)) {
+      this.hasSubmitted = true;
+      this.focusFirstInvalidControl(fieldKeys);
+      return;
+    }
+
+    const nextStepIndex = this.canGoNext ? this.resolveNextStepIndex() : null;
+    if (nextStepIndex !== null && nextStepIndex !== this.currentStepIndex) {
+      this.currentStepIndex = nextStepIndex;
+    }
+
     this.persistNavigationState();
-    this.submit(false);
+    this.submit(false, stepIndexAtSubmit);
   }
 
   protected submitFinal(): void {
@@ -197,13 +221,13 @@ export class DynamicJsonFormPageComponent {
     return step.formStep.key;
   }
 
-  private submit(isFinalized: boolean): void {
+  private submit(isFinalized: boolean, submitStepIndex = this.currentStepIndex): void {
     this.isSubmitting = true;
     const submissions = this.formSubmissionService.toFormSubmissions(this.form, this.formGroup);
     const model = this.formSubmissionService.buildSubmitModel(
       this.form,
       submissions,
-      this.currentStepIndex,
+      submitStepIndex,
       this.currentPageUrl(),
       undefined,
       isFinalized,
@@ -239,6 +263,25 @@ export class DynamicJsonFormPageComponent {
           this.focusFirstInvalidControl();
         }
       });
+  }
+
+
+  private resolveNextStepIndex(): number {
+    const sdkNextStepIndex = this.formNavigationService.findNextStep(this.form, this.currentStepIndex, []);
+    if (sdkNextStepIndex > this.currentStepIndex) {
+      return sdkNextStepIndex;
+    }
+
+    return Math.min(this.currentStepIndex + 1, this.steps.length - 1);
+  }
+
+  private resolvePreviousStepIndex(): number {
+    const sdkPreviousStepIndex = this.formNavigationService.findPreviousStep(this.form, this.currentStepIndex, []);
+    if (sdkPreviousStepIndex < this.currentStepIndex) {
+      return sdkPreviousStepIndex;
+    }
+
+    return Math.max(this.currentStepIndex - 1, 0);
   }
 
   private persistNavigationState(): void {
