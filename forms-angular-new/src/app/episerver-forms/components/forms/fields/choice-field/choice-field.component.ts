@@ -7,6 +7,7 @@ import { FormSchemaFormService } from '../../../../services/form-schema-form.ser
   selector: 'lib-choice-field',
   standalone: false,
   templateUrl: './choice-field.component.html',
+  styleUrls: ['./choice-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChoiceFieldComponent {

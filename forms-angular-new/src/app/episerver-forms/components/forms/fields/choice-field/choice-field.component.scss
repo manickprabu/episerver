@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.FormChoice fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.FormChoice fieldset > div {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+}
+
+.FormChoice__Input {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.FormChoice__Label {
+  display: inline-block;
+  margin-left: 0;
+  color: #0f172a;
+  line-height: 1.4;
+}
+
+.FormChoice .Form__Element__Caption {
+  margin-bottom: 0.5rem;
+}
