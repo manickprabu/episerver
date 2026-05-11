@@ -176,6 +176,20 @@ export class EpiserverFormAccordionComponent {
   }
 
   protected stepHeading(step: FormStep, stepIndex: number): string {
+    const stepFieldKeys = new Set(step.elements.map((field) => field.key));
+    const rawTitleField = this.source.fields.find(
+      (field) =>
+        stepFieldKeys.has(field.contentGuid) &&
+        field.name === 'Title' &&
+        field.type === 'PredefinedHiddenElementBlockProxy' &&
+        typeof field.properties.PredefinedValue === 'string' &&
+        field.properties.PredefinedValue.trim().length > 0
+    );
+
+    if (rawTitleField?.properties.PredefinedValue) {
+      return rawTitleField.properties.PredefinedValue;
+    }
+
     const stepProperties = (step.formStep.properties ?? {}) as Record<string, unknown>;
     const label = stepProperties['label'];
     if (label && !step.formStep.key.endsWith('-step-0')) {
