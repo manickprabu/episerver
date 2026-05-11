@@ -1,0 +1,36 @@
+<section
+  class="lib-accordion"
+  [class.lib-accordion--open]="isOpen()"
+  [class.lib-accordion--disabled]="disabled()"
+  [style.border-color]="hostBorderColor()"
+>
+  <button
+    type="button"
+    class="lib-accordion__trigger"
+    [attr.aria-expanded]="isOpen()"
+    [disabled]="disabled()"
+    (click)="onToggle()"
+  >
+    <span class="lib-accordion__heading">
+      @if (icon()) {
+        <span class="lib-accordion__icon" [style.color]="hostBorderColor()">{{ icon() }}</span>
+      }
+      <span class="lib-accordion__title">{{ title() }}</span>
+    </span>
+
+    <span class="lib-accordion__meta">
+      @if (loading()) {
+        <span class="lib-accordion__loading">Loading...</span>
+      }
+      @if (pillText()) {
+        <span class="lib-accordion__pill" [style.background]="resolvedPillColor()">{{ pillText() }}</span>
+      }
+    </span>
+  </button>
+
+  @if (isOpen()) {
+    <div class="lib-accordion__panel">
+      <ng-content />
+    </div>
+  }
+</section>

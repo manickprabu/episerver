@@ -1,0 +1,70 @@
+<section class="episerver-form-accordion-page">
+  @if (isLoading) {
+    <div class="episerver-form-accordion-page__meta">
+      <p>Loading form from {{ endpoint }}...</p>
+    </div>
+  } @else if (source && form && formGroup) {
+    <div class="episerver-form-accordion-page__meta">
+      <p><strong>Form name:</strong> {{ source.name }}</p>
+      <p><strong>Form GUID:</strong> {{ source.contentGuid }}</p>
+      <p><strong>API endpoint:</strong> {{ endpoint }}</p>
+      <p><strong>Partial submit:</strong> {{ draftModeLabel }}</p>
+    </div>
+
+    <form class="EPiServerForms {{ validationCssClass }}" [formGroup]="formGroup" (ngSubmit)="submitFinal()" novalidate>
+      @if (form.properties.title) {
+        <h2 class="Form__Title">{{ form.properties.title }}</h2>
+      }
+
+      <div class="Form__Status">
+        @if (statusMessage) {
+          <div
+            role="status"
+            class="Form__Status__Message"
+            [class.Form__Success__Message]="submitSucceeded"
+            [class.Form__Warning__Message]="isWarningStatus"
+          >
+            <div [innerHTML]="statusMessage"></div>
+          </div>
+        }
+      </div>
+
+      <div class="Form__MainBody episerver-form-accordion-page__list">
+        @for (step of steps; track trackStep($index, step); let stepIndex = $index) {
+          <lib-accordion
+            [accordionOpen]="isStepOpen(stepIndex)"
+            [borderColor]="accordionBorderColor(stepIndex)"
+            [icon]="accordionIcon(stepIndex)"
+            [pillColor]="accordionPillColor(stepIndex)"
+            [pillText]="accordionPillText(stepIndex)"
+            [title]="stepHeading(step, stepIndex)"
+            [loading]="isSubmitting && isStepOpen(stepIndex)"
+            [disabled]="!isStepAccessible(stepIndex)"
+            (toggleAccordion)="openStep(stepIndex)"
+          >
+            <section class="Form__Element__Step">
+              @for (field of visibleStepFields(step); track field.key) {
+                <lib-dynamic-field
+                  [field]="field"
+                  [formGroup]="formGroup"
+                  [submitted]="hasSubmitted"
+                  [submitDisabled]="isSubmitting"
+                  (reset)="handleReset()"
+                />
+              }
+            </section>
+          </lib-accordion>
+        }
+      </div>
+
+      <div class="episerver-form-accordion-page__footer-actions">
+        <button type="button" class="episerver-form-accordion-page__draft" [disabled]="isSubmitting" (click)="savePartial()">
+          Save progress
+        </button>
+        <button type="submit" class="episerver-form-accordion-page__submit" [disabled]="isSubmitting">
+          Submit
+        </button>
+      </div>
+    </form>
+  }
+</section>

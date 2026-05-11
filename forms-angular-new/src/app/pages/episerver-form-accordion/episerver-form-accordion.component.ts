@@ -1,26 +1,29 @@
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { FormSubmission } from '../../episerver-forms/episerver-sdk';
-import { DynamicEpiServerForm } from '../../episerver-forms/models/dynamic-episerver-form.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { FormField, FormSchema, FormStep, FormSubmissionResult } from '../../episerver-forms/models/form-schema.model';
+import { EpiserverDynamicField, EpiserverDynamicForm, FieldVisibilityState } from './episerver-form-accordion.model';
+import { EpiserverFormAccordionVisibilityService } from './episerver-form-accordion-visibility.service';
 import { DynamicFormAdapterService } from '../../episerver-forms/services/dynamic-form-adapter.service';
 import { FormNavigationService } from '../../episerver-forms/services/form-navigation.service';
 import { FormSchemaFormService } from '../../episerver-forms/services/form-schema-form.service';
 import { FormSubmissionService } from '../../episerver-forms/services/form-submission.service';
-import { DynamicJsonFormPageService } from './dynamic-json-form-page.service';
+import { EpiserverFormAccordionService } from './episerver-form-accordion.service';
 
 @Component({
-  selector: 'app-dynamic-json-form-page',
+  selector: 'app-episerver-form-accordion',
   standalone: false,
-  templateUrl: './dynamic-json-form-page.component.html',
-  styleUrls: ['./dynamic-json-form-page.component.scss'],
+  templateUrl: './episerver-form-accordion.component.html',
+  styleUrls: ['./episerver-form-accordion.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DynamicJsonFormPageComponent {
+export class EpiserverFormAccordionComponent {
   protected isLoading = true;
-  protected source!: DynamicEpiServerForm;
+  protected source!: EpiserverDynamicForm;
   protected form!: FormSchema;
   protected formGroup!: FormGroup;
   protected steps: FormStep[] = [];
@@ -37,19 +40,23 @@ export class DynamicJsonFormPageComponent {
   protected isWarningStatus = false;
   protected statusMessage = '';
   protected submissionKey = '';
+  protected visibilityState: FieldVisibilityState = { visibilityByGuid: {}, visibilityByContentLinkId: {}, evaluations: [] };
 
   constructor(
     @Inject(DOCUMENT) private readonly document: Document,
+    private readonly changeDetectorRef: ChangeDetectorRef,
+    private readonly destroyRef: DestroyRef,
     private readonly dynamicFormAdapterService: DynamicFormAdapterService,
     private readonly formNavigationService: FormNavigationService,
     private readonly formSchemaFormService: FormSchemaFormService,
     private readonly formSubmissionService: FormSubmissionService,
-    private readonly dynamicJsonFormPageService: DynamicJsonFormPageService
+    private readonly episerverFormAccordionService: EpiserverFormAccordionService,
+    private readonly visibilityService: EpiserverFormAccordionVisibilityService
   ) {
-    this.endpoint = this.dynamicJsonFormPageService.endpoint;
+    this.endpoint = this.episerverFormAccordionService.endpoint;
     this.draftModeLabel = 'Save progress to http://localhost:8000/test-episerver-form as a partial submission.';
 
-    this.dynamicJsonFormPageService.loadForm().subscribe({
+    this.episerverFormAccordionService.loadForm().subscribe({
       next: (source) => this.initializeForm(source),
       error: () => {
         this.isLoading = false;
@@ -121,17 +128,7 @@ export class DynamicJsonFormPageComponent {
     return this.currentStepIndex === stepIndex;
   }
 
-  protected isStepAccessible(stepIndex: number): boolean {
-    if (stepIndex <= 0) {
-      return true;
-    }
-
-    for (let index = 0; index < stepIndex; index += 1) {
-      if (!this.isStepComplete(index)) {
-        return false;
-      }
-    }
-
+  protected isStepAccessible(_stepIndex: number): boolean {
     return true;
   }
 
@@ -145,6 +142,39 @@ export class DynamicJsonFormPageComponent {
     return controls.length === 0 || controls.every((control) => control.valid);
   }
 
+
+  protected accordionBorderColor(stepIndex: number): string {
+    if (this.isStepComplete(stepIndex)) {
+      return 'rgba(22, 163, 74, 0.35)';
+    }
+
+    if (this.isStepOpen(stepIndex)) {
+      return 'rgba(59, 130, 246, 0.45)';
+    }
+
+    return 'rgba(15, 23, 42, 0.14)';
+  }
+
+  protected accordionIcon(stepIndex: number): string {
+    return this.isStepComplete(stepIndex) ? '✓' : '•';
+  }
+
+  protected accordionPillColor(stepIndex: number): string {
+    if (this.isStepComplete(stepIndex)) {
+      return '#16a34a';
+    }
+
+    return '#475569';
+  }
+
+  protected accordionPillText(stepIndex: number): string {
+    if (this.isStepComplete(stepIndex)) {
+      return 'Complete';
+    }
+
+    return this.isStepOpen(stepIndex) ? 'In progress' : 'Available';
+  }
+
   protected stepHeading(step: FormStep, stepIndex: number): string {
     const stepProperties = (step.formStep.properties ?? {}) as Record<string, unknown>;
     const label = stepProperties['label'];
@@ -156,30 +186,17 @@ export class DynamicJsonFormPageComponent {
   }
 
   protected visibleStepFields(step: FormStep): FormField[] {
-    return step.elements.filter((field) => field.contentType !== 'FormStepBlock') as FormField[];
+    return step.elements.filter((field) => field.contentType !== 'FormStepBlock' && this.isFieldVisible(field.key)) as FormField[];
+  }
+
+  protected dependencyEvaluations(): FieldVisibilityState['evaluations'] {
+    return this.visibilityState.evaluations;
   }
 
   protected savePartial(): void {
-    const step = this.steps[this.currentStepIndex];
-    if (!step) {
-      return;
-    }
-
     const stepIndexAtSubmit = this.currentStepIndex;
-    const submissions = this.formSubmissionService.collectCurrentStepSubmissions(this.form, this.formGroup, stepIndexAtSubmit, []);
-    const fieldKeys = this.visibleStepFields(step).map((field) => field.key);
-    this.formSubmissionService.clearValidationResults(this.formGroup, fieldKeys);
-    const results = this.formSubmissionService.validateStep(this.form, submissions);
-    this.formSubmissionService.applyValidationResults(this.formGroup, results);
-    this.markControlsTouched(step);
+    const nextStepIndex = this.canGoNext ? Math.min(this.currentStepIndex + 1, this.steps.length - 1) : null;
 
-    if (results.some((result) => !result.result.valid)) {
-      this.hasSubmitted = true;
-      this.focusFirstInvalidControl(fieldKeys);
-      return;
-    }
-
-    const nextStepIndex = this.canGoNext ? this.resolveNextStepIndex() : null;
     if (nextStepIndex !== null && nextStepIndex !== this.currentStepIndex) {
       this.currentStepIndex = nextStepIndex;
     }
@@ -191,8 +208,8 @@ export class DynamicJsonFormPageComponent {
   protected submitFinal(): void {
     this.hasSubmitted = true;
 
-    const fieldKeys = this.form.formElements.filter((field) => field.contentType !== 'FormStepBlock').map((field) => field.key);
-    const submissions = this.formSubmissionService.toFormSubmissions(this.form, this.formGroup);
+    const fieldKeys = this.visibleFormFields().map((field) => field.key);
+    const submissions = this.visibleFormSubmissions();
     this.formSubmissionService.clearValidationResults(this.formGroup, fieldKeys);
     const results = this.formSubmissionService.validateStep(this.form, submissions);
     this.formSubmissionService.applyValidationResults(this.formGroup, results);
@@ -213,7 +230,7 @@ export class DynamicJsonFormPageComponent {
     this.submitSucceeded = false;
     this.isWarningStatus = false;
     this.statusMessage = '';
-    this.submissionKey = this.dynamicFormAdapterService.initialSubmissionKey(this.source);
+    this.submissionKey = this.dynamicFormAdapterService.initialSubmissionKey(this.source as never);
     this.formNavigationService.clearNavigationState(this.form);
   }
 
@@ -221,9 +238,27 @@ export class DynamicJsonFormPageComponent {
     return step.formStep.key;
   }
 
+  private isFieldVisible(fieldGuid: string): boolean {
+    return this.visibilityService.isFieldVisible(fieldGuid, this.visibilityState);
+  }
+
+  private visibleFormFields(): FormField[] {
+    return this.form.formElements.filter(
+      (field) => field.contentType !== 'FormStepBlock' && this.isFieldVisible(field.key)
+    ) as FormField[];
+  }
+
+  private visibleFormSubmissions(): FormSubmission[] {
+    const visibleKeys = new Set(this.visibleFormFields().map((field) => field.key));
+
+    return this.formSubmissionService
+      .toFormSubmissions(this.form, this.formGroup)
+      .filter((submission) => visibleKeys.has(submission.elementKey) || submission.elementKey.startsWith('__'));
+  }
+
   private submit(isFinalized: boolean, submitStepIndex = this.currentStepIndex): void {
     this.isSubmitting = true;
-    const submissions = this.formSubmissionService.toFormSubmissions(this.form, this.formGroup);
+    const submissions = this.visibleFormSubmissions();
     const model = this.formSubmissionService.buildSubmitModel(
       this.form,
       submissions,
@@ -235,8 +270,8 @@ export class DynamicJsonFormPageComponent {
     );
 
     const request = isFinalized
-      ? this.dynamicJsonFormPageService.submitFinal(this.source, model)
-      : this.dynamicJsonFormPageService.savePartial(this.source, model);
+      ? this.episerverFormAccordionService.submitFinal(this.source, model)
+      : this.episerverFormAccordionService.savePartial(this.source, model);
 
     request
       .subscribe({
@@ -288,7 +323,7 @@ export class DynamicJsonFormPageComponent {
     this.formNavigationService.goToStep(
       this.form,
       this.currentStepIndex,
-      this.formSubmissionService.toFormSubmissions(this.form, this.formGroup)
+      this.visibleFormSubmissions()
     );
   }
 
@@ -296,18 +331,51 @@ export class DynamicJsonFormPageComponent {
     return this.document.location?.href || this.document.baseURI || '';
   }
 
-  private initializeForm(source: DynamicEpiServerForm): void {
+  private setupVisibilityTracking(): void {
+    this.visibilityService
+      .watchVisibility(this.source.fields, this.formGroup)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((state) => {
+        this.visibilityState = state;
+        this.applyFieldVisibilityToForm(state);
+        this.changeDetectorRef.markForCheck();
+      });
+  }
+
+  private applyFieldVisibilityToForm(state: FieldVisibilityState): void {
+    this.form.formElements
+      .filter((field) => field.contentType !== 'FormStepBlock')
+      .forEach((field) => {
+        const control = this.formGroup.get(field.key);
+        if (!control) {
+          return;
+        }
+
+        const visible = this.isFieldVisible(field.key);
+        if (visible && control.disabled) {
+          control.enable({ emitEvent: false });
+        }
+
+        if (!visible && control.enabled) {
+          control.disable({ emitEvent: false });
+          control.markAsUntouched();
+        }
+      });
+  }
+
+  private initializeForm(source: EpiserverDynamicForm): void {
     this.source = source;
-    this.form = this.dynamicFormAdapterService.adaptForm(source);
+    this.form = this.dynamicFormAdapterService.adaptForm(source as never);
     const builtForm = this.formSchemaFormService.buildForm(this.form);
     this.formGroup = builtForm.formGroup;
     this.steps = builtForm.steps;
-    this.submissionKey = this.dynamicFormAdapterService.initialSubmissionKey(source);
+    this.submissionKey = this.dynamicFormAdapterService.initialSubmissionKey(source as never);
     this.progressLabel = this.form.localizations?.['pageButtonLabel'] || 'Page';
     this.nextButtonLabel = this.form.localizations?.['nextButtonLabel'] || 'Next';
     this.previousButtonLabel = this.form.localizations?.['previousButtonLabel'] || 'Previous';
 
     this.patchDraftValues(this.formNavigationService.loadDraft(this.form));
+    this.setupVisibilityTracking();
     this.currentStepIndex = this.formNavigationService.resolveInitialStepIndex(this.form, this.currentPageUrl());
     this.isLoading = false;
   }

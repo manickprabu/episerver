@@ -1,0 +1,68 @@
+.episerver-form-accordion-page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.episerver-form-accordion-page__meta {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 1rem;
+  background: rgba(248, 250, 252, 0.9);
+}
+
+.episerver-form-accordion-page__meta p {
+  margin: 0;
+}
+
+.episerver-form-accordion-page__list {
+  display: grid;
+  gap: 1rem;
+}
+
+.episerver-form-accordion-page__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1rem 0 0;
+}
+
+.episerver-form-accordion-page__draft {
+  border: 1px solid rgba(15, 23, 42, 0.18);
+  border-radius: 999px;
+  background: white;
+  color: #0f172a;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  padding: 0.7rem 1.2rem;
+}
+
+.episerver-form-accordion-page__draft:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+
+.episerver-form-accordion-page__footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.episerver-form-accordion-page__submit {
+  border: 1px solid rgba(41, 128, 189, 0.5);
+  border-radius: 999px;
+  background: #0f172a;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.7rem 1.2rem;
+}
+
+.episerver-form-accordion-page__submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
