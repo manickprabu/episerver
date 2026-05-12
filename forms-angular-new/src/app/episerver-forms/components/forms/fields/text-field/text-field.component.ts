@@ -7,6 +7,7 @@ import { FormSchemaFormService } from '../../../../services/form-schema-form.ser
   selector: 'lib-text-field',
   standalone: false,
   templateUrl: './text-field.component.html',
+  styleUrls: ['./text-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextFieldComponent {

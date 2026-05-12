@@ -6,9 +6,9 @@ import { FormSubmission } from '../../episerver-forms/episerver-sdk';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormField, FormSchema, FormStep, FormSubmissionResult } from '../../episerver-forms/models/form-schema.model';
-import { EpiserverDynamicField, EpiserverDynamicForm, FieldVisibilityState } from './episerver-form-accordion.model';
+import { EpiserverFieldDefinition, EpiserverFormDefinition, FieldVisibilityState } from '../../episerver-forms/models/episerver-form-definition.model';
 import { EpiserverFormAccordionVisibilityService } from './episerver-form-accordion-visibility.service';
-import { DynamicFormAdapterService } from '../../episerver-forms/services/dynamic-form-adapter.service';
+import { EpiserverFormAdapterService } from '../../episerver-forms/services/episerver-form-adapter.service';
 import { FormNavigationService } from '../../episerver-forms/services/form-navigation.service';
 import { FormSchemaFormService } from '../../episerver-forms/services/form-schema-form.service';
 import { FormSubmissionService } from '../../episerver-forms/services/form-submission.service';
@@ -23,7 +23,7 @@ import { EpiserverFormAccordionService } from './episerver-form-accordion.servic
 })
 export class EpiserverFormAccordionComponent {
   protected isLoading = true;
-  protected source!: EpiserverDynamicForm;
+  protected source!: EpiserverFormDefinition;
   protected form!: FormSchema;
   protected formGroup!: FormGroup;
   protected steps: FormStep[] = [];
@@ -46,7 +46,7 @@ export class EpiserverFormAccordionComponent {
     @Inject(DOCUMENT) private readonly document: Document,
     private readonly changeDetectorRef: ChangeDetectorRef,
     private readonly destroyRef: DestroyRef,
-    private readonly dynamicFormAdapterService: DynamicFormAdapterService,
+    private readonly episerverFormAdapterService: EpiserverFormAdapterService,
     private readonly formNavigationService: FormNavigationService,
     private readonly formSchemaFormService: FormSchemaFormService,
     private readonly formSubmissionService: FormSubmissionService,
@@ -244,7 +244,7 @@ export class EpiserverFormAccordionComponent {
     this.submitSucceeded = false;
     this.isWarningStatus = false;
     this.statusMessage = '';
-    this.submissionKey = this.dynamicFormAdapterService.initialSubmissionKey(this.source as never);
+    this.submissionKey = this.episerverFormAdapterService.initialSubmissionKey(this.source as never);
     this.formNavigationService.clearNavigationState(this.form);
   }
 
@@ -377,13 +377,13 @@ export class EpiserverFormAccordionComponent {
       });
   }
 
-  private initializeForm(source: EpiserverDynamicForm): void {
+  private initializeForm(source: EpiserverFormDefinition): void {
     this.source = source;
-    this.form = this.dynamicFormAdapterService.adaptForm(source as never);
+    this.form = this.episerverFormAdapterService.adaptForm(source as never);
     const builtForm = this.formSchemaFormService.buildForm(this.form);
     this.formGroup = builtForm.formGroup;
     this.steps = builtForm.steps;
-    this.submissionKey = this.dynamicFormAdapterService.initialSubmissionKey(source as never);
+    this.submissionKey = this.episerverFormAdapterService.initialSubmissionKey(source as never);
     this.progressLabel = this.form.localizations?.['pageButtonLabel'] || 'Page';
     this.nextButtonLabel = this.form.localizations?.['nextButtonLabel'] || 'Next';
     this.previousButtonLabel = this.form.localizations?.['previousButtonLabel'] || 'Previous';

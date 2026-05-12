@@ -1,9 +1,9 @@
 import {
-  EpiserverDynamicField,
+  EpiserverFieldDefinition,
   EpiserverFieldCondition,
   FieldDependencyEvaluation,
   FieldVisibilityState
-} from './episerver-form-accordion.model';
+} from '../../episerver-forms/models/episerver-form-definition.model';
 
 const DEFAULT_VISIBLE_STATE: FieldVisibilityState = {
   visibilityByGuid: {},
@@ -43,18 +43,18 @@ function combineConditionResults(results: boolean[], combination: number | strin
   return results.every(Boolean);
 }
 
-function hasShowAction(field: EpiserverDynamicField): boolean {
+function hasShowAction(field: EpiserverFieldDefinition): boolean {
   const action = String(field.properties.SatisfiedAction ?? '').toLowerCase();
   return !action || action.includes('showaction');
 }
 
-function fieldLabel(field: EpiserverDynamicField): string {
+function fieldLabel(field: EpiserverFieldDefinition): string {
   return field.name || field.properties.Label || field.editViewFriendlyTitle || field.contentGuid;
 }
 
 function evaluateCondition(
   condition: EpiserverFieldCondition,
-  fieldsByContentLinkId: Map<number, EpiserverDynamicField>,
+  fieldsByContentLinkId: Map<number, EpiserverFieldDefinition>,
   valuesByGuid: Record<string, unknown>,
   visibilityCache: Map<string, boolean>,
   visiting: Set<string>
@@ -108,8 +108,8 @@ function evaluateCondition(
 }
 
 function evaluateFieldVisibilityInternal(
-  field: EpiserverDynamicField,
-  fieldsByContentLinkId: Map<number, EpiserverDynamicField>,
+  field: EpiserverFieldDefinition,
+  fieldsByContentLinkId: Map<number, EpiserverFieldDefinition>,
   valuesByGuid: Record<string, unknown>,
   visibilityCache: Map<string, boolean>,
   visiting: Set<string>,
@@ -152,7 +152,7 @@ function evaluateFieldVisibilityInternal(
 }
 
 export function evaluateFieldVisibility(
-  fields: EpiserverDynamicField[] | null | undefined,
+  fields: EpiserverFieldDefinition[] | null | undefined,
   valuesByGuid: Record<string, unknown> | null | undefined
 ): FieldVisibilityState {
   if (!fields?.length) {
@@ -160,7 +160,7 @@ export function evaluateFieldVisibility(
   }
 
   const safeValues = valuesByGuid ?? {};
-  const fieldsByContentLinkId = new Map<number, EpiserverDynamicField>();
+  const fieldsByContentLinkId = new Map<number, EpiserverFieldDefinition>();
   fields.forEach((field) => {
     if (typeof field.contentLink?.id === 'number') {
       fieldsByContentLinkId.set(field.contentLink.id, field);

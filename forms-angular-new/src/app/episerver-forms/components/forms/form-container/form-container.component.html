@@ -1,19 +1,19 @@
-<form class="EPiServerForms {{ validationCssClass() }}" [formGroup]="formGroup()" (ngSubmit)="submitForm($event)" novalidate>
+<form class="episerverForms {{ validationCssClass() }}" [formGroup]="formGroup()" (ngSubmit)="submitForm($event)" novalidate>
   @if (form().properties.title) {
-    <h2 class="Form__Title">{{ form().properties.title }}</h2>
+    <h2 class="form__Title">{{ form().properties.title }}</h2>
   }
 
   @if (form().properties.description) {
-    <aside class="Form__Description">{{ form().properties.description }}</aside>
+    <aside class="form__Description">{{ form().properties.description }}</aside>
   }
 
-  <div class="Form__Status">
+  <div class="form__Status">
     @if (statusMessage()) {
       <div
         role="status"
-        class="Form__Status__Message"
-        [class.Form__Success__Message]="submitSucceeded()"
-        [class.Form__Warning__Message]="isWarningStatus()"
+        class="form__Status__Message"
+        [class.form__Success__Message]="submitSucceeded()"
+        [class.form__Warning__Message]="isWarningStatus()"
       >
         <div [innerHTML]="statusMessage()"></div>
       </div>
@@ -21,11 +21,11 @@
   </div>
 
   @if (showFormBody() && currentStep(); as step) {
-    <div class="Form__MainBody">
-      <section class="Form__Element__Step">
+    <div class="form__MainBody">
+      <section class="form__Element__Step">
         @for (field of step.elements; track field.key) {
           @if (!dependencyInactiveElements().includes(field.key)) {
-            <lib-dynamic-field
+            <lib-episerver-form
               [field]="field"
               [formGroup]="formGroup()"
               [submitted]="hasSubmitted()"

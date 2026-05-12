@@ -7,6 +7,7 @@ import { FormSchemaFormService } from '../../../../services/form-schema-form.ser
   selector: 'lib-textarea-field',
   standalone: false,
   templateUrl: './textarea-field.component.html',
+  styleUrls: ['./textarea-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextareaFieldComponent {

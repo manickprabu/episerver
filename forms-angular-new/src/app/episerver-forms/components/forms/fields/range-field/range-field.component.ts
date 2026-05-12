@@ -7,6 +7,7 @@ import { FormSchemaFormService } from '../../../../services/form-schema-form.ser
   selector: 'lib-range-field',
   standalone: false,
   templateUrl: './range-field.component.html',
+  styleUrls: ['./range-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RangeFieldComponent {

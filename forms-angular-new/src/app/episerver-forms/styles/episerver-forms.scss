@@ -1,0 +1,307 @@
+@use './variables' as vars;
+
+.episerverForms {
+  display: grid;
+  gap: 1rem;
+  color: vars.$form-text-color;
+
+  .form {
+    &__Title {}
+
+    &__Description {
+      margin-bottom: 1rem;
+    }
+
+    &__Status {
+      &__Message {
+        display: block;
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+
+      .form__Success__Message {
+        background-color: vars.$form-primary-color;
+        color: vars.$form-text-color;
+      }
+
+      .form__Warning__Message,
+      .form__Readonly__Message {
+        background-color: vars.$form-warning-background-color;
+        color: vars.$form-warning-foreground-color;
+      }
+
+      .hide {
+        display: none;
+      }
+    }
+
+    &__Success {
+      .form__SubmissionSuccess__Message {
+        display: block;
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+
+      .form__Success__Message {
+        background-color: vars.$form-primary-color;
+        color: vars.$form-text-color;
+      }
+
+      .hide {
+        display: none;
+      }
+    }
+
+    &__NavigationBar {
+      &__Action {
+        display: inline-block;
+        width: 10em;
+        max-width: 10rem;
+        height: 2em;
+        padding: inherit;
+        vertical-align: middle;
+        text-align: center;
+        color: inherit;
+        font-size: inherit;
+        border: 1px solid vars.$form-active-color;
+        border-radius: vars.$form-border-radius;
+        background-image: linear-gradient(to top, vars.$form-surface-color, #e6e6e6);
+
+        &:disabled {
+          cursor: not-allowed;
+          opacity: 0.4;
+        }
+      }
+
+      &__ProgressBar {
+        display: inline-block;
+        width: 40%;
+        vertical-align: middle;
+        border: 1px solid vars.$form-active-color;
+
+        &--Progress {
+          width: 0%;
+          height: 1rem;
+          background-color: vars.$form-active-color;
+        }
+
+        &--Text {
+          display: none;
+        }
+      }
+    }
+
+    &__Element {
+      display: grid;
+      grid-template-columns: minmax(14rem, vars.$form-label-width) minmax(0, 1fr);
+      column-gap: vars.$form-layout-gap;
+      align-items: start;
+      margin: 0 0 1.5rem;
+
+      > :not(.form__Element__Caption) {
+        grid-column: 2;
+      }
+
+      &__Caption {
+        display: inline-block;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        grid-column: 1;
+        vertical-align: top;
+      }
+
+      &__ValidationError {
+        display: block;
+        color: vars.$form-warning-foreground-color;
+        word-wrap: break-word;
+      }
+
+      &--NonData {}
+    }
+
+    &ImageSubmitButton {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      border: 0;
+      background: none;
+      box-shadow: none;
+    }
+
+    &Step {
+      &__Description {
+        margin-bottom: 1rem;
+      }
+    }
+
+    &SubmitButton {
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.4;
+      }
+    }
+
+    &Choice {
+      fieldset {
+        display: grid;
+        grid-template-columns: minmax(14rem, vars.$form-label-width) minmax(0, 1fr);
+        column-gap: vars.$form-layout-gap;
+        align-items: start;
+
+        > :not(.form__Element__Caption) {
+          grid-column: 2;
+        }
+      }
+
+      .form__Element__Caption {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        grid-column: 1;
+        margin: 0;
+      }
+
+      &__Label {
+        display: inline-block;
+      }
+
+      &--Image {
+        .formChoice--Image__Item {
+          display: inline-block;
+          max-width: 40%;
+          margin: 0.5rem;
+          text-align: center;
+        }
+
+        .formChoice__Input:checked ~ img {
+          border: 1px solid vars.$form-active-color;
+        }
+      }
+    }
+
+    &Range {
+      &__Wrapper {
+        display: inline-block;
+        width: 80%;
+      }
+
+      &__Slider__Wrapper {
+        display: flex;
+      }
+
+      &__Input {
+        display: inline;
+        flex: 1;
+      }
+
+      &__Slider__Button {
+        display: inline-flex;
+        flex: 0.1;
+        align-items: center;
+        justify-content: center;
+        margin: 10px;
+        color: vars.$form-surface-color;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        background-color: vars.$form-range-button-color;
+        border: none;
+      }
+
+      &__Slider__Button__Disable {
+        cursor: default;
+        background-color: vars.$form-range-button-disabled;
+      }
+
+      &__Min,
+      &__Max {
+        flex: 0.1;
+        line-height: 54px;
+        text-align: center;
+      }
+
+      &__Output__Wrapper {
+        position: relative;
+        display: block;
+        text-align: center;
+      }
+    }
+
+    &__Warning {
+      .Warning {
+        display: block;
+        color: vars.$form-warning-foreground-color;
+        word-wrap: break-word;
+        background-color: vars.$form-warning-background-color;
+      }
+    }
+
+    &__Original__ParagraphText {
+      display: none;
+    }
+  }
+
+  .validationRequired {
+    .form__Element__Caption::after {
+      content: ' (*)';
+    }
+  }
+
+  .validationFail {
+    color: vars.$form-warning-foreground-color;
+
+    input,
+    textarea,
+    select {
+      border-color: vars.$form-warning-foreground-color;
+    }
+
+    legend {
+      color: vars.$form-warning-foreground-color;
+    }
+  }
+
+  .hide {
+    display: none;
+  }
+
+  .visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    white-space: nowrap;
+  }
+
+  .editView__InvisibleElement {
+    &.formStep {
+      display: block;
+      padding: 0.2rem;
+      color: #000000;
+      font-family: Verdana, sans-serif;
+      border-color: vars.$form-invisible-element-color;
+      border-radius: vars.$form-border-radius;
+      background-color: vars.$form-invisible-element-color;
+      box-shadow: 3px 3px 5px #cccccc;
+
+      .formStep__Warning {
+        .Warning {
+          display: block;
+          color: vars.$form-warning-foreground-color;
+          word-wrap: break-word;
+          background-color: vars.$form-warning-background-color;
+        }
+      }
+    }
+
+    &.formHidden {
+      display: inline-block;
+      min-width: 18rem;
+      padding: 0.2rem 1rem;
+      border: 1.5px outset vars.$form-invisible-element-color;
+      border-radius: vars.$form-border-radius;
+    }
+  }
+}

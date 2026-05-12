@@ -1,9 +1,9 @@
-<lib-element-wrapper className="FormTextbox FormTextbox--Textarea" [control]="control()" [submitted]="submitted()">
+<lib-element-wrapper className="formTextbox formTextbox--Textarea" [control]="control()" [submitted]="submitted()">
   <lib-element-caption [field]="field()" [forId]="field().key" />
   <textarea
     [id]="field().key"
     [formControl]="$any(control())"
-    class="FormTextbox__Input"
+    class="formTextbox__Input"
     [attr.placeholder]="field().properties.placeHolder || null"
     [attr.title]="field().properties.description || null"
     [attr.aria-describedby]="field().key + '_desc'"

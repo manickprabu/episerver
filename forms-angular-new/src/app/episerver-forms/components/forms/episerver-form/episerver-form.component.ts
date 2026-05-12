@@ -17,12 +17,12 @@ import { TextareaFieldComponent } from '../fields/textarea-field/textarea-field.
 import { UrlFieldComponent } from '../fields/url-field/url-field.component';
 
 @Component({
-  selector: 'lib-dynamic-field',
+  selector: 'lib-episerver-form',
   standalone: false,
-  templateUrl: './dynamic-field.component.html',
+  templateUrl: './episerver-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DynamicFieldComponent {
+export class EpiserverFormComponent {
   readonly field = input.required<FormField>();
   readonly formGroup = input.required<FormGroup>();
   readonly submitted = input(false);

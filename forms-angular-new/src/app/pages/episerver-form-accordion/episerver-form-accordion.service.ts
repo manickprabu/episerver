@@ -3,10 +3,10 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 
 import { FormSubmission, FormSubmitModel } from '../../episerver-forms/episerver-sdk';
-import { EpiserverDynamicForm } from './episerver-form-accordion.model';
+import { EpiserverFormDefinition } from '../../episerver-forms/models/episerver-form-definition.model';
 import { FormSubmissionResult } from '../../episerver-forms/models/form-schema.model';
 
-const DEBUG_DYNAMIC_JSON_FORM: EpiserverDynamicForm = {
+const DEBUG_EPISERVER_FORM: EpiserverFormDefinition = {
   "formId": "38087b68-9215-4af8-9463-4d62850666ed",
   "contentGuid": "38087b68-9215-4af8-9463-4d62850666ed",
   "name": "FreeholdPIF",
@@ -338,27 +338,27 @@ export class EpiserverFormAccordionService {
 
   constructor(private readonly httpClient: HttpClient) {}
 
-  loadForm(): Observable<EpiserverDynamicForm> {
+  loadForm(): Observable<EpiserverFormDefinition> {
     if (this.debug) {
-      return of(this.cloneForm(DEBUG_DYNAMIC_JSON_FORM));
+      return of(this.cloneForm(DEBUG_EPISERVER_FORM));
     }
 
-    return this.httpClient.get<EpiserverDynamicForm>(this.endpoint);
+    return this.httpClient.get<EpiserverFormDefinition>(this.endpoint);
   }
 
-  savePartial(source: EpiserverDynamicForm, model: FormSubmitModel): Observable<FormSubmissionResult> {
+  savePartial(source: EpiserverFormDefinition, model: FormSubmitModel): Observable<FormSubmissionResult> {
     return this.httpClient.post<FormSubmissionResult>(this.endpoint, this.toFormData(model), {
       headers: this.buildHeaders(source)
     });
   }
 
-  submitFinal(source: EpiserverDynamicForm, model: FormSubmitModel): Observable<FormSubmissionResult> {
+  submitFinal(source: EpiserverFormDefinition, model: FormSubmitModel): Observable<FormSubmissionResult> {
     return this.httpClient.put<FormSubmissionResult>(this.endpoint, this.toFormData(model), {
       headers: this.buildHeaders(source)
     });
   }
 
-  private buildHeaders(source: EpiserverDynamicForm): HttpHeaders | undefined {
+  private buildHeaders(source: EpiserverFormDefinition): HttpHeaders | undefined {
     const antiforgery = source.antiforgery;
     if (!antiforgery) {
       return undefined;
@@ -416,7 +416,7 @@ export class EpiserverFormAccordionService {
     return formData;
   }
 
-  private cloneForm(source: EpiserverDynamicForm): EpiserverDynamicForm {
-    return JSON.parse(JSON.stringify(source)) as EpiserverDynamicForm;
+  private cloneForm(source: EpiserverFormDefinition): EpiserverFormDefinition {
+    return JSON.parse(JSON.stringify(source)) as EpiserverFormDefinition;
   }
 }

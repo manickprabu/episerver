@@ -1,32 +1,51 @@
+@use '../../../../styles/variables' as vars;
+
 :host {
   display: block;
 }
 
-.FormChoice fieldset {
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
+.formChoice {
 
-.FormChoice fieldset > div {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin-top: 0.5rem;
-}
+  fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
 
-.FormChoice__Input {
-  margin: 0;
-  flex: 0 0 auto;
-}
+    > div {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-top: 0.65rem;
+      padding: 0.65rem 0.8rem;
+      background: vars.$form-surface-color;
+      border: 1px solid vars.$form-border-color-soft;
+      border-radius: 0.75rem;
+      transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
 
-.FormChoice__Label {
-  display: inline-block;
-  margin-left: 0;
-  color: #0f172a;
-  line-height: 1.4;
-}
+      &:hover {
+        border-color: vars.$form-border-color-strong;
+        background: vars.$form-surface-muted;
+      }
+    }
+  }
 
-.FormChoice .Form__Element__Caption {
-  margin-bottom: 0.5rem;
+  &__Input {
+    flex: 0 0 auto;
+    margin: 0;
+    accent-color: vars.$form-focus-color;
+  }
+
+  &__Label {
+    display: inline-block;
+    margin-left: 0;
+    color: vars.$form-body-color;
+    line-height: 1.4;
+    cursor: pointer;
+  }
+
+  .form__Element--validationFail & {
+    fieldset > div {
+      border-color: mix(vars.$form-warning-foreground-color, vars.$form-surface-color, 20%);
+    }
+  }
 }

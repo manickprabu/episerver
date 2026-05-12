@@ -7,6 +7,7 @@ import { FormSchemaFormService } from '../../../../services/form-schema-form.ser
   selector: 'lib-select-field',
   standalone: false,
   templateUrl: './select-field.component.html',
+  styleUrls: ['./select-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SelectFieldComponent {

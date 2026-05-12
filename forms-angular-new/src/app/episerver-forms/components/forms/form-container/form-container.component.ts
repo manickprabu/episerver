@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, Inject, computed, effect, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, Inject, ViewEncapsulation, computed, effect, input, output, signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import {
@@ -23,6 +23,7 @@ import { FormSubmissionService } from '../../../services/form-submission.service
   standalone: false,
   templateUrl: './form-container.component.html',
   styleUrls: ['./form-container.component.scss'],
+  encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormContainerComponent {
@@ -84,7 +85,7 @@ export class FormContainerComponent {
   protected readonly showFormBody = computed(
     () => !((this.hideFormOnSuccess() && this.submitSucceeded()) || (this.isProgressiveSubmit() && this.submitSucceeded()))
   );
-  protected readonly validationCssClass = computed(() => (this.hasSubmitted() && this.formGroup().invalid ? 'ValidationFail' : 'ValidationSuccess'));
+  protected readonly validationCssClass = computed(() => (this.hasSubmitted() && this.formGroup().invalid ? 'validationFail' : 'validationSuccess'));
 
   constructor(
     @Inject(DOCUMENT) private readonly document: Document,
@@ -141,7 +142,7 @@ export class FormContainerComponent {
       }
 
       if (this.isMalFormSteps()) {
-        this.setWarningStatus(form.localizations?.['malformstepconfigruationErrorMessage'] || 'Form step configuration is invalid.');
+        this.setWarningStatus(form.localizations?.['malformStepconfigruationErrorMessage'] || 'Form step configuration is invalid.');
       } else if (this.identityInfo()?.accessToken || form.properties.allowAnonymousSubmission !== false) {
         if (!this.submitSucceeded()) {
           this.clearStatusMessage();

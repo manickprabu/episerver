@@ -47,7 +47,7 @@ export interface EpiserverFieldProperties {
   [key: string]: unknown;
 }
 
-export interface EpiserverDynamicField {
+export interface EpiserverFieldDefinition {
   name?: string;
   contentLink?: EpiserverContentLink;
   contentGuid: string;
@@ -61,12 +61,12 @@ export interface EpiserverAntiforgery {
   headerName: string;
 }
 
-export interface EpiserverDynamicForm {
+export interface EpiserverFormDefinition {
   formId: number | string;
   contentGuid: string;
   name: string;
   totalSteps?: number;
-  fields: EpiserverDynamicField[];
+  fields: EpiserverFieldDefinition[];
   hidden?: Record<string, string>;
   antiforgery?: EpiserverAntiforgery;
 }

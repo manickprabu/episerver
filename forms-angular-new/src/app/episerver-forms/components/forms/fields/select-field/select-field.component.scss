@@ -1,0 +1,51 @@
+@use '../../../../styles/variables' as vars;
+
+:host {
+  display: block;
+}
+
+.formSelection {
+
+  select {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.75rem 2.5rem 0.75rem 0.9rem;
+    color: vars.$form-body-color;
+    font: inherit;
+    line-height: 1.4;
+    appearance: none;
+    background-color: vars.$form-surface-color;
+    background-image:
+      linear-gradient(45deg, transparent 50%, vars.$form-muted-color 50%),
+      linear-gradient(135deg, vars.$form-muted-color 50%, transparent 50%);
+    background-position:
+      calc(100% - 1.15rem) calc(50% - 0.15rem),
+      calc(100% - 0.8rem) calc(50% - 0.15rem);
+    background-size: 0.4rem 0.4rem, 0.4rem 0.4rem;
+    background-repeat: no-repeat;
+    border: 1px solid vars.$form-border-color;
+    border-radius: 0.75rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+
+    &[multiple] {
+      min-height: 8rem;
+      padding-right: 0.9rem;
+      background-image: none;
+    }
+
+    &:hover {
+      border-color: vars.$form-border-color-strong;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: vars.$form-focus-color;
+      box-shadow: 0 0 0 3px vars.$form-focus-shadow;
+    }
+
+    .form__Element--validationFail & {
+      border-color: vars.$form-warning-foreground-color;
+      box-shadow: 0 0 0 3px vars.$form-danger-shadow;
+    }
+  }
+}

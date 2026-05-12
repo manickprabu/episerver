@@ -7,6 +7,7 @@ import { FormSchemaFormService } from '../../../../services/form-schema-form.ser
   selector: 'lib-file-upload-field',
   standalone: false,
   templateUrl: './file-upload-field.component.html',
+  styleUrls: ['./file-upload-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FileUploadFieldComponent {

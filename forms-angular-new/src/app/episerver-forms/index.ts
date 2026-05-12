@@ -6,7 +6,7 @@ export * from './components/form-container-block/form-container-block.component'
 export * from './components/form-body/form-body.component';
 export * from './components/render-element/render-element.component';
 export * from './components/render-element-in-step/render-element-in-step.component';
-export * from './components/forms/dynamic-field/dynamic-field.component';
+export * from './components/forms/episerver-form/episerver-form.component';
 export * from './components/forms/form-container/form-container.component';
 export * from './components/forms/form-step-navigation/form-step-navigation.component';
 export * from './components/forms/validation-message/validation-message.component';
@@ -31,10 +31,10 @@ export { SelectFieldComponent as ControlSelectFieldComponent, type SelectFieldOp
 export { TextFieldComponent as ControlTextFieldComponent } from './components/custom-controls/text-field/text-field.component';
 export { TextareaFieldComponent as ControlTextareaFieldComponent } from './components/custom-controls/textarea-field/textarea-field.component';
 
-export * from './models/dynamic-episerver-form.model';
+export * from './models/episerver-form-definition.model';
 export * from './models/form-schema.model';
 
-export * from './services/dynamic-form-adapter.service';
+export * from './services/episerver-form-adapter.service';
 export * from './services/form-auth.service';
 export * from './services/form-confirmation.service';
 export * from './services/form-loader.service';

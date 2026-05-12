@@ -1,8 +1,8 @@
 import { evaluateFieldVisibility } from './episerver-form-accordion-visibility.util';
-import { EpiserverDynamicField } from './episerver-form-accordion.model';
+import { EpiserverFieldDefinition } from '../../episerver-forms/models/episerver-form-definition.model';
 
 describe('evaluateFieldVisibility', () => {
-  const fields: EpiserverDynamicField[] = [
+  const fields: EpiserverFieldDefinition[] = [
     {
       name: 'Did you buy the property on a shared ownership scheme',
       contentLink: { id: 31796 },
@@ -60,7 +60,7 @@ describe('evaluateFieldVisibility', () => {
   });
 
   it('supports nested dependencies', () => {
-    const nestedFields: EpiserverDynamicField[] = [
+    const nestedFields: EpiserverFieldDefinition[] = [
       ...fields,
       {
         name: 'Nested dependent field',
@@ -93,7 +93,7 @@ describe('evaluateFieldVisibility', () => {
   });
 
   it('supports multiple conditions', () => {
-    const multiFields: EpiserverDynamicField[] = [
+    const multiFields: EpiserverFieldDefinition[] = [
       ...fields,
       {
         name: 'Second source',

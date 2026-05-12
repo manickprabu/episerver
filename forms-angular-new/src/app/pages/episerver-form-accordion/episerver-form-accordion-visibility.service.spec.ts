@@ -3,10 +3,10 @@ import { skip, take } from 'rxjs/operators';
 import { FormControl, FormGroup } from '@angular/forms';
 
 import { EpiserverFormAccordionVisibilityService } from './episerver-form-accordion-visibility.service';
-import { EpiserverDynamicField } from './episerver-form-accordion.model';
+import { EpiserverFieldDefinition } from '../../episerver-forms/models/episerver-form-definition.model';
 
 describe('EpiserverFormAccordionVisibilityService', () => {
-  const fields: EpiserverDynamicField[] = [
+  const fields: EpiserverFieldDefinition[] = [
     {
       name: 'Source field',
       contentLink: { id: 31796 },

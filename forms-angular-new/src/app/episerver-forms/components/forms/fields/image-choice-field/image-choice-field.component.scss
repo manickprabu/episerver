@@ -1,0 +1,61 @@
+@use '../../../../styles/variables' as vars;
+
+:host {
+  display: block;
+}
+
+.formChoice--Image {
+
+  fieldset {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.9rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  &__Item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-height: 100%;
+    padding: 0.9rem;
+    background: vars.$form-surface-color;
+    border: 1px solid vars.$form-border-color;
+    border-radius: 1rem;
+    cursor: pointer;
+    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+
+    &:hover {
+      border-color: vars.$form-focus-color;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      background: vars.$form-surface-muted;
+      border-radius: 0.75rem;
+    }
+
+    .form__Element--validationFail & {
+      border-color: mix(vars.$form-warning-foreground-color, vars.$form-surface-color, 20%);
+    }
+  }
+
+  &__Item__Caption {
+    color: vars.$form-body-color;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .formChoice__Input {
+    align-self: flex-start;
+    margin: 0;
+    accent-color: vars.$form-focus-color;
+  }
+}

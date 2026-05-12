@@ -1,0 +1,41 @@
+@use '../../../../styles/variables' as vars;
+
+:host {
+  display: block;
+}
+
+.formTextbox {
+
+  &__Input {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.75rem 0.9rem;
+    color: vars.$form-body-color;
+    font: inherit;
+    line-height: 1.4;
+    background-color: vars.$form-surface-color;
+    border: 1px solid vars.$form-border-color;
+    border-radius: 0.75rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+
+    &::placeholder {
+      color: vars.$form-border-color-strong;
+    }
+
+    &:hover {
+      border-color: vars.$form-border-color-strong;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: vars.$form-focus-color;
+      box-shadow: 0 0 0 3px vars.$form-focus-shadow;
+    }
+
+    &[aria-invalid='true'],
+    .form__Element--validationFail & {
+      border-color: vars.$form-warning-foreground-color;
+      box-shadow: 0 0 0 3px vars.$form-danger-shadow;
+    }
+  }
+}

@@ -5,6 +5,7 @@ import { FormField } from '../../../models/form-schema.model';
   selector: 'lib-element-caption',
   standalone: false,
   templateUrl: './element-caption.component.html',
+  styleUrls: ['./element-caption.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ElementCaptionComponent {

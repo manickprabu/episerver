@@ -1,0 +1,27 @@
+@use '../../../../styles/variables' as vars;
+
+:host {
+  display: block;
+}
+
+.formRange {
+  display: grid;
+  gap: 0.75rem;
+
+  &__Input {
+    width: 100%;
+    cursor: pointer;
+    accent-color: vars.$form-focus-color;
+  }
+
+  &__Output {
+    justify-self: start;
+    min-width: 3rem;
+    padding: 0.25rem 0.65rem;
+    color: vars.$form-pill-foreground;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: vars.$form-pill-background;
+    border-radius: 999px;
+  }
+}

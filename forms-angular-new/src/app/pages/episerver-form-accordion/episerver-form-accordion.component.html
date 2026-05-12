@@ -44,7 +44,7 @@
           >
             <section class="Form__Element__Step">
               @for (field of visibleStepFields(step); track field.key) {
-                <lib-dynamic-field
+                <lib-episerver-form
                   [field]="field"
                   [formGroup]="formGroup"
                   [submitted]="hasSubmitted"

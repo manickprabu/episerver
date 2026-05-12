@@ -7,6 +7,7 @@ import { FormSchemaFormService } from '../../../../services/form-schema-form.ser
   selector: 'lib-url-field',
   standalone: false,
   templateUrl: './url-field.component.html',
+  styleUrls: ['./url-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UrlFieldComponent {

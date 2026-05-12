@@ -13,7 +13,7 @@ import { TextareaFieldComponent as CustomTextareaFieldComponent } from './compon
 import { FormLoginComponent } from './components/form-login/form-login.component';
 import { RenderElementComponent } from './components/render-element/render-element.component';
 import { RenderElementInStepComponent } from './components/render-element-in-step/render-element-in-step.component';
-import { DynamicFieldComponent } from './components/forms/dynamic-field/dynamic-field.component';
+import { EpiserverFormComponent } from './components/forms/episerver-form/episerver-form.component';
 import { DataListComponent } from './components/forms/data-list/data-list.component';
 import { ElementCaptionComponent } from './components/forms/element-caption/element-caption.component';
 import { ElementWrapperComponent } from './components/forms/element-wrapper/element-wrapper.component';
@@ -34,7 +34,7 @@ import { UrlFieldComponent } from './components/forms/fields/url-field/url-field
 import { FormContainerComponent } from './components/forms/form-container/form-container.component';
 import { FormStepNavigationComponent } from './components/forms/form-step-navigation/form-step-navigation.component';
 import { ValidationMessageComponent } from './components/forms/validation-message/validation-message.component';
-import { DynamicFormAdapterService } from './services/dynamic-form-adapter.service';
+import { EpiserverFormAdapterService } from './services/episerver-form-adapter.service';
 import { FormAuthService } from './services/form-auth.service';
 import { FormConfirmationService } from './services/form-confirmation.service';
 import { FormLoaderService } from './services/form-loader.service';
@@ -50,7 +50,7 @@ const EPISERVER_FORMS_COMPONENTS = [
   RenderElementComponent,
   RenderElementInStepComponent,
   FormLoginComponent,
-  DynamicFieldComponent,
+  EpiserverFormComponent,
   DataListComponent,
   ElementCaptionComponent,
   ElementWrapperComponent,
@@ -81,7 +81,7 @@ const EPISERVER_FORMS_COMPONENTS = [
   imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule, EpiserverFormsSdkModule],
   exports: [CommonModule, FormsModule, ReactiveFormsModule, ...EPISERVER_FORMS_COMPONENTS],
   providers: [
-    DynamicFormAdapterService,
+    EpiserverFormAdapterService,
     FormAuthService,
     FormConfirmationService,
     FormLoaderService,

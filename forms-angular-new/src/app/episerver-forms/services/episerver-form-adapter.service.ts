@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { DynamicEpiServerField, DynamicEpiServerForm } from '../models/dynamic-episerver-form.model';
+import { EpiserverFieldDefinition, EpiserverFormDefinition } from '../models/episerver-form-definition.model';
 import { FormField, FormFieldValidator, FormSchema } from '../models/form-schema.model';
 
 @Injectable()
-export class DynamicFormAdapterService {
-  adaptForm(source: DynamicEpiServerForm): FormSchema {
+export class EpiserverFormAdapterService {
+  adaptForm(source: EpiserverFormDefinition): FormSchema {
     return {
       key: source.contentGuid,
       locale: 'en',
@@ -29,11 +29,11 @@ export class DynamicFormAdapterService {
     };
   }
 
-  initialSubmissionKey(source: DynamicEpiServerForm): string {
+  initialSubmissionKey(source: EpiserverFormDefinition): string {
     return source.hidden?.['__FormSubmissionId'] ?? '';
   }
 
-  private mapHiddenFields(source: DynamicEpiServerForm): FormField[] {
+  private mapHiddenFields(source: EpiserverFormDefinition): FormField[] {
     return Object.entries(source.hidden ?? {}).map(([key, value]) => ({
       key,
       contentType: 'PredefinedHiddenElementBlock',
@@ -48,7 +48,7 @@ export class DynamicFormAdapterService {
     }));
   }
 
-  private mapField(field: DynamicEpiServerField): FormField {
+  private mapField(field: EpiserverFieldDefinition): FormField {
     const contentType = this.normalizeContentType(field.type);
     const validators = this.mapValidators(field.properties.Validators, field.properties.ValidatorMessages);
 

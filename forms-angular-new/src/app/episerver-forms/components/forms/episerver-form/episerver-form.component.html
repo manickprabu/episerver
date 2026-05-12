@@ -17,7 +17,7 @@
   @case ('RangeElementBlock') {
     <lib-range-field [field]="field()" [formGroup]="formGroup()" [submitted]="submitted()" />
   }
-  @case ('FormStepBlock') {
+  @case ('formStepblock') {
     <lib-form-step-field [field]="field()" />
   }
   @case ('SelectionElementBlock') {
@@ -42,6 +42,6 @@
     <lib-paragraph-field [field]="field()" />
   }
   @default {
-    <p class="Form__Element">Cannot render {{ field().contentType }}.</p>
+    <p class="form__Element">Cannot render {{ field().contentType }}.</p>
   }
 }

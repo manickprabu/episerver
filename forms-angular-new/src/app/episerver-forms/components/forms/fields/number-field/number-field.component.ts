@@ -7,6 +7,7 @@ import { FormSchemaFormService } from '../../../../services/form-schema-form.ser
   selector: 'lib-number-field',
   standalone: false,
   templateUrl: './number-field.component.html',
+  styleUrls: ['./number-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NumberFieldComponent {

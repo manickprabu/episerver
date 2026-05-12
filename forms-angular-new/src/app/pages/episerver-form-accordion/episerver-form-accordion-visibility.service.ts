@@ -3,12 +3,12 @@ import { FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { distinctUntilChanged, map, shareReplay, startWith } from 'rxjs/operators';
 
-import { EpiserverDynamicField, FieldVisibilityState } from './episerver-form-accordion.model';
+import { EpiserverFieldDefinition, FieldVisibilityState } from '../../episerver-forms/models/episerver-form-definition.model';
 import { evaluateFieldVisibility } from './episerver-form-accordion-visibility.util';
 
 @Injectable({ providedIn: 'root' })
 export class EpiserverFormAccordionVisibilityService {
-  watchVisibility(fields: EpiserverDynamicField[], formGroup: FormGroup): Observable<FieldVisibilityState> {
+  watchVisibility(fields: EpiserverFieldDefinition[], formGroup: FormGroup): Observable<FieldVisibilityState> {
     return formGroup.valueChanges.pipe(
       startWith(formGroup.getRawValue()),
       map((values) => evaluateFieldVisibility(fields, values as Record<string, unknown>)),

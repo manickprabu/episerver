@@ -9,7 +9,7 @@ import { EpiserverFormsModule } from '../../../episerver-forms.module';
   selector: 'lib-element-wrapper-host',
   standalone: false,
   template: `
-    <lib-element-wrapper [className]="'FormTextbox'" [control]="control" [submitted]="submitted" [isVisible]="isVisible">
+    <lib-element-wrapper [className]="'formTextbox'" [control]="control" [submitted]="submitted" [isVisible]="isVisible">
       <span class="InnerContent">Child</span>
     </lib-element-wrapper>
   `
@@ -34,8 +34,8 @@ describe('ElementWrapperComponent', () => {
     fixture.detectChanges();
 
     const wrapper = fixture.nativeElement.querySelector('.Form__Element') as HTMLDivElement;
-    expect(wrapper.className).toContain('FormTextbox');
-    expect(wrapper.className).toContain('ValidationFail');
+    expect(wrapper.className).toContain('formTextbox');
+    expect(wrapper.className).toContain('validationFail');
   });
 
   it('hides projected content when not visible', () => {

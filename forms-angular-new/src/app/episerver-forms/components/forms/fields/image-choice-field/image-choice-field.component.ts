@@ -7,6 +7,7 @@ import { FormSchemaFormService } from '../../../../services/form-schema-form.ser
   selector: 'lib-image-choice-field',
   standalone: false,
   templateUrl: './image-choice-field.component.html',
+  styleUrls: ['./image-choice-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImageChoiceFieldComponent {

@@ -1,10 +1,10 @@
-.Form__NavigationBar {
+.form__NavigationBar {
   display: flex;
   gap: 1rem;
   align-items: center;
 }
 
-.Form__NavigationBar__Action {
+.form__NavigationBar__Action {
   display: inline-block;
   vertical-align: middle;
   text-align: center;
@@ -17,12 +17,12 @@
   background-image: linear-gradient(to top, #fff, #e6e6e6);
 }
 
-.Form__NavigationBar__Action:disabled {
+.form__NavigationBar__Action:disabled {
   cursor: not-allowed;
   opacity: 0.4;
 }
 
-.Form__NavigationBar__ProgressBar {
+.form__NavigationBar__ProgressBar {
   position: relative;
   flex: 1;
   border: 1px solid rgba(41, 128, 189, 0.5);
@@ -32,12 +32,12 @@
   background: #fff;
 }
 
-.Form__NavigationBar__ProgressBar--Progress {
+.form__NavigationBar__ProgressBar--Progress {
   background-color: rgba(41, 128, 189, 0.5);
   height: 100%;
 }
 
-.Form__NavigationBar__ProgressBar--Text {
+.form__NavigationBar__ProgressBar--Text {
   position: absolute;
   inset: 0;
   display: flex;
