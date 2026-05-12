@@ -1,14 +1,14 @@
-@use '../../../styles/variables' as vars;
-
 :host {
-  display: contents;
+  display: block;
+  width: 100%;
+  max-width: 100%;
 }
 
 .form__Element__Caption,
 .form__Element__Caption--label,
 .form__Element__Caption--legend,
 .form__Element__Caption--div {
-  display: inline-block;
+  display: block;
   width: 100%;
   max-width: 100%;
 }

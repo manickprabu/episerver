@@ -1,4 +1,6 @@
 <lib-element-wrapper className="formParagraphText form__Element--NonData">
   <lib-element-caption [field]="field()" [variant]="'div'" />
-  <div [innerHTML]="field().properties.paragraphText || ''"></div>
+  <div class="element-field">
+    <div class="element-field__control" [innerHTML]="field().properties.paragraphText || ''"></div>
+  </div>
 </lib-element-wrapper>

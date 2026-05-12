@@ -93,17 +93,36 @@
 
     &__Element {
       display: grid;
-      grid-template-columns: minmax(14rem, vars.$form-label-width) minmax(0, 1fr);
+      grid-template-columns: minmax(0, vars.$form-label-width) minmax(0, calc(100% - vars.$form-label-width));
       column-gap: vars.$form-layout-gap;
       align-items: start;
       margin: 0 0 1.5rem;
 
-      > :not(.form__Element__Caption) {
+      > lib-element-caption,
+      > .form__Element__Caption {
+        grid-column: 1;
+        align-self: start;
+      }
+
+      > :not(lib-element-caption):not(.form__Element__Caption) {
         grid-column: 2;
+        align-self: start;
+      }
+
+      .element-field {
+        display: grid;
+        gap: 0.5rem;
+        width: 100%;
+        align-self: start;
+
+        &__control {
+          width: 100%;
+          align-self: start;
+        }
       }
 
       &__Caption {
-        display: inline-block;
+        display: block;
         width: 100%;
         min-width: 0;
         max-width: 100%;
@@ -144,22 +163,11 @@
 
     &Choice {
       fieldset {
-        display: grid;
-        grid-template-columns: minmax(14rem, vars.$form-label-width) minmax(0, 1fr);
-        column-gap: vars.$form-layout-gap;
-        align-items: start;
-
-        > :not(.form__Element__Caption) {
-          grid-column: 2;
-        }
-      }
-
-      .form__Element__Caption {
+        display: block;
         width: 100%;
-        min-width: 0;
-        max-width: 100%;
-        grid-column: 1;
         margin: 0;
+        padding: 0;
+        border: 0;
       }
 
       &__Label {
