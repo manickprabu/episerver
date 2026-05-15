@@ -1,0 +1,41 @@
+.episerver-new-form-page {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+
+  &__header {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  &__state {
+    padding: 1rem 1.25rem;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 1rem;
+    background: #ffffff;
+  }
+
+  &__accordions {
+    display: grid;
+    gap: 1rem;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+  }
+
+  &__submit {
+    min-width: 14rem;
+    padding: 0.85rem 1.4rem;
+    color: #ffffff;
+    font: inherit;
+    cursor: pointer;
+    background: #0f766e;
+    border: 0;
+    border-radius: 999px;
+  }
+}

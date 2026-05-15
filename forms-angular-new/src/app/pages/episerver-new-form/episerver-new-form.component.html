@@ -1,0 +1,69 @@
+<section class="episerver-new-form-page">
+  @if (isLoading) {
+    <div class="episerver-new-form-page__state">Loading mock form...</div>
+  } @else {
+    <header class="episerver-new-form-page__header">
+      <h1>{{ source.name }}</h1>
+      <p>Rendering `EpiserverFormDefinition` mock data with `lib-accordion` and library form fields.</p>
+    </header>
+
+    <form class="episerverForms {{ validationCssClass }}" [formGroup]="formGroup" (ngSubmit)="submitForm()" novalidate>
+      @if (statusMessage) {
+        <div class="form__Status">
+          <div
+            class="form__Status__Message"
+            [class.form__Success__Message]="submitSucceeded"
+            [class.form__Warning__Message]="!submitSucceeded"
+          >
+            {{ statusMessage }}
+          </div>
+        </div>
+      }
+
+      <div class="episerver-new-form-page__accordions">
+        @for (step of steps; track step.formStep.key; let stepIndex = $index) {
+          <lib-accordion
+            [accordionOpen]="isStepOpen(stepIndex)"
+            [borderColor]="isStepOpen(stepIndex) ? 'rgba(59, 130, 246, 0.45)' : 'rgba(15, 23, 42, 0.14)'"
+            [icon]="isStepOpen(stepIndex) ? '•' : '○'"
+            [pillColor]="isStepOpen(stepIndex) ? '#2563eb' : '#64748b'"
+            [pillText]="isStepOpen(stepIndex) ? 'Open' : 'Available'"
+            [title]="stepTitle(step, stepIndex)"
+            [loading]="isSubmitting && isStepOpen(stepIndex)"
+            (toggleAccordion)="openStep(stepIndex)"
+          >
+            <section class="form__Element__Step">
+              @for (field of visibleStepFields(step); track field.key) {
+                <lib-episerver-form
+                  [field]="field"
+                  [formGroup]="formGroup"
+                  [submitted]="hasSubmitted"
+                  [submitDisabled]="isSubmitting"
+                />
+              }
+            </section>
+          </lib-accordion>
+        }
+      </div>
+
+      <div class="episerver-new-form-page__actions">
+        <button type="submit" class="episerver-new-form-page__submit">Submit mock form</button>
+      </div>
+    </form>
+
+    <lib-accordion
+      [accordionOpen]="libraryPreviewOpen"
+      borderColor="rgba(15, 23, 42, 0.14)"
+      icon="⌘"
+      pillColor="#475569"
+      pillText="Library preview"
+      title="Library renderer preview"
+      [loading]="false"
+      (toggleAccordion)="toggleLibraryPreview()"
+    >
+      @if (libraryPreviewOpen) {
+        <lib-form-body [form]="form" [baseUrl]="''" [currentPageUrl]="document.location?.href || ''" />
+      }
+    </lib-accordion>
+  }
+</section>

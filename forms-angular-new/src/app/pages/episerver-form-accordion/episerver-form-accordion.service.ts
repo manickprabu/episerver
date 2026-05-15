@@ -347,13 +347,13 @@ export class EpiserverFormAccordionService {
   }
 
   savePartial(source: EpiserverFormDefinition, model: FormSubmitModel): Observable<FormSubmissionResult> {
-    return this.httpClient.post<FormSubmissionResult>(this.endpoint, this.toFormData(model), {
+    return this.httpClient.post<FormSubmissionResult>(this.endpoint, this.toFormData(source, model), {
       headers: this.buildHeaders(source)
     });
   }
 
   submitFinal(source: EpiserverFormDefinition, model: FormSubmitModel): Observable<FormSubmissionResult> {
-    return this.httpClient.put<FormSubmissionResult>(this.endpoint, this.toFormData(model), {
+    return this.httpClient.put<FormSubmissionResult>(this.endpoint, this.toFormData(source, model), {
       headers: this.buildHeaders(source)
     });
   }
@@ -367,11 +367,13 @@ export class EpiserverFormAccordionService {
     return new HttpHeaders({ [antiforgery.headerName]: antiforgery.token });
   }
 
-  private toFormData(model: FormSubmitModel): FormData {
+  private toFormData(source: EpiserverFormDefinition, model: FormSubmitModel): FormData {
     const formData = new FormData();
     const fields: Record<string, unknown> = {};
+    const fieldKeyMap = this.buildFieldKeyMap(source);
 
     model.submissionData.forEach((submission: FormSubmission) => {
+      const serializedKey = fieldKeyMap.get(submission.elementKey) ?? submission.elementKey;
       const value = submission.value;
       if (value === null || value === undefined || value === '') {
         return;
@@ -384,7 +386,7 @@ export class EpiserverFormAccordionService {
         for (let index = 0; index < files.length; index += 1) {
           const file = files[index].file;
           if (file) {
-            formData.append(submission.elementKey + '_file_' + index, file);
+            formData.append(serializedKey + '_file_' + index, file);
           }
 
           if (index > 0) {
@@ -393,11 +395,11 @@ export class EpiserverFormAccordionService {
           fileNames += files[index].name;
         }
 
-        fields[submission.elementKey] = fileNames;
+        fields[serializedKey] = fileNames;
         return;
       }
 
-      fields[submission.elementKey] = value;
+      fields[serializedKey] = value;
     });
 
     formData.append(
@@ -414,6 +416,18 @@ export class EpiserverFormAccordionService {
     );
 
     return formData;
+  }
+
+  private buildFieldKeyMap(source: EpiserverFormDefinition): Map<string, string> {
+    const map = new Map<string, string>();
+
+    source.fields.forEach((field) => {
+      if (typeof field.contentLink?.id === 'number') {
+        map.set(field.contentGuid, '__field_' + field.contentLink.id);
+      }
+    });
+
+    return map;
   }
 
   private cloneForm(source: EpiserverFormDefinition): EpiserverFormDefinition {
