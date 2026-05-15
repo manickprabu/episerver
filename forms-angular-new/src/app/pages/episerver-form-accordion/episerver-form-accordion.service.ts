@@ -367,10 +367,11 @@ export class EpiserverFormAccordionService {
     return new HttpHeaders({ [antiforgery.headerName]: antiforgery.token });
   }
 
-  private toFormData(source: EpiserverFormDefinition, model: FormSubmitModel): FormData {
+  private toFormData(source: EpiserverFormDefinition, model: FormSubmitModel): FormData | Record<string, unknown> {
     const formData = new FormData();
     const fields: Record<string, unknown> = {};
     const fieldKeyMap = this.buildFieldKeyMap(source);
+    let hasFileData = false;
 
     model.submissionData.forEach((submission: FormSubmission) => {
       const serializedKey = fieldKeyMap.get(submission.elementKey) ?? submission.elementKey;
@@ -379,41 +380,29 @@ export class EpiserverFormAccordionService {
         return;
       }
 
-      if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object') {
-        const files = value as Array<{ name: string; file?: File }>;
-        let fileNames = '';
-
-        for (let index = 0; index < files.length; index += 1) {
-          const file = files[index].file;
-          if (file) {
-            formData.append(serializedKey + '_file_' + index, file);
-          }
-
-          if (index > 0) {
-            fileNames += ' | ';
-          }
-          fileNames += files[index].name;
-        }
-
-        fields[serializedKey] = fileNames;
+      if (this.appendFileData(value, serializedKey, formData, fields)) {
+        hasFileData = true;
         return;
       }
 
       fields[serializedKey] = value;
     });
 
-    formData.append(
-      'data',
-      JSON.stringify({
-        FormKey: model.formKey,
-        Locale: model.locale,
-        IsFinalized: model.isFinalized,
-        SubmissionKey: model.partialSubmissionKey,
-        HostedPageUrl: model.hostedPageUrl,
-        CurrentStep: model.currentStepIndex,
-        Fields: fields
-      })
-    );
+    const payload = {
+      FormKey: model.formKey,
+      Locale: model.locale,
+      IsFinalized: model.isFinalized,
+      SubmissionKey: model.partialSubmissionKey,
+      HostedPageUrl: model.hostedPageUrl,
+      CurrentStep: model.currentStepIndex,
+      Fields: fields
+    };
+
+    if (!hasFileData) {
+      return payload;
+    }
+
+    formData.append('data', JSON.stringify(payload));
 
     return formData;
   }
@@ -428,6 +417,35 @@ export class EpiserverFormAccordionService {
     });
 
     return map;
+  }
+
+  private appendFileData(
+    value: unknown,
+    serializedKey: string,
+    formData: FormData,
+    fields: Record<string, unknown>
+  ): boolean {
+    if (!Array.isArray(value) || value.length === 0 || typeof value[0] !== 'object') {
+      return false;
+    }
+
+    const files = value as Array<{ name: string; file?: File }>;
+    let fileNames = '';
+
+    for (let index = 0; index < files.length; index += 1) {
+      const file = files[index].file;
+      if (file) {
+        formData.append(serializedKey + '_file_' + index, file);
+      }
+
+      if (index > 0) {
+        fileNames += ' | ';
+      }
+      fileNames += files[index].name;
+    }
+
+    fields[serializedKey] = fileNames;
+    return true;
   }
 
   private cloneForm(source: EpiserverFormDefinition): EpiserverFormDefinition {
