@@ -7,9 +7,34 @@ export interface EpiserverContentLink {
   isReadOnly?: boolean;
 }
 
+export enum EpiserverConditionOperator {
+  Contains = 0,
+  NotContains = 1,
+  Equals = 2,
+  NotEquals = 3,
+  MatchRegularExpression = 4
+}
+
+export enum EpiserverFieldType {
+  TextboxElementBlockProxy = 'TextboxElementBlockProxy',
+  TextareaElementBlockProxy = 'TextareaElementBlockProxy',
+  SelectionElementBlockProxy = 'SelectionElementBlockProxy',
+  ChoiceElementBlockProxy = 'ChoiceElementBlockProxy',
+  FileUploadElementBlockProxy = 'FileUploadElementBlockProxy',
+  PredefinedHiddenElementBlockProxy = 'PredefinedHiddenElementBlockProxy',
+  FormStepBlockProxy = 'FormStepBlockProxy',
+  NumberElementBlockProxy = 'NumberElementBlockProxy',
+  RangeElementBlockProxy = 'RangeElementBlockProxy',
+  SubmitButtonElementBlockProxy = 'SubmitButtonElementBlockProxy',
+  ResetButtonElementBlockProxy = 'ResetButtonElementBlockProxy',
+  ParagraphTextElementBlockProxy = 'ParagraphTextElementBlockProxy',
+  ImageChoiceElementBlockProxy = 'ImageChoiceElementBlockProxy',
+  UrlElementBlockProxy = 'UrlElementBlockProxy'
+}
+
 export interface EpiserverFieldCondition {
   field?: EpiserverContentLink | null;
-  operator?: number | string | null;
+  operator?: EpiserverConditionOperator | number | string | null;
   fieldValue?: string | null;
 }
 
@@ -49,10 +74,12 @@ export interface EpiserverFieldProperties {
 
 export interface EpiserverFieldDefinition {
   name?: string;
+  id?: number;
   contentLink?: EpiserverContentLink;
   contentGuid: string;
   editViewFriendlyTitle?: string;
-  type: string;
+  type: EpiserverFieldType | string;
+  value?: unknown;
   properties: EpiserverFieldProperties;
 }
 
@@ -62,9 +89,13 @@ export interface EpiserverAntiforgery {
 }
 
 export interface EpiserverFormDefinition {
-  formId: number | string;
+  formId?: number | string;
+  formGuid?: string;
+  submissionId?: string;
   contentGuid: string;
   name: string;
+  title?: string;
+  description?: string;
   totalSteps?: number;
   fields: EpiserverFieldDefinition[];
   hidden?: Record<string, string>;

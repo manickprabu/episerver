@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { FormField } from '../../models/form-schema.model';
@@ -10,9 +10,9 @@ import { FormField } from '../../models/form-schema.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RenderElementComponent {
-  readonly field = input.required<FormField>();
-  readonly formGroup = input.required<FormGroup>();
-  readonly submitted = input(false);
-  readonly submitDisabled = input(false);
-  readonly reset = output<void>();
+  @Input() field!: FormField;
+  @Input() formGroup!: FormGroup;
+  @Input() submitted = false;
+  @Input() submitDisabled = false;
+  @Output() readonly reset = new EventEmitter<void>();
 }

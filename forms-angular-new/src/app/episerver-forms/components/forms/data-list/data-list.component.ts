@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 import { FormField } from '../../../models/form-schema.model';
 
@@ -9,5 +9,5 @@ import { FormField } from '../../../models/form-schema.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataListComponent {
-  readonly field = input.required<FormField>();
+  @Input() field!: FormField;
 }

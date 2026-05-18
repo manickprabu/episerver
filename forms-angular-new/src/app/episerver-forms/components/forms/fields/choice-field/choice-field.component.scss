@@ -1,11 +1,8 @@
-@use '../../../../styles/variables' as vars;
-
 :host {
   display: block;
 }
 
 .formChoice {
-
   fieldset {
     margin: 0;
     padding: 0;
@@ -17,14 +14,17 @@
       gap: 0.65rem;
       margin-top: 0.65rem;
       padding: 0.65rem 0.8rem;
-      background: vars.$form-surface-color;
-      border: 1px solid vars.$form-border-color-soft;
-      border-radius: 0.75rem;
-      transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+      background: var(--white);
+      border: 1px solid var(--light-grey);
+      border-radius: var(--form-border-radius);
+      transition:
+        border-color 160ms ease,
+        background-color 160ms ease,
+        box-shadow 160ms ease;
 
       &:hover {
-        border-color: vars.$form-border-color-strong;
-        background: vars.$form-surface-muted;
+        border-color: var(--grey);
+        background: var(--athens-grey);
       }
     }
   }
@@ -32,20 +32,20 @@
   &__Input {
     flex: 0 0 auto;
     margin: 0;
-    accent-color: vars.$form-focus-color;
+    accent-color: var(--ocean);
   }
 
   &__Label {
     display: inline-block;
     margin-left: 0;
-    color: vars.$form-body-color;
+    color: var(--dark-grey);
     line-height: 1.4;
     cursor: pointer;
   }
 
   .form__Element--validationFail & {
     fieldset > div {
-      border-color: mix(vars.$form-warning-foreground-color, vars.$form-surface-color, 20%);
+      border-color: var(--azalea);
     }
   }
 }

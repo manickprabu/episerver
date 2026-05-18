@@ -28,7 +28,7 @@ export function isNumeric(value: unknown): boolean {
 export function isInArray(value: string, arrayString: string[], ignoreCase = false): boolean {
   if (ignoreCase) {
     value = value.toLowerCase();
-    arrayString = arrayString.map((item) => item.toLowerCase());
+    arrayString = arrayString.map(item => item.toLowerCase());
   }
 
   return arrayString.indexOf(value) > -1;

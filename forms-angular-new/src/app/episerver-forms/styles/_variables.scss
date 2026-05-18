@@ -1,30 +1,3 @@
-$form-active-color: rgba(41, 128, 189, 0.5);
-$form-invisible-element-color: rgba(184, 192, 197, 0.6);
-$form-border-radius: 0.75rem;
-$form-warning-foreground-color: #d0103a;
-$form-warning-background-color: #fff8aa;
-$form-primary-color: #84c8e4;
-$form-text-color: #333333;
-$form-body-color: #363a36;
-$form-muted-color: #6d7a7c;
-$form-border-color: #c1c5c8;
-$form-border-color-strong: #888888;
-$form-border-color-soft: #dddddd;
-$form-surface-color: #ffffff;
-$form-surface-muted: #f9fafb;
-$form-surface-accent: #f7f2ef;
-$form-focus-color: #0e9390;
-$form-focus-shadow: rgba(14, 147, 144, 0.16);
-$form-danger-shadow: rgba(208, 16, 58, 0.12);
-$form-success-background: #84c8e4;
-$form-success-foreground: #333333;
-$form-pill-background: #e6eeee;
-$form-pill-foreground: #276869;
-$form-range-button-color: #0a95c9;
-$form-range-button-disabled: #a4a4a4;
-$form-label-width: 50%;
-$form-layout-gap: 1rem;
-
 :root {
   --transparent: transparent;
   --athens-grey: #f9fafb;
@@ -72,5 +45,7 @@ $form-layout-gap: 1rem;
   --accepted: var(--ocean);
   --property-card-lower: rgb(251, 247, 245);
   --wild-sand: #f4f4f4;
-  --buttermilk: #ffecb3;
+  --buttermilk: #ffecb3; 
+  --form-focus-shadow: rgba(14, 147rgb(2, 2, 2)0.16);
+  --form-danger-shadow: rgba(208, 16, 58, 0.12);
 }

@@ -1,25 +1,37 @@
-<lib-element-wrapper className="formSelection" [control]="control()" [submitted]="submitted()">
-  <lib-element-caption [field]="field()" [forId]="field().key" />
+<lib-element-wrapper className="formSelection" [control]="resolvedControl" [submitted]="submitted">
+  <lib-element-caption [field]="field" [forId]="field.key" />
   <div class="element-field">
-    <select
-      [id]="field().key"
-      class="element-field__control"
-      [multiple]="!!field().properties.allowMultiSelect"
-      [value]="$any(control())?.value"
-      [attr.aria-describedby]="field().key + '_desc'"
-      [attr.autocomplete]="field().properties.autoComplete || null"
-      [attr.title]="field().properties.description || null"
-      (change)="field().properties.allowMultiSelect ? onMultiSelectChange($event) : onSingleSelectChange($any($event.target).value)"
-    >
-      @if (!field().properties.allowMultiSelect) {
-        <option value="" [disabled]="$any(control())?.value !== ''">
-          {{ field().properties.placeHolder || field().localizations['selectionDefaultPlaceholder'] || 'Select an option' }}
+    @if (field.properties.allowMultiSelect) {
+      <select
+        [id]="field.key"
+        class="element-field__control"
+        multiple
+        [formControl]="$any(resolvedControl)"
+        [attr.aria-describedby]="field.key + '_desc'"
+        [attr.autocomplete]="field.properties.autoComplete || null"
+        [attr.title]="field.properties.description || null"
+        (blur)="markTouched()">
+        @for (item of field.properties.items ?? []; track item.value) {
+          <option [value]="item.value || ''">{{ item.caption }}</option>
+        }
+      </select>
+    } @else {
+      <select
+        [id]="field.key"
+        class="element-field__control"
+        [formControl]="$any(resolvedControl)"
+        [attr.aria-describedby]="field.key + '_desc'"
+        [attr.autocomplete]="field.properties.autoComplete || null"
+        [attr.title]="field.properties.description || null"
+        (blur)="markTouched()">
+        <option value="" [disabled]="$any(resolvedControl)?.value !== ''">
+          {{ field.properties.placeHolder || field.localizations['selectionDefaultPlaceholder'] || 'Select an option' }}
         </option>
-      }
-      @for (item of field().properties.items ?? []; track item.value) {
-        <option [value]="item.value || ''">{{ item.caption }}</option>
-      }
-    </select>
-    <lib-validation-message [field]="field()" [control]="control()" [submitted]="submitted()" />
+        @for (item of field.properties.items ?? []; track item.value) {
+          <option [value]="item.value || ''">{{ item.caption }}</option>
+        }
+      </select>
+    }
+    <lib-validation-message [field]="field" [control]="resolvedControl" [submitted]="submitted" />
   </div>
 </lib-element-wrapper>

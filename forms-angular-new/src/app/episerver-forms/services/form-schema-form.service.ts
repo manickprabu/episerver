@@ -183,13 +183,13 @@ export class FormSchemaFormService {
   }
 
   private maxFileSizeValidator(maxSize: number): ValidatorFn {
-    return (control) => {
+    return control => {
       const value = control.value as Array<{ file?: File }> | null;
       if (!Array.isArray(value) || value.length === 0) {
         return null;
       }
 
-      const invalid = value.some((entry) => (entry.file?.size ?? 0) > maxSize);
+      const invalid = value.some(entry => (entry.file?.size ?? 0) > maxSize);
       return invalid ? { maxFileSize: true } : null;
     };
   }
@@ -197,16 +197,16 @@ export class FormSchemaFormService {
   private allowedExtensionsValidator(accept: string): ValidatorFn {
     const normalized = accept
       .split(',')
-      .map((extension) => extension.toLowerCase().replace(/^\./, '').trim())
+      .map(extension => extension.toLowerCase().replace(/^\./, '').trim())
       .filter(Boolean);
 
-    return (control) => {
+    return control => {
       const value = control.value as Array<{ name?: string }> | null;
       if (!Array.isArray(value) || value.length === 0) {
         return null;
       }
 
-      const invalid = value.some((entry) => {
+      const invalid = value.some(entry => {
         const name = entry.name ?? '';
         const extension = name.split('.').pop()?.toLowerCase() ?? '';
         return !normalized.includes(extension);
@@ -247,6 +247,6 @@ export class FormSchemaFormService {
   }
 
   private getCheckedValues(items: FormFieldOption[] | undefined): string[] {
-    return (items ?? []).filter((item) => item.checked && Boolean(item.value)).map((item) => item.value as string);
+    return (items ?? []).filter(item => item.checked && Boolean(item.value)).map(item => item.value as string);
   }
 }

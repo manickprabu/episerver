@@ -22,7 +22,7 @@ describe('FormStepNavigationComponent', () => {
     expect(host.textContent).toContain('Back');
     expect(host.textContent).toContain('Continue');
     expect(host.textContent).toContain('Step');
-    expect(host.querySelector('.Form__NavigationBar__ProgressBar--Progress')?.getAttribute('style')).toContain('66.666');
+    expect(host.querySelector('.form__NavigationBar__ProgressBar--Progress')?.getAttribute('style')).toContain('66.666');
   });
 
   it('hides navigation when the form is finalized', () => {
@@ -32,6 +32,6 @@ describe('FormStepNavigationComponent', () => {
     fixture.componentRef.setInput('isFormFinalized', true);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.Form__NavigationBar')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.form__NavigationBar')).toBeNull();
   });
 });

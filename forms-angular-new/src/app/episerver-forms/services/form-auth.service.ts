@@ -1,12 +1,7 @@
 import { Injectable } from '@angular/core';
 import { from, Observable, tap } from 'rxjs';
 
-import {
-  FormAuthenticateService as SdkFormAuthenticateService,
-  FormCacheService,
-  FormConstants,
-  IdentityInfo
-} from '../../episerver-forms/episerver-sdk';
+import { FormAuthenticateService as SdkFormAuthenticateService, FormCacheService, FormConstants, IdentityInfo } from '../../episerver-forms/episerver-sdk';
 
 @Injectable()
 export class FormAuthService {
@@ -27,8 +22,8 @@ export class FormAuthService {
           username,
           password
         )
-        .then((accessToken) => ({ username, accessToken }))
-    ).pipe(tap((identityInfo) => this.formCacheService.set<string>(FormConstants.FormAccessToken, identityInfo.accessToken)));
+        .then(accessToken => ({ username, accessToken }))
+    ).pipe(tap(identityInfo => this.formCacheService.set<string>(FormConstants.FormAccessToken, identityInfo.accessToken)));
   }
 
   getAccessToken(): string {

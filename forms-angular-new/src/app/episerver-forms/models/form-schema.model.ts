@@ -20,28 +20,28 @@ export type FormFieldValidatorModel = ElementValidatorBase['model'] & {
 
 export type FormFieldProperties = AnyFormElementProperties &
   Record<string, unknown> & {
-  label: string;
-  description: string;
-  placeHolder?: string;
-  autoComplete?: string;
-  predefinedValue?: unknown;
-  defaultValue?: unknown;
-  paragraphText?: string;
-  disablePlaceholdersReplacement?: boolean;
-  showSelectionInputControl?: boolean;
-  allowMultiSelect?: boolean;
-  allowMultiple?: boolean;
-  fileTypes?: string;
-  min?: number;
-  max?: number;
-  step?: number;
-  image?: string;
-  items?: FormFieldOption[];
-  forms_ExternalSystemsFieldMappings?: string[];
-  redirectToPage?: string;
-  finalizeForm?: boolean;
-  attachedContentLink?: string;
-  validators?: FormFieldValidator[];
+    label: string;
+    description: string;
+    placeHolder?: string;
+    autoComplete?: string;
+    predefinedValue?: unknown;
+    defaultValue?: unknown;
+    paragraphText?: string;
+    disablePlaceholdersReplacement?: boolean;
+    showSelectionInputControl?: boolean;
+    allowMultiSelect?: boolean;
+    allowMultiple?: boolean;
+    fileTypes?: string;
+    min?: number;
+    max?: number;
+    step?: number;
+    image?: string;
+    items?: FormFieldOption[];
+    forms_ExternalSystemsFieldMappings?: string[];
+    redirectToPage?: string;
+    finalizeForm?: boolean;
+    attachedContentLink?: string;
+    validators?: FormFieldValidator[];
   };
 
 export type FormField = FormElementBase & {

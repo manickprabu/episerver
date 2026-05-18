@@ -23,7 +23,7 @@ export function extractParams(urlPath: string): ExtractedUrlParams {
   if (relativePath.includes(',')) {
     const [, , idString] = relativePath.split(',');
     if (idString.includes('_')) {
-      [contentId, workId] = idString.split('_').map((value) => parseInt(value, 10));
+      [contentId, workId] = idString.split('_').map(value => parseInt(value, 10));
     } else {
       contentId = parseInt(idString, 10);
     }
@@ -35,12 +35,7 @@ export function extractParams(urlPath: string): ExtractedUrlParams {
   }
 
   const urlSegments = relativePath.split('/');
-  const language = urlSegments.length
-    ? urlSegments.find(
-        (segment) =>
-          segment.length === 2 || (segment.indexOf('-') === 2 && segment.length === 5)
-      )
-    : 'en';
+  const language = urlSegments.length ? urlSegments.find(segment => segment.length === 2 || (segment.indexOf('-') === 2 && segment.length === 5)) : 'en';
 
   return { relativePath, locales: language, language, contentId, workId };
 }

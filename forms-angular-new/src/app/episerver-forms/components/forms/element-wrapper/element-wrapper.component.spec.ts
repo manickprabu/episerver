@@ -1,48 +1,33 @@
 import '@angular/compiler';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { Component } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
-import { EpiserverFormsModule } from '../../../episerver-forms.module';
+import { FormControl, Validators } from '@angular/forms';
 
-@Component({
-  selector: 'lib-element-wrapper-host',
-  standalone: false,
-  template: `
-    <lib-element-wrapper [className]="'formTextbox'" [control]="control" [submitted]="submitted" [isVisible]="isVisible">
-      <span class="InnerContent">Child</span>
-    </lib-element-wrapper>
-  `
-})
-class ElementWrapperHostComponent {
-  readonly control = new FormControl('', { nonNullable: true, validators: [Validators.required] });
-  submitted = false;
-  isVisible = true;
-}
+import { ElementWrapperComponent } from './element-wrapper.component';
 
 describe('ElementWrapperComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EpiserverFormsModule],
-      declarations: [ElementWrapperHostComponent]
+      declarations: [ElementWrapperComponent]
     }).compileComponents();
   });
 
   it('applies validation fail classes after submission', () => {
-    const fixture = TestBed.createComponent(ElementWrapperHostComponent);
+    const fixture = TestBed.createComponent(ElementWrapperComponent);
+    fixture.componentInstance.className = 'formTextbox';
+    fixture.componentInstance.control = new FormControl('', { nonNullable: true, validators: [Validators.required] });
     fixture.componentInstance.submitted = true;
     fixture.detectChanges();
 
-    const wrapper = fixture.nativeElement.querySelector('.Form__Element') as HTMLDivElement;
+    const wrapper = fixture.nativeElement.querySelector('.form__Element') as HTMLDivElement;
     expect(wrapper.className).toContain('formTextbox');
     expect(wrapper.className).toContain('validationFail');
   });
 
-  it('hides projected content when not visible', () => {
-    const fixture = TestBed.createComponent(ElementWrapperHostComponent);
+  it('does not render wrapper markup when not visible', () => {
+    const fixture = TestBed.createComponent(ElementWrapperComponent);
     fixture.componentInstance.isVisible = false;
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.InnerContent')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.form__Element')).toBeNull();
   });
 });

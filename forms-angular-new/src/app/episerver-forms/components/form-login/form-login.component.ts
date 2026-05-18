@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, Signal, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IdentityInfo } from '../../episerver-sdk';
 import { FormLoginStateService } from '../../services/form-login-state.service';
@@ -11,15 +11,15 @@ import { FormLoginStateService } from '../../services/form-login-state.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormLoginComponent {
-  readonly clientId = input.required<string>();
-  readonly authBaseUrl = input.required<string>();
-  readonly onAuthenticated = output<IdentityInfo>();
+  @Input() clientId!: string;
+  @Input() authBaseUrl!: string;
+  @Output() readonly onAuthenticated = new EventEmitter<IdentityInfo>();
 
   protected readonly loginForm: FormGroup;
-  protected readonly canSubmit: Signal<boolean>;
 
   constructor(
     private readonly formBuilder: FormBuilder,
+    private readonly changeDetectorRef: ChangeDetectorRef,
     private readonly destroyRef: DestroyRef,
     protected readonly loginState: FormLoginStateService
   ) {
@@ -27,21 +27,26 @@ export class FormLoginComponent {
       username: ['', Validators.required],
       password: ['', Validators.required]
     });
-    this.canSubmit = computed(
-      () => this.loginForm.valid && !this.loginState.isSubmitting() && !!this.authBaseUrl().trim()
-    );
     this.loginState.watchAccessToken(this.destroyRef);
+    const subscription = this.loginState.stateChanges$.subscribe(() => {
+      this.changeDetectorRef.markForCheck();
+    });
+    this.destroyRef.onDestroy(() => subscription.unsubscribe());
+  }
+
+  protected get canSubmit(): boolean {
+    return this.loginForm.valid && !this.loginState.isSubmitting && !!this.authBaseUrl.trim();
   }
 
   protected submit(): void {
-    if (this.loginForm.invalid || this.loginState.isSubmitting()) {
+    if (this.loginForm.invalid || this.loginState.isSubmitting) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
     const { username, password } = this.loginForm.getRawValue();
-    this.loginState.login(username, password, this.clientId(), this.authBaseUrl()).subscribe({
-      next: (identityInfo) => {
+    this.loginState.login(username, password, this.clientId, this.authBaseUrl).subscribe({
+      next: identityInfo => {
         this.onAuthenticated.emit(identityInfo);
       }
     });

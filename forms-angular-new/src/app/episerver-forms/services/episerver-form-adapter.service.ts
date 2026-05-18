@@ -1,17 +1,20 @@
 import { Injectable } from '@angular/core';
 import { EpiserverFieldDefinition, EpiserverFormDefinition } from '../models/episerver-form-definition.model';
+import { ConditionCombinationType, ConditionFunctionType, SatisfiedActionType } from '../episerver-sdk';
 import { FormField, FormFieldValidator, FormSchema } from '../models/form-schema.model';
 
 @Injectable()
 export class EpiserverFormAdapterService {
   adaptForm(source: EpiserverFormDefinition): FormSchema {
+    const sourceFieldKeyById = this.buildSourceFieldKeyById(source.fields);
+
     return {
       key: source.contentGuid,
       locale: 'en',
       localizations: {},
       steps: [],
       properties: {
-        title: source.name,
+        title: source.title || source.name,
         allowToStoreSubmissionData: true,
         showSummarizedData: false,
         confirmationMessage: '',
@@ -21,16 +24,16 @@ export class EpiserverFormAdapterService {
         allowAnonymousSubmission: true,
         allowMultipleSubmission: true,
         showNavigationBar: true,
-        description: '',
+        description: source.description || '',
         metadataAttribute: '',
         focusOnForm: true
       },
-      formElements: [...this.mapHiddenFields(source), ...source.fields.map((field) => this.mapField(field))]
+      formElements: [...this.mapHiddenFields(source), ...source.fields.map(field => this.mapField(field, sourceFieldKeyById))]
     };
   }
 
   initialSubmissionKey(source: EpiserverFormDefinition): string {
-    return source.hidden?.['__FormSubmissionId'] ?? '';
+    return source.submissionId ?? source.hidden?.['__FormSubmissionId'] ?? '';
   }
 
   private mapHiddenFields(source: EpiserverFormDefinition): FormField[] {
@@ -48,9 +51,12 @@ export class EpiserverFormAdapterService {
     }));
   }
 
-  private mapField(field: EpiserverFieldDefinition): FormField {
+  private mapField(field: EpiserverFieldDefinition, sourceFieldKeyById: Map<number, string>): FormField {
     const contentType = this.normalizeContentType(field.type);
     const validators = this.mapValidators(field.properties.Validators, field.properties.ValidatorMessages);
+    const conditions = this.mapConditions(field, sourceFieldKeyById);
+    const satisfiedAction = this.normalizeSatisfiedAction(field.properties.SatisfiedAction);
+    const conditionCombination = this.normalizeConditionCombination(field.properties.ConditionCombination);
 
     return {
       key: field.contentGuid,
@@ -63,25 +69,114 @@ export class EpiserverFormAdapterService {
         description: field.properties.Description ?? '',
         placeHolder: field.properties.PlaceHolder,
         autoComplete: field.properties.AutoComplete,
-        predefinedValue: field.properties.DefaultValue as string | undefined,
+        predefinedValue: (field.value ?? field.properties.DefaultValue) as string | undefined,
         paragraphText: field.properties.ParagraphText as string | undefined,
         allowMultiSelect: Boolean(field.properties.AllowMultiSelect),
         allowMultiple: Boolean(field.properties.AllowMultiple),
         finalizeForm: field.properties.FinalizeForm as boolean | undefined,
         redirectToPage: field.properties.RedirectToPage as string | undefined,
         attachedContentLink: field.properties.AttachedContentLink as string | undefined,
-        items: field.properties.Items?.map((item) => ({
+        contentLinkId: field.contentLink?.id ?? field.id,
+        items: field.properties.Items?.map(item => ({
           caption: item.caption,
           value: item.value,
           checked: Boolean(item.checked)
         })),
-        validators
+        validators,
+        conditions,
+        conditionCombination,
+        satisfiedAction
       } as unknown as FormField['properties']
     };
   }
 
+  private buildSourceFieldKeyById(fields: EpiserverFieldDefinition[]): Map<number, string> {
+    const sourceFieldKeyById = new Map<number, string>();
+
+    for (const field of fields) {
+      const ids = [field.contentLink?.id, field.id].filter((id): id is number => typeof id === 'number');
+      for (const id of ids) {
+        sourceFieldKeyById.set(id, field.contentGuid);
+      }
+    }
+
+    return sourceFieldKeyById;
+  }
+
+  private mapConditions(field: EpiserverFieldDefinition, sourceFieldKeyById: Map<number, string>) {
+    return (field.properties.Conditions ?? [])
+      .map(condition => {
+        const sourceFieldId = condition.field?.id;
+        if (typeof sourceFieldId !== 'number') {
+          return null;
+        }
+
+        const sourceFieldKey = sourceFieldKeyById.get(sourceFieldId);
+        if (!sourceFieldKey) {
+          return null;
+        }
+
+        return {
+          field: sourceFieldKey,
+          operator: this.normalizeOperator(condition.operator),
+          fieldValue: condition.fieldValue ?? ''
+        };
+      })
+      .filter((condition): condition is { field: string; operator: string; fieldValue: string } => condition !== null);
+  }
+
   private normalizeContentType(type: string): string {
     return type.replace(/Proxy$/, '');
+  }
+
+  private normalizeOperator(operator: number | string | null | undefined): string {
+    switch (operator) {
+      case 0:
+      case '0':
+      case 'Contains':
+        return ConditionFunctionType.Contains;
+      case 1:
+      case '1':
+      case 'NotContains':
+        return ConditionFunctionType.NotContains;
+      case 2:
+      case '2':
+      case 'Equals':
+        return ConditionFunctionType.Equals;
+      case 3:
+      case '3':
+      case 'NotEquals':
+        return ConditionFunctionType.NotEquals;
+      case 4:
+      case '4':
+      case 'MatchRegularExpression':
+        return ConditionFunctionType.MatchRegularExpression;
+      default:
+        return ConditionFunctionType.Equals;
+    }
+  }
+
+  private normalizeConditionCombination(conditionCombination: number | string | undefined): string {
+    switch (conditionCombination) {
+      case 0:
+      case '0':
+      case 'Any':
+      case 'OR':
+      case 'Or':
+        return ConditionCombinationType.Any;
+      default:
+        return ConditionCombinationType.All;
+    }
+  }
+
+  private normalizeSatisfiedAction(satisfiedAction: unknown): string {
+    switch (String(satisfiedAction ?? '').toLowerCase()) {
+      case 'hide':
+        return SatisfiedActionType.Hide;
+      case 'show':
+      default:
+        return SatisfiedActionType.Show;
+    }
   }
 
   private mapValidators(validators: string | undefined, messages: Array<{ validator: string; message: string }> | undefined): FormFieldValidator[] {
@@ -91,11 +186,11 @@ export class EpiserverFormAdapterService {
 
     return validators
       .split(',')
-      .map((value) => value.trim())
+      .map(value => value.trim())
       .filter(Boolean)
-      .map((value) => {
+      .map(value => {
         const type = value.split('.').pop() ?? value;
-        const message = messages?.find((item) => item.validator === value || item.validator.endsWith(type))?.message;
+        const message = messages?.find(item => item.validator === value || item.validator.endsWith(type))?.message;
 
         return {
           type,

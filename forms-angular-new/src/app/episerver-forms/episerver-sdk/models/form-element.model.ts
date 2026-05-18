@@ -43,14 +43,7 @@ export interface RangeProperties extends DataElementBlockBaseProperties {
   max?: number;
 }
 
-export type AnyFormElementProperties = FormElementPropertiesBase &
-  Partial<
-    DataElementBlockBaseProperties &
-      SelectionProperties &
-      RangeProperties &
-      ConditionProperties &
-      RuleConditionProperties
-  >;
+export type AnyFormElementProperties = FormElementPropertiesBase & Partial<DataElementBlockBaseProperties & SelectionProperties & RangeProperties & ConditionProperties & RuleConditionProperties>;
 
 export interface FormElementBase {
   key: string;

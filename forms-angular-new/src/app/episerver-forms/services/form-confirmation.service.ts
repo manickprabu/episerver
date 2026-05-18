@@ -34,7 +34,7 @@ export class FormConfirmationService {
       }
 
       if (typeof value[0] === 'object') {
-        const names = (value as Array<{ name?: string; file?: File }>).map((entry) => entry.name ?? entry.file?.name ?? '').filter(Boolean);
+        const names = (value as Array<{ name?: string; file?: File }>).map(entry => entry.name ?? entry.file?.name ?? '').filter(Boolean);
         return names.length ? `${label}: ${names.join(', ')}` : '';
       }
 

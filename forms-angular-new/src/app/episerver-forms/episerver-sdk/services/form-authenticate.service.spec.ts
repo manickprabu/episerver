@@ -33,9 +33,7 @@ describe('FormAuthenticateService', () => {
     const req = httpMock.expectOne('https://example.com/connect/token');
 
     expect(req.request.method).toBe('POST');
-    expect(req.request.headers.get('Content-Type')).toBe(
-      'application/x-www-form-urlencoded;charset=UTF-8'
-    );
+    expect(req.request.headers.get('Content-Type')).toBe('application/x-www-form-urlencoded;charset=UTF-8');
     expect(req.request.body).toContain('username=ada');
     expect(req.request.body).toContain('password=secret');
     expect(req.request.body).toContain('grant_type=password');
@@ -43,6 +41,6 @@ describe('FormAuthenticateService', () => {
 
     req.flush({ access_token: 'token-123' });
 
-    await expect(promise).resolves.toBe('token-123');
+    await expectAsync(promise).toBeResolvedTo('token-123');
   });
 });

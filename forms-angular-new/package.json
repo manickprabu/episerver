@@ -6,7 +6,9 @@
     "start": "/Users/prabu/.nvm/versions/node/v22.15.0/bin/node ./node_modules/@angular/cli/bin/ng serve --host 127.0.0.1",
     "build": "/Users/prabu/.nvm/versions/node/v22.15.0/bin/node ./node_modules/@angular/cli/bin/ng build",
     "watch": "/Users/prabu/.nvm/versions/node/v22.15.0/bin/node ./node_modules/@angular/cli/bin/ng build --watch --configuration development",
-    "test": "/Users/prabu/.nvm/versions/node/v22.15.0/bin/node ./node_modules/@angular/cli/bin/ng test"
+    "test": "/Users/prabu/.nvm/versions/node/v22.15.0/bin/node ./node_modules/@angular/cli/bin/ng test",
+    "test:watch": "/Users/prabu/.nvm/versions/node/v22.15.0/bin/node ./node_modules/@angular/cli/bin/ng test --watch",
+    "test:coverage": "/Users/prabu/.nvm/versions/node/v22.15.0/bin/node ./node_modules/@angular/cli/bin/ng test --coverage"
   },
   "private": true,
   "packageManager": "npm@10.9.2",
@@ -25,9 +27,14 @@
     "@angular/build": "^21.2.8",
     "@angular/cli": "^21.2.8",
     "@angular/compiler-cli": "^21.2.0",
-    "jsdom": "^28.0.0",
+    "@types/jasmine": "^5.1.12",
+    "jasmine-core": "^5.12.0",
+    "karma": "^6.4.4",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-coverage": "^2.2.1",
+    "karma-jasmine": "^5.1.0",
+    "karma-jasmine-html-reporter": "^2.1.0",
     "prettier": "^3.8.1",
-    "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "typescript": "~5.9.2"
   }
 }

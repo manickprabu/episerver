@@ -1,36 +1,36 @@
-@use '../../../../styles/variables' as vars;
-
 :host {
   display: block;
 }
 
 .formFileUpload {
-
   &__Input {
     display: block;
     width: 100%;
     padding: 0.75rem 0.9rem;
-    color: vars.$form-body-color;
+    color: var(--dark-grey);
     font: inherit;
-    background: vars.$form-surface-muted;
-    border: 1px dashed vars.$form-border-color-strong;
-    border-radius: 0.75rem;
-    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+    background: var(--athens-grey);
+    border: 1px dashed var(--grey);
+    border-radius: var(--form-border-radius);
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      background-color 160ms ease;
 
     &:hover {
-      border-color: vars.$form-focus-color;
-      background: vars.$form-surface-accent;
+      border-color: var(--ocean);
+      background: var(--light-light-sand);
     }
 
     &:focus {
       outline: none;
-      border-color: vars.$form-focus-color;
-      box-shadow: 0 0 0 3px vars.$form-focus-shadow;
+      border-color: var(--ocean);
+      box-shadow: 0 0 0 3px var(--form-focus-shadow);
     }
 
     .form__Element--validationFail & {
-      border-color: vars.$form-warning-foreground-color;
-      box-shadow: 0 0 0 3px vars.$form-danger-shadow;
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px var(--form-danger-shadow);
     }
   }
 }

@@ -2,12 +2,7 @@ import { Injectable } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
 import { from, Observable } from 'rxjs';
 
-import {
-  FormSubmission,
-  FormSubmitModel,
-  FormSubmitService as SdkFormSubmitService,
-  FormValidationResult
-} from '../../episerver-forms/episerver-sdk';
+import { FormSubmission, FormSubmitModel, FormSubmitService as SdkFormSubmitService, FormValidationResult } from '../../episerver-forms/episerver-sdk';
 import { FormField, FormSchema, FormServerValidationError, FormSubmissionResult } from '../models/form-schema.model';
 
 @Injectable()
@@ -16,28 +11,17 @@ export class FormSubmissionService {
 
   toFormSubmissions(form: FormSchema, formGroup: FormGroup): FormSubmission[] {
     return form.formElements
-      .filter((field) => field.contentType !== 'FormStepBlock')
-      .map((field) => ({
+      .filter(field => field.contentType !== 'FormStepBlock')
+      .map(field => ({
         elementKey: field.key,
         value: this.serializeValue(field as FormField, formGroup.get(field.key))
       }));
   }
 
-  collectCurrentStepSubmissions(
-    form: FormSchema,
-    formGroup: FormGroup,
-    currentStepIndex: number,
-    inactiveElements: string[]
-  ): FormSubmission[] {
-    const currentStepKeys = new Set(
-      (form.steps[currentStepIndex]?.elements ?? [])
-        .filter((field) => field.contentType !== 'FormStepBlock')
-        .map((field) => field.key)
-    );
+  collectCurrentStepSubmissions(form: FormSchema, formGroup: FormGroup, currentStepIndex: number, inactiveElements: string[]): FormSubmission[] {
+    const currentStepKeys = new Set((form.steps[currentStepIndex]?.elements ?? []).filter(field => field.contentType !== 'FormStepBlock').map(field => field.key));
 
-    return this.toFormSubmissions(form, formGroup).filter(
-      (submission) => currentStepKeys.has(submission.elementKey) && !inactiveElements.includes(submission.elementKey)
-    );
+    return this.toFormSubmissions(form, formGroup).filter(submission => currentStepKeys.has(submission.elementKey) && !inactiveElements.includes(submission.elementKey));
   }
 
   validateStep(form: FormSchema, submissions: FormSubmission[]): FormValidationResult[] {
@@ -77,15 +61,7 @@ export class FormSubmissionService {
     }
   }
 
-  buildSubmitModel(
-    form: FormSchema,
-    submissions: FormSubmission[],
-    currentStepIndex: number,
-    hostedPageUrl: string,
-    accessToken: string | undefined,
-    isFinalized: boolean,
-    partialSubmissionKey: string
-  ): FormSubmitModel {
+  buildSubmitModel(form: FormSchema, submissions: FormSubmission[], currentStepIndex: number, hostedPageUrl: string, accessToken: string | undefined, isFinalized: boolean, partialSubmissionKey: string): FormSubmitModel {
     return {
       formKey: form.key,
       locale: form.locale,
@@ -117,9 +93,7 @@ export class FormSubmissionService {
   firstInvalidControlKey(formGroup: FormGroup, allowedKeys?: string[]): string | null {
     const allowed = allowedKeys ? new Set(allowedKeys) : null;
 
-    return (
-      Object.entries(formGroup.controls).find(([key, control]) => (!allowed || allowed.has(key)) && control.invalid)?.[0] ?? null
-    );
+    return Object.entries(formGroup.controls).find(([key, control]) => (!allowed || allowed.has(key)) && control.invalid)?.[0] ?? null;
   }
 
   private serializeValue(field: FormField, control: AbstractControl | null): unknown {

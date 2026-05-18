@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'lib-form-step-navigation',
@@ -8,31 +8,36 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormStepNavigationComponent {
-  readonly currentStepIndex = input.required<number>();
-  readonly stepCount = input.required<number>();
-  readonly showNavigation = input(true);
-  readonly isFormFinalized = input(false);
-  readonly isMalFormSteps = input(false);
-  readonly isStepValidToDisplay = input(true);
-  readonly previousButtonLabel = input('Previous');
-  readonly nextButtonLabel = input('Next');
-  readonly progressLabel = input('Page');
+  @Input() currentStepIndex!: number;
+  @Input() stepCount!: number;
+  @Input() showNavigation = true;
+  @Input() isFormFinalized = false;
+  @Input() isMalFormSteps = false;
+  @Input() isStepValidToDisplay = true;
+  @Input() previousButtonLabel = 'Previous';
+  @Input() nextButtonLabel = 'Next';
+  @Input() progressLabel = 'Page';
 
-  readonly previous = output<void>();
-  readonly next = output<void>();
+  @Output() readonly previous = new EventEmitter<void>();
+  @Output() readonly next = new EventEmitter<void>();
 
-  protected readonly currentDisplayStepIndex = computed(() => this.currentStepIndex() + 1);
-  protected readonly canGoPrevious = computed(() => this.currentStepIndex() > 0);
-  protected readonly canGoNext = computed(() => this.currentStepIndex() < this.stepCount() - 1);
-  protected readonly progressWidth = computed(() => (100 * this.currentDisplayStepIndex()) / this.stepCount());
-  protected readonly shouldShowNavigation = computed(
-    () =>
-      this.showNavigation() &&
-      this.stepCount() > 1 &&
-      this.currentStepIndex() > -1 &&
-      this.currentStepIndex() < this.stepCount() &&
-      !this.isFormFinalized() &&
-      !this.isMalFormSteps() &&
-      this.isStepValidToDisplay()
-  );
+  protected get currentDisplayStepIndex(): number {
+    return this.currentStepIndex + 1;
+  }
+
+  protected get canGoPrevious(): boolean {
+    return this.currentStepIndex > 0;
+  }
+
+  protected get canGoNext(): boolean {
+    return this.currentStepIndex < this.stepCount - 1;
+  }
+
+  protected get progressWidth(): number {
+    return this.stepCount > 0 ? (100 * this.currentDisplayStepIndex) / this.stepCount : 0;
+  }
+
+  protected get shouldShowNavigation(): boolean {
+    return this.showNavigation && this.stepCount > 1 && this.currentStepIndex > -1 && this.currentStepIndex < this.stepCount && !this.isFormFinalized && !this.isMalFormSteps && this.isStepValidToDisplay;
+  }
 }

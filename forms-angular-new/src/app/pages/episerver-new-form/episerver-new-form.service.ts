@@ -22,44 +22,32 @@ export class EpiserverNewFormService {
     const form = this.episerverFormAdapterService.adaptForm(source);
     const fieldKeyByContentLinkId = new Map<number, string>();
 
-    source.fields.forEach((field) => {
-      if (typeof field.contentLink?.id === 'number') {
-        fieldKeyByContentLinkId.set(field.contentLink.id, field.contentGuid);
+    source.fields.forEach(field => {
+      const ids = [field.contentLink?.id, field.id].filter((id): id is number => typeof id === 'number');
+      for (const id of ids) {
+        fieldKeyByContentLinkId.set(id, field.contentGuid);
       }
     });
 
-    form.formElements = form.formElements.map((field) =>
-      this.applyDependencyMetadata(field as FormField, source.fields, fieldKeyByContentLinkId)
-    );
+    form.formElements = form.formElements.map(field => this.applyDependencyMetadata(field as FormField, source.fields, fieldKeyByContentLinkId));
     return form;
   }
 
   stepTitle(source: EpiserverFormDefinition, stepFieldKeys: Set<string>, fallback: string): string {
     const titleField = source.fields.find(
-      (field) =>
-        stepFieldKeys.has(field.contentGuid) &&
-        field.name === 'Title' &&
-        field.type === 'PredefinedHiddenElementBlockProxy' &&
-        typeof field.properties.PredefinedValue === 'string' &&
-        field.properties.PredefinedValue.trim().length > 0
+      field => stepFieldKeys.has(field.contentGuid) && field.name === 'Title' && field.type === 'PredefinedHiddenElementBlockProxy' && typeof field.properties.PredefinedValue === 'string' && field.properties.PredefinedValue.trim().length > 0
     );
 
     return titleField?.properties.PredefinedValue ?? fallback;
   }
 
-  private applyDependencyMetadata(
-    field: FormField,
-    sourceFields: EpiserverFieldDefinition[],
-    fieldKeyByContentLinkId: Map<number, string>
-  ): FormField {
-    const sourceField = sourceFields.find((item) => item.contentGuid === field.key);
+  private applyDependencyMetadata(field: FormField, sourceFields: EpiserverFieldDefinition[], fieldKeyByContentLinkId: Map<number, string>): FormField {
+    const sourceField = sourceFields.find(item => item.contentGuid === field.key);
     if (!sourceField) {
       return field;
     }
 
-    const conditions = (sourceField.properties.Conditions ?? [])
-      .map((condition) => this.mapCondition(condition, fieldKeyByContentLinkId))
-      .filter((condition): condition is NonNullable<typeof condition> => condition !== null);
+    const conditions = (sourceField.properties.Conditions ?? []).map(condition => this.mapCondition(condition, fieldKeyByContentLinkId)).filter((condition): condition is NonNullable<typeof condition> => condition !== null);
 
     if (conditions.length === 0 && !sourceField.properties.SatisfiedAction) {
       return field;
@@ -76,10 +64,7 @@ export class EpiserverNewFormService {
     };
   }
 
-  private mapCondition(
-    condition: EpiserverFieldCondition,
-    fieldKeyByContentLinkId: Map<number, string>
-  ): { field: string; operator: string; fieldValue: string } | null {
+  private mapCondition(condition: EpiserverFieldCondition, fieldKeyByContentLinkId: Map<number, string>): { field: string; operator: string; fieldValue: string } | null {
     const sourceFieldId = condition.field?.id;
     if (typeof sourceFieldId !== 'number') {
       return null;
@@ -99,9 +84,7 @@ export class EpiserverNewFormService {
 
   private mapConditionCombination(combination: number | string | undefined): string {
     const normalized = String(combination ?? '').toLowerCase();
-    return normalized === '0' || normalized === 'or' || normalized === 'any'
-      ? ConditionCombinationType.Any
-      : ConditionCombinationType.All;
+    return normalized === '0' || normalized === 'or' || normalized === 'any' ? ConditionCombinationType.Any : ConditionCombinationType.All;
   }
 
   private mapSatisfiedAction(action: string | undefined): string {

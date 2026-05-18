@@ -24,12 +24,8 @@ export class StepDependConditionService {
     }
 
     const dependField = step.properties?.dependField;
-    const storedData = this.formStorageService
-      .loadFormDataFromStorage(form)
-      .find((submission) => submission.elementKey === dependField?.key);
-    const conditionFunction = this.conditionFunctionsService.get(
-      String(step.properties?.['dependCondition'] ?? '')
-    );
+    const storedData = this.formStorageService.loadFormDataFromStorage(form).find(submission => submission.elementKey === dependField?.key);
+    const conditionFunction = this.conditionFunctionsService.get(String(step.properties?.['dependCondition'] ?? ''));
 
     if (!dependField || !conditionFunction || !storedData) {
       return true;
@@ -47,9 +43,7 @@ export class StepDependConditionService {
     const nextStep = form.steps[nextStepIndex];
 
     if (nextStep) {
-      return this.isSatisfied(form, nextStepIndex, inactiveElements)
-        ? nextStepIndex
-        : this.findNextStep(form, nextStepIndex, inactiveElements);
+      return this.isSatisfied(form, nextStepIndex, inactiveElements) ? nextStepIndex : this.findNextStep(form, nextStepIndex, inactiveElements);
     }
 
     return form.steps.length - 1;
@@ -60,20 +54,13 @@ export class StepDependConditionService {
     const prevStep = form.steps[prevStepIndex];
 
     if (prevStep) {
-      return this.isSatisfied(form, prevStepIndex, inactiveElements)
-        ? prevStepIndex
-        : this.findPreviousStep(form, prevStepIndex, inactiveElements);
+      return this.isSatisfied(form, prevStepIndex, inactiveElements) ? prevStepIndex : this.findPreviousStep(form, prevStepIndex, inactiveElements);
     }
 
     return undefined;
   }
 
-  isStepValidToDisplay(
-    form: FormContainer,
-    stepIndex: number,
-    currentPageUrl: string,
-    inactiveElements: string[]
-  ): boolean {
+  isStepValidToDisplay(form: FormContainer, stepIndex: number, currentPageUrl: string, inactiveElements: string[]): boolean {
     const totalStep = form.steps.length;
     if (stepIndex < 0 || stepIndex >= totalStep) {
       return false;
@@ -102,7 +89,7 @@ export class StepDependConditionService {
     }
 
     const inactiveStepsIndex = this.getInactiveStepsIndex(form, inactiveElements);
-    return !inactiveStepsIndex.some((index) => index === stepIndex);
+    return !inactiveStepsIndex.some(index => index === stepIndex);
   }
 
   getInactiveStepsIndex(form: FormContainer, inactiveElements: string[]): number[] {

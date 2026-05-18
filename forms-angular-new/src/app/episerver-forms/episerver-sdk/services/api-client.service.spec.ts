@@ -37,7 +37,7 @@ describe('ApiClientService', () => {
     expect(req.request.withCredentials).toBe(true);
     req.flush({ value: 'ok' });
 
-    await expect(promise).resolves.toEqual({ value: 'ok' });
+    await expectAsync(promise).toBeResolvedTo({ value: 'ok' });
   });
 
   it('sends POST requests with a JSON body', async () => {
@@ -49,6 +49,6 @@ describe('ApiClientService', () => {
     expect(req.request.body).toEqual(payload);
     req.flush({ accepted: true });
 
-    await expect(promise).resolves.toEqual({ accepted: true });
+    await expectAsync(promise).toBeResolvedTo({ accepted: true });
   });
 });

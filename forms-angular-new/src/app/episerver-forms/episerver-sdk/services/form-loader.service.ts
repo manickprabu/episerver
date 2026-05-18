@@ -62,17 +62,18 @@ export class FormLoaderService<T extends FormContainer> {
 
   private convertFirstLetterToLowerCase(data: unknown): unknown {
     if (Array.isArray(data)) {
-      return data.map((item) => this.convertFirstLetterToLowerCase(item));
+      return data.map(item => this.convertFirstLetterToLowerCase(item));
     }
 
     if (data && typeof data === 'object') {
-      return Object.keys(data).reduce((accumulator, key) => {
-        const normalizedKey = key.charAt(0).toLowerCase() + key.slice(1);
-        (accumulator as Record<string, unknown>)[normalizedKey] = this.convertFirstLetterToLowerCase(
-          (data as Record<string, unknown>)[key]
-        );
-        return accumulator;
-      }, {} as Record<string, unknown>);
+      return Object.keys(data).reduce(
+        (accumulator, key) => {
+          const normalizedKey = key.charAt(0).toLowerCase() + key.slice(1);
+          (accumulator as Record<string, unknown>)[normalizedKey] = this.convertFirstLetterToLowerCase((data as Record<string, unknown>)[key]);
+          return accumulator;
+        },
+        {} as Record<string, unknown>
+      );
     }
 
     return data;

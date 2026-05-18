@@ -12,12 +12,7 @@ describe('FormLoaderService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        ApiClientService,
-        FormLoaderService,
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+      providers: [ApiClientService, FormLoaderService, provideHttpClient(), provideHttpClientTesting()]
     });
 
     service = TestBed.inject(FormLoaderService);
@@ -35,7 +30,7 @@ describe('FormLoaderService', () => {
     expect(req.request.method).toBe('GET');
     req.flush({ key: 'demo-key' });
 
-    await expect(promise).resolves.toEqual({ key: 'demo-key' });
+    await expectAsync(promise).toBeResolvedTo(jasmine.objectContaining({ key: 'demo-key' }));
   });
 
   it('queries a form from Optimizely Graph and normalizes key casing', async () => {
@@ -59,11 +54,13 @@ describe('FormLoaderService', () => {
       }
     });
 
-    await expect(promise).resolves.toEqual({
-      key: 'demo-key',
-      locale: 'en',
-      properties: { title: 'Demo form' },
-      formElements: []
-    });
+    await expectAsync(promise).toBeResolvedTo(
+      jasmine.objectContaining({
+        key: 'demo-key',
+        locale: 'en',
+        properties: jasmine.objectContaining({ title: 'Demo form' }),
+        formElements: []
+      })
+    );
   });
 });

@@ -1,7 +1,7 @@
-<button [id]="field().key" type="submit" class="form__Element formSubmitButton" [disabled]="disabled()">
-  @if (field().properties.image) {
-    <img [src]="$any(field().properties.image)" [alt]="field().properties.label || 'Submit'" />
+<button [id]="field.key" type="submit" class="form__Element formSubmitButton" [disabled]="disabled">
+  @if (field.properties.image) {
+    <img [src]="$any(field.properties.image)" [alt]="field.properties.label || 'Submit'" />
   } @else {
-    {{ field().properties.label || 'Submit' }}
+    {{ field.properties.label || 'Submit' }}
   }
 </button>

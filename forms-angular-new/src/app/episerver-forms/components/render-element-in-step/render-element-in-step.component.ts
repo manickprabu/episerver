@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { FormField } from '../../models/form-schema.model';
@@ -10,10 +10,10 @@ import { FormField } from '../../models/form-schema.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RenderElementInStepComponent {
-  readonly elements = input.required<FormField[]>();
-  readonly formGroup = input.required<FormGroup>();
-  readonly submitted = input(false);
-  readonly submitDisabled = input(false);
-  readonly inactiveElements = input<string[]>([]);
-  readonly reset = output<void>();
+  @Input() elements!: FormField[];
+  @Input() formGroup!: FormGroup;
+  @Input() submitted = false;
+  @Input() submitDisabled = false;
+  @Input() inactiveElements: string[] = [];
+  @Output() readonly reset = new EventEmitter<void>();
 }

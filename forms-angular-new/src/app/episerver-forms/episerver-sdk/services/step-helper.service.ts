@@ -8,14 +8,14 @@ export class StepHelperService {
   private readonly tempBaseUrl = 'http://temp';
 
   isAllStepsAreNotLinked(form: FormContainer): boolean {
-    return !form.steps.some((step) => !isNullOrEmpty(step.formStep.properties?.attachedContentLink));
+    return !form.steps.some(step => !isNullOrEmpty(step.formStep.properties?.attachedContentLink));
   }
 
   isMalFormSteps(form: FormContainer): boolean {
     const totalStep = form.steps.length;
 
     if (totalStep >= 2 && !this.isAllStepsAreNotLinked(form)) {
-      return form.steps.some((step) => isNullOrEmpty(step.formStep.properties?.attachedContentLink));
+      return form.steps.some(step => isNullOrEmpty(step.formStep.properties?.attachedContentLink));
     }
 
     return false;
@@ -45,19 +45,11 @@ export class StepHelperService {
 
   isInCurrentStep(form: FormContainer, elementKey: string, stepIndex: number): boolean {
     const currentStep = form.steps[stepIndex];
-    return currentStep ? currentStep.elements.some((element) => equals(element.key, elementKey)) : true;
+    return currentStep ? currentStep.elements.some(element => equals(element.key, elementKey)) : true;
   }
 
-  getFirstInvalidElement(
-    form: FormContainer,
-    formValidationResults: FormValidationResult[],
-    stepIndex: number
-  ): string {
-    return (
-      formValidationResults.filter(
-        (validation) => !validation.result.valid && this.isInCurrentStep(form, validation.elementKey, stepIndex)
-      )[0]?.elementKey ?? ''
-    );
+  getFirstInvalidElement(form: FormContainer, formValidationResults: FormValidationResult[], stepIndex: number): string {
+    return formValidationResults.filter(validation => !validation.result.valid && this.isInCurrentStep(form, validation.elementKey, stepIndex))[0]?.elementKey ?? '';
   }
 
   isNeedCheckDependCondition(form: FormContainer, stepIndex: number): boolean {
@@ -70,9 +62,7 @@ export class StepHelperService {
   }
 
   getFirstInputElement(form: FormContainer, stepIndex: number, inactiveElements: string[]): string {
-    const inputElement = form.steps[stepIndex]?.elements.find(
-      (element) => element.contentType.indexOf('ElementBlock') > 0 && inactiveElements.indexOf(element.key) < 0
-    );
+    const inputElement = form.steps[stepIndex]?.elements.find(element => element.contentType.indexOf('ElementBlock') > 0 && inactiveElements.indexOf(element.key) < 0);
 
     return inputElement?.key ?? '';
   }

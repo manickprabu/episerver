@@ -18,12 +18,7 @@
 
       <div class="Form__Status">
         @if (statusMessage) {
-          <div
-            role="status"
-            class="Form__Status__Message"
-            [class.Form__Success__Message]="submitSucceeded"
-            [class.Form__Warning__Message]="isWarningStatus"
-          >
+          <div role="status" class="Form__Status__Message" [class.Form__Success__Message]="submitSucceeded" [class.Form__Warning__Message]="isWarningStatus">
             <div [innerHTML]="statusMessage"></div>
           </div>
         }
@@ -40,17 +35,10 @@
             [title]="stepHeading(step, stepIndex)"
             [loading]="isSubmitting && isStepOpen(stepIndex)"
             [disabled]="!isStepAccessible(stepIndex)"
-            (toggleAccordion)="openStep(stepIndex)"
-          >
+            (toggleAccordion)="openStep(stepIndex)">
             <section class="Form__Element__Step">
               @for (field of visibleStepFields(step); track field.key) {
-                <lib-episerver-form
-                  [field]="field"
-                  [formGroup]="formGroup"
-                  [submitted]="hasSubmitted"
-                  [submitDisabled]="isSubmitting"
-                  (reset)="handleReset()"
-                />
+                <lib-episerver-form [field]="field" [formGroup]="formGroup" [submitted]="hasSubmitted" [submitDisabled]="isSubmitting" (reset)="handleReset()" />
               }
             </section>
           </lib-accordion>
@@ -58,12 +46,8 @@
       </div>
 
       <div class="episerver-form-accordion-page__footer-actions">
-        <button type="button" class="episerver-form-accordion-page__draft" [disabled]="isSubmitting" (click)="savePartial()">
-          Save progress
-        </button>
-        <button type="submit" class="episerver-form-accordion-page__submit" [disabled]="isSubmitting">
-          Submit
-        </button>
+        <button type="button" class="episerver-form-accordion-page__draft" [disabled]="isSubmitting" (click)="savePartial()">Save progress</button>
+        <button type="submit" class="episerver-form-accordion-page__submit" [disabled]="isSubmitting">Submit</button>
       </div>
     </form>
   }

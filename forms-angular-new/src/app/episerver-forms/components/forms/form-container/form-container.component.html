@@ -1,54 +1,42 @@
-<form class="episerverForms {{ validationCssClass() }}" [formGroup]="formGroup()" (ngSubmit)="submitForm($event)" novalidate>
-  @if (form().properties.title) {
-    <h2 class="form__Title">{{ form().properties.title }}</h2>
+<form class="episerverForms {{ validationCssClass }}" [formGroup]="formGroup" (ngSubmit)="submitForm($event)" novalidate>
+  @if (form.properties.title) {
+    <h2 class="form__Title">{{ form.properties.title }}</h2>
   }
 
-  @if (form().properties.description) {
-    <aside class="form__Description">{{ form().properties.description }}</aside>
+  @if (form.properties.description) {
+    <aside class="form__Description">{{ form.properties.description }}</aside>
   }
 
   <div class="form__Status">
-    @if (statusMessage()) {
-      <div
-        role="status"
-        class="form__Status__Message"
-        [class.form__Success__Message]="submitSucceeded()"
-        [class.form__Warning__Message]="isWarningStatus()"
-      >
-        <div [innerHTML]="statusMessage()"></div>
+    @if (statusMessage) {
+      <div role="status" class="form__Status__Message" [class.form__Success__Message]="submitSucceeded" [class.form__Warning__Message]="isWarningStatus">
+        <div [innerHTML]="statusMessage"></div>
       </div>
     }
   </div>
 
-  @if (showFormBody() && currentStep(); as step) {
+  @if (showFormBody && currentStep; as step) {
     <div class="form__MainBody">
       <section class="form__Element__Step">
         @for (field of step.elements; track field.key) {
-          @if (!dependencyInactiveElements().includes(field.key)) {
-            <lib-episerver-form
-              [field]="field"
-              [formGroup]="formGroup()"
-              [submitted]="hasSubmitted()"
-              [submitDisabled]="isSubmitting()"
-              (reset)="handleReset()"
-            />
+          @if (!dependencyInactiveElements.includes(field.key)) {
+            <lib-episerver-form [field]="field" [formGroup]="formGroup" [submitted]="hasSubmitted" [submitDisabled]="isSubmitting" (reset)="handleReset()" />
           }
         }
       </section>
 
       <lib-form-step-navigation
-        [currentStepIndex]="currentStepIndex()"
-        [stepCount]="steps().length"
-        [showNavigation]="form().properties.showNavigationBar !== false"
-        [isFormFinalized]="isFormFinalized()"
-        [isMalFormSteps]="isMalFormSteps()"
-        [isStepValidToDisplay]="isStepValidToDisplay()"
-        [previousButtonLabel]="previousButtonLabel()"
-        [nextButtonLabel]="nextButtonLabel()"
-        [progressLabel]="progressLabel()"
+        [currentStepIndex]="currentStepIndex"
+        [stepCount]="steps.length"
+        [showNavigation]="form.properties.showNavigationBar !== false"
+        [isFormFinalized]="isFormFinalized"
+        [isMalFormSteps]="isMalFormSteps"
+        [isStepValidToDisplay]="isStepValidToDisplay"
+        [previousButtonLabel]="previousButtonLabel"
+        [nextButtonLabel]="nextButtonLabel"
+        [progressLabel]="progressLabel"
         (previous)="previousStep()"
-        (next)="nextStep()"
-      />
+        (next)="nextStep()" />
     </div>
   }
 </form>

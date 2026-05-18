@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FormField } from '../../../../models/form-schema.model';
 
 @Component({
@@ -8,5 +8,5 @@ import { FormField } from '../../../../models/form-schema.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ParagraphFieldComponent {
-  readonly field = input.required<FormField>();
+  @Input() field!: FormField;
 }

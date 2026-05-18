@@ -1,19 +1,18 @@
-<lib-element-wrapper className="formChoice formChoice--Image" [control]="control()" [submitted]="submitted()">
-  <lib-element-caption [field]="field()" [variant]="'div'" />
+<lib-element-wrapper className="formChoice formChoice--Image" [control]="control" [submitted]="submitted">
+  <lib-element-caption [field]="field" [variant]="'div'" />
   <div class="element-field">
-    <fieldset class="element-field__control" [attr.aria-describedby]="field().key + '_desc'">
-      @for (item of field().properties.items ?? []; track item.text; let idx = $index) {
-        <label [for]="field().key + '_' + idx" class="formChoice--Image__Item">
+    <fieldset class="element-field__control" [attr.aria-describedby]="field.key + '_desc'">
+      @for (item of field.properties.items ?? []; track item.text; let idx = $index) {
+        <label [for]="field.key + '_' + idx" class="formChoice--Image__Item">
           <input
-            [id]="field().key + '_' + idx"
-            [type]="field().properties.allowMultiSelect ? 'checkbox' : 'radio'"
+            [id]="field.key + '_' + idx"
+            [type]="field.properties.allowMultiSelect ? 'checkbox' : 'radio'"
             [checked]="isChecked(item.text)"
             [value]="item.text || ''"
-            [class]="field().properties.allowMultiSelect ? 'formChoice__Input formChoice__Input--Checkbox' : 'formChoice__Input formChoice__Input--Radio'"
-            [class.visually-hidden]="field().properties.showSelectionInputControl === false"
-            [attr.title]="field().properties.description || null"
-            (change)="toggleValue(item.text, $any($event.target).checked)"
-          />
+            [class]="field.properties.allowMultiSelect ? 'formChoice__Input formChoice__Input--Checkbox' : 'formChoice__Input formChoice__Input--Radio'"
+            [class.visually-hidden]="field.properties.showSelectionInputControl === false"
+            [attr.title]="field.properties.description || null"
+            (change)="toggleValue(item.text, $any($event.target).checked)" />
           <span class="formChoice--Image__Item__Caption">{{ item.text }}</span>
           @if (item.url) {
             <img [src]="item.url" [title]="item.title || item.text || ''" [alt]="item.title || item.text || ''" />
@@ -21,6 +20,6 @@
         </label>
       }
     </fieldset>
-    <lib-validation-message [field]="field()" [control]="control()" [submitted]="submitted()" />
+    <lib-validation-message [field]="field" [control]="control" [submitted]="submitted" />
   </div>
 </lib-element-wrapper>

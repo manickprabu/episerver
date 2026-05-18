@@ -1,0 +1,526 @@
+{
+  "title": "Property Information Form",
+  "description": "In accordance with the Digital Markets, Competition and Consumers Act 2024, it is essential that the property information you provide to us - whether verbally or in writing - is accurate and factually correct.\n\nTo assist us in meeting these obligations, please complete the following questions to the best of your knowledge. We appreciate that some questions may not apply to your property. In our experience, the sales process tends to progress more smoothly when prospective buyers are presented with clear and accurate information from the outset.",
+  "formGuid": "38087b68-9215-4af8-9463-4d62850666ed",
+  "contentGuid": "38087b68-9215-4af8-9463-4d62850666ed",
+  "name": "Freehold Property Information Form",
+  "totalSteps": 5,
+  "fields": [
+    {
+      "name": "Title",
+      "id": 31805,
+      "contentGuid": "af70e167-1d4d-44a1-9a6f-3a7660096abd",
+      "editViewFriendlyTitle": "Hidden predefined value: (Type of Seller)",
+      "type": "PredefinedHiddenElementBlockProxy",
+      "value": "",
+      "properties": {
+        "PredefinedValue": "Type of Seller"
+      }
+    },
+    {
+      "name": "Is the property a probate sale, in receivership, held by a Trust or owned by a developer?",
+      "id": 31801,
+      "contentGuid": "cb818013-6cf8-409c-aff7-e0d599b431a9",
+      "editViewFriendlyTitle": "Selection",
+      "type": "SelectionElementBlockProxy",
+      "value": "No",
+      "properties": {
+        "Label": "Is the property a probate sale, in receivership, held by a Trust or owned by a developer? If you have difficulty completing this form due to one of these reasons, please contact us directly.  (please select your answer) ",
+        "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+        "Feed": "FormsFeed_UseManualInput",
+        "Items": [
+          {
+            "caption": "Yes",
+            "value": "Yes",
+            "checked": false
+          },
+          {
+            "caption": "No",
+            "value": "No",
+            "checked": false
+          }
+        ],
+        "ValidatorMessages": [
+          {
+            "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+            "message": "This ONE field is required."
+          }
+        ],
+        "Conditions": []
+      }
+    },
+    {
+      "name": "Seller Type (Yes)",
+      "id": 31802,
+      "contentGuid": "e3085a78-5fb8-4736-ae5b-94d5d4ed7763",
+      "editViewFriendlyTitle": "Text area",
+      "type": "TextareaElementBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": "Please specify which",
+        "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+        "ValidatorMessages": [
+          {
+            "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+            "message": "This field is required."
+          }
+        ],
+        "SatisfiedAction": "EPiServer.Forms.Core.Internal.Dependency.ShowAction",
+        "ConditionCombination": 1,
+        "Conditions": [
+          {
+            "field": {
+              "id": 31801,
+              "workID": 0,
+              "providerName": null,
+              "getPublishedOrLatest": false,
+              "isExternalProvider": false,
+              "isReadOnly": false
+            },
+            "operator": 2,
+            "fieldValue": "Yes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "About my home",
+      "id": 31800,
+      "contentGuid": "6b8387ba-4850-4b14-a2cd-9cb349c19754",
+      "editViewFriendlyTitle": "About my home",
+      "type": "FormStepBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": "About my home",
+        "Description": "Some description to explain about my home that benefits the user"
+      }
+    },
+    {
+      "name": "Who lives at the property?",
+      "id": 31794,
+      "contentGuid": "91f3398a-1244-4da3-828f-9eda5fa03417",
+      "editViewFriendlyTitle": "Text",
+      "type": "TextboxElementBlockProxy",
+      "value": "3",
+      "properties": {
+        "Label": "Who lives at the property? Please include all persons aged 17 or over",
+        "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+        "ValidatorMessages": [
+          {
+            "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+            "message": "This field is required."
+          }
+        ],
+        "Conditions": []
+      }
+    },
+    {
+      "name": "What is the tenure type of the property",
+      "id": 31795,
+      "contentGuid": "be6fd850-f5c6-45e0-9487-66dfafa62a74",
+      "editViewFriendlyTitle": "Selection",
+      "type": "SelectionElementBlockProxy",
+      "value": "Freehold",
+      "properties": {
+        "Label": "What is the tenure type of the property? (please select your answer)",
+        "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+        "Feed": "FormsFeed_UseManualInput",
+        "Items": [
+          {
+            "caption": "Freehold",
+            "value": "Freehold",
+            "checked": false
+          },
+          {
+            "caption": "Leasehold",
+            "value": "Leasehold",
+            "checked": false
+          },
+          {
+            "caption": "Share of freehold",
+            "value": "Share of freehold",
+            "checked": false
+          },
+          {
+            "caption": "Feudal",
+            "value": "Feudal",
+            "checked": false
+          },
+          {
+            "caption": "Unknown",
+            "value": "Unknown",
+            "checked": false
+          }
+        ],
+        "ValidatorMessages": [
+          {
+            "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+            "message": "This field is required."
+          }
+        ],
+        "Conditions": []
+      }
+    },
+    {
+      "name": "Did you buy the property on a shared ownership scheme",
+      "id": 31796,
+      "contentGuid": "b2c5e535-8c79-4c92-9ef4-93aee94a8597",
+      "editViewFriendlyTitle": "Selection",
+      "type": "SelectionElementBlockProxy",
+      "value": "No",
+      "properties": {
+        "Label": "Did you buy the property on a shared ownership scheme or other discounted or low cost housing scheme? (please select your answer)   If yes, please state the percentage share being sold ",
+        "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+        "Feed": "FormsFeed_UseManualInput",
+        "Items": [
+          {
+            "caption": "Yes",
+            "value": "Yes",
+            "checked": false
+          },
+          {
+            "caption": "No",
+            "value": "No",
+            "checked": false
+          },
+          {
+            "caption": "Not known",
+            "value": "Not known",
+            "checked": false
+          }
+        ],
+        "ValidatorMessages": [
+          {
+            "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+            "message": "This field is required."
+          }
+        ],
+        "Conditions": []
+      }
+    },
+    {
+      "name": "Shared Ownership (Yes TextArea)",
+      "id": 31799,
+      "contentGuid": "44599ec0-e79a-423b-9ebb-8af824abc69e",
+      "editViewFriendlyTitle": "Text area",
+      "type": "TextareaElementBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": "Please state the percentage share being sold",
+        "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+        "ValidatorMessages": [
+          {
+            "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+            "message": "This field is required."
+          }
+        ],
+        "SatisfiedAction": "EPiServer.Forms.Core.Internal.Dependency.ShowAction",
+        "ConditionCombination": 1,
+        "Conditions": [
+          {
+            "field": {
+              "id": 31796,
+              "workID": 0,
+              "providerName": null,
+              "getPublishedOrLatest": false,
+              "isExternalProvider": false,
+              "isReadOnly": false
+            },
+            "operator": 2,
+            "fieldValue": "Yes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Boundaries",
+      "id": 31816,
+      "contentGuid": "4b4d181a-6b20-4c50-b51d-cb3fd44ecf7b",
+      "editViewFriendlyTitle": "Boundaries",
+      "type": "FormStepBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": "Boundaries"
+      }
+    },
+    {
+      "name": "Are there any rights or arrangements affecting the property",
+      "id": 31821,
+      "contentGuid": "7a400a41-6e2c-4d89-b782-241755844188",
+      "editViewFriendlyTitle": "Selection",
+      "type": "SelectionElementBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": "Are there any rights or arrangements affecting the property, including rights to use parts of neighbouring land (such as a right of way over a driveway, path, or access road), or any other rights or obligations relating to the property?  (please select your answer) If yes, please provide or attach information",
+        "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+        "Feed": "FormsFeed_UseManualInput",
+        "Items": [
+          {
+            "caption": "Yes",
+            "value": "Yes",
+            "checked": false
+          },
+          {
+            "caption": "No",
+            "value": "No",
+            "checked": false
+          },
+          {
+            "caption": "Not Known",
+            "value": "Not Known",
+            "checked": false
+          }
+        ],
+        "ValidatorMessages": [
+          {
+            "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+            "message": "This field is required."
+          }
+        ],
+        "Conditions": []
+      }
+    },
+    {
+      "name": "Arrangement(Yes)",
+      "id": 31822,
+      "contentGuid": "46ba047c-cf84-44b6-b39e-8b4ef31324f4",
+      "editViewFriendlyTitle": "Text area",
+      "type": "TextareaElementBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": "If yes, please provide or attach information",
+        "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+        "ValidatorMessages": [
+          {
+            "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+            "message": "This field is required."
+          }
+        ],
+        "SatisfiedAction": "EPiServer.Forms.Core.Internal.Dependency.ShowAction",
+        "ConditionCombination": 1,
+        "Conditions": [
+          {
+            "field": {
+              "id": 31821,
+              "workID": 0,
+              "providerName": null,
+              "getPublishedOrLatest": false,
+              "isExternalProvider": false,
+              "isReadOnly": false
+            },
+            "operator": 2,
+            "fieldValue": "Yes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Points of note",
+      "id": 31812,
+      "contentGuid": "bcafdcb8-07e2-432b-9624-3672f55d2d49",
+      "editViewFriendlyTitle": "Points of note",
+      "type": "FormStepBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": "Points of note"
+      }
+    },
+    {
+      "name": "Insurance Refused",
+      "id": 31814,
+      "contentGuid": "3e04be8c-7889-42a2-8a2f-14f46dbf7dab",
+      "editViewFriendlyTitle": "Selection",
+      "type": "SelectionElementBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": "Has insurance for the property ever been refused? (please select your answer) If yes, please provide or attach information ",
+        "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+        "Feed": "FormsFeed_UseManualInput",
+        "Items": [
+          {
+            "caption": "Yes",
+            "value": "Yes",
+            "checked": false
+          },
+          {
+            "caption": "No",
+            "value": "No",
+            "checked": false
+          },
+          {
+            "caption": "Not Known",
+            "value": "Not Known",
+            "checked": false
+          }
+        ],
+        "ValidatorMessages": [
+          {
+            "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+            "message": "This field is required."
+          }
+        ],
+        "Conditions": []
+      }
+    },
+    {
+      "name": "Insurance refused(Yes)",
+      "id": 31815,
+      "contentGuid": "8d0a7043-056c-4a14-b279-5014f755b613",
+      "editViewFriendlyTitle": "Text area",
+      "type": "TextareaElementBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": "Please provide or attach information",
+        "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+        "ValidatorMessages": [
+          {
+            "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+            "message": "This field is required."
+          }
+        ],
+        "SatisfiedAction": "EPiServer.Forms.Core.Internal.Dependency.ShowAction",
+        "ConditionCombination": 1,
+        "Conditions": [
+          {
+            "field": {
+              "id": 31814,
+              "workID": 0,
+              "providerName": null,
+              "getPublishedOrLatest": false,
+              "isExternalProvider": false,
+              "isReadOnly": false
+            },
+            "operator": 0,
+            "fieldValue": "Yes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Facilities",
+      "id": 31811,
+      "contentGuid": "1b8f2ade-ce13-42eb-ba4f-7d685f2e8925",
+      "editViewFriendlyTitle": "Facilities",
+      "type": "FormStepBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": "Facilities"
+      }
+    },
+    {
+      "name": "Have solar panels been installed?",
+      "id": 31809,
+      "contentGuid": "dc46d4d4-3289-4fea-9ec8-8c23517de88b",
+      "editViewFriendlyTitle": "Selection",
+      "type": "SelectionElementBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": "Have solar panels been installed?  (please select your answer) If yes, please provide or attach information",
+        "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+        "Feed": "FormsFeed_UseManualInput",
+        "Items": [
+          {
+            "caption": "Yes",
+            "value": "Yes",
+            "checked": false
+          },
+          {
+            "caption": "No",
+            "value": "No",
+            "checked": false
+          },
+          {
+            "caption": "Not Known",
+            "value": "Not Known",
+            "checked": false
+          }
+        ],
+        "ValidatorMessages": [
+          {
+            "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+            "message": "This field is required."
+          }
+        ],
+        "Conditions": []
+      }
+    },
+    {
+      "name": "Solar Panel (Yes)",
+      "id": 31810,
+      "contentGuid": "ad59eba1-ea26-4e40-a420-d8015961c6bc",
+      "editViewFriendlyTitle": "Text area",
+      "type": "TextareaElementBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": "If yes, please provide or attach information",
+        "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+        "ValidatorMessages": [
+          {
+            "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+            "message": "This field is required."
+          }
+        ],
+        "SatisfiedAction": "EPiServer.Forms.Core.Internal.Dependency.ShowAction",
+        "ConditionCombination": 1,
+        "Conditions": [
+          {
+            "field": {
+              "id": 31809,
+              "workID": 0,
+              "providerName": null,
+              "getPublishedOrLatest": false,
+              "isExternalProvider": false,
+              "isReadOnly": false
+            },
+            "operator": 2,
+            "fieldValue": "Yes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Services",
+      "id": 31817,
+      "contentGuid": "6c6ceb3a-f5fa-452e-af1b-47bd68ae3651",
+      "editViewFriendlyTitle": "Services",
+      "type": "FormStepBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": "Services"
+      }
+    },
+    {
+      "name": "Disclaimer",
+      "id": 31823,
+      "contentGuid": "a5ff4a5b-e952-4ca7-b50d-8d62352b436a",
+      "editViewFriendlyTitle": "Multiple or single choice",
+      "type": "ChoiceElementBlockProxy",
+      "value": "",
+      "properties": {
+        "Label": " ",
+        "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+        "AllowMultiSelect": true,
+        "Feed": "FormsFeed_UseManualInput",
+        "Items": [
+          {
+            "caption": "By submitting this document, you confirm that the information provided is true, accurate and complete to the best of your knowledge on behalf of all legal owners of this property.",
+            "value": "Disclaimer",
+            "checked": false
+          }
+        ],
+        "ValidatorMessages": [
+          {
+            "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+            "message": "This field is required."
+          }
+        ],
+        "Conditions": []
+      }
+    }
+  ],
+  "submissionId": "309fd108-701f-c719-5c02-91c3ade03772",
+  "antiforgery": {
+    "token": "CfDJ8AAa_RkF7odDpC0yc3-aIsnRZhpfvAVMZgp9yqLhAEP3L2Stu-Ykeen2XcortymXGzn4X766bM0PRX7Agqrb_3HQlkxGOPyZRRWJhxkf2Tc7jBM66LlhvLgn9-FxynDSc0Zrl14fPGXtmMrqDSq08UU",
+    "headerName": "RequestVerificationToken"
+  }
+}

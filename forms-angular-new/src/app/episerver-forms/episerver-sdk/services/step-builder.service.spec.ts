@@ -62,8 +62,8 @@ describe('StepBuilderService', () => {
   it('builds implicit and explicit steps from form elements', () => {
     const built = service.buildForm(form);
 
-    expect(built.steps).toHaveLength(2);
-    expect(built.steps[0].elements.map((element) => element.key)).toEqual(['first-name']);
-    expect(built.steps[1].elements.map((element) => element.key)).toEqual(['step-two', 'email']);
+    expect(built.steps.length).toBe(2);
+    expect(built.steps[0].elements.map(element => element.key)).toEqual(['first-name']);
+    expect(built.steps[1].elements.map(element => element.key)).toEqual(['step-two', 'email']);
   });
 });

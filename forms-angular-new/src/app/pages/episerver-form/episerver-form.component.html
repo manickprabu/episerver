@@ -1,0 +1,52 @@
+<section class="episerver-form-page">
+  @if (isLoading) {
+    <div class="episerver-form-page__meta">
+      <p>Loading form from {{ endpoint }}...</p>
+    </div>
+  } @else if (source && form && formGroup) {
+    <div class="episerver-form-page__meta">
+      <p><strong>Form name:</strong> {{ source.name }}</p>
+      <p><strong>Form GUID:</strong> {{ source.contentGuid }}</p>
+      <p><strong>API endpoint:</strong> {{ endpoint }}</p>
+    </div>
+
+    <form class="episerverForms {{ validationCssClass }}" [formGroup]="formGroup" (ngSubmit)="submitFinal()" novalidate>
+      @if (form.properties.title) {
+        <h2 class="form__Title">{{ form.properties.title }}</h2>
+      }
+
+      <div class="form__Status">
+        @if (statusMessage) {
+          <div role="status" class="form__Status__Message" [class.form__Success__Message]="submitSucceeded" [class.form__Warning__Message]="isWarningStatus">
+            <div [innerHTML]="statusMessage"></div>
+          </div>
+        }
+      </div>
+
+      <div class="form__MainBody episerver-form-page__list">
+        @for (step of steps; track trackStep($index, step); let stepIndex = $index) {
+          <lib-accordion
+            [accordionOpen]="isStepOpen(stepIndex)"
+            [borderColor]="isStepOpen(stepIndex) ? 'rgba(59, 130, 246, 0.45)' : 'rgba(15, 23, 42, 0.14)'"
+            [icon]="isStepOpen(stepIndex) ? '•' : '○'"
+            [pillColor]="isStepOpen(stepIndex) ? '#2563eb' : '#64748b'"
+            [pillText]="isStepOpen(stepIndex) ? 'Open' : 'Available'"
+            [title]="stepHeading(step, stepIndex)"
+            [loading]="isSubmitting && isStepOpen(stepIndex)"
+            (toggleAccordion)="openStep(stepIndex)">
+            <section class="form__Element__Step">
+              @for (field of visibleStepFields(step); track field.key) {
+                <lib-episerver-form [field]="field" [formGroup]="formGroup" [submitted]="hasSubmitted" [submitDisabled]="isSubmitting" />
+              }
+            </section>
+          </lib-accordion>
+        }
+      </div>
+
+      <div class="episerver-form-page__footer-actions">
+        <button type="button" class="episerver-form-page__draft" [disabled]="isSubmitting" (click)="savePartial()">Save progress</button>
+        <button type="submit" class="episerver-form-page__submit" [disabled]="isSubmitting">Submit</button>
+      </div>
+    </form>
+  }
+</section>

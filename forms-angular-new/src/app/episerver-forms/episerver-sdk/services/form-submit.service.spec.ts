@@ -10,12 +10,24 @@ import { FormValidatorService } from './form-validator.service';
 
 class MemoryStorage implements Storage {
   private readonly state = new Map<string, string>();
-  get length(): number { return this.state.size; }
-  clear(): void { this.state.clear(); }
-  getItem(key: string): string | null { return this.state.has(key) ? this.state.get(key)! : null; }
-  key(index: number): string | null { return Array.from(this.state.keys())[index] ?? null; }
-  removeItem(key: string): void { this.state.delete(key); }
-  setItem(key: string, value: string): void { this.state.set(key, value); }
+  get length(): number {
+    return this.state.size;
+  }
+  clear(): void {
+    this.state.clear();
+  }
+  getItem(key: string): string | null {
+    return this.state.has(key) ? this.state.get(key)! : null;
+  }
+  key(index: number): string | null {
+    return Array.from(this.state.keys())[index] ?? null;
+  }
+  removeItem(key: string): void {
+    this.state.delete(key);
+  }
+  setItem(key: string, value: string): void {
+    this.state.set(key, value);
+  }
 }
 
 const form: FormContainer = {
@@ -98,10 +110,7 @@ describe('FormSubmitService', () => {
   });
 
   it('combines current and stored submissions without duplicates', () => {
-    const result = service.combineData(
-      [{ elementKey: 'country', value: 'UK' }],
-      [{ elementKey: 'name', value: 'Ada' }]
-    );
+    const result = service.combineData([{ elementKey: 'country', value: 'UK' }], [{ elementKey: 'name', value: 'Ada' }]);
 
     expect(result).toEqual([
       { elementKey: 'name', value: 'Ada' },
@@ -134,7 +143,7 @@ describe('FormSubmitService', () => {
       messages: []
     });
 
-    await expect(promise).resolves.toEqual({
+    await expectAsync(promise).toBeResolvedTo({
       success: true,
       submissionKey: 'done-1',
       validationFail: false,

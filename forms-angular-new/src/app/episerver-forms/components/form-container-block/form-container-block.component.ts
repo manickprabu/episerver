@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnChanges, SimpleChanges, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { StepBuilderService, IdentityInfo } from '../../episerver-sdk';
 import { FormSchema } from '../../models/form-schema.model';
@@ -10,17 +10,21 @@ import { FormSchema } from '../../models/form-schema.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormContainerBlockComponent implements OnChanges {
-  readonly form = input.required<FormSchema>();
-  readonly identityInfo = input<IdentityInfo | undefined>(undefined);
-  readonly baseUrl = input.required<string>();
-  readonly history = input<unknown>(undefined);
-  readonly currentPageUrl = input<string | undefined>(undefined);
+  @Input() form!: FormSchema;
+  @Input() identityInfo: IdentityInfo | undefined = undefined;
+  @Input() baseUrl!: string;
+  @Input() history: unknown = undefined;
+  @Input() currentPageUrl: string | undefined = undefined;
 
   protected builtForm?: FormSchema;
 
   constructor(private readonly stepBuilderService: StepBuilderService) {}
 
   ngOnChanges(_changes: SimpleChanges): void {
-    this.builtForm = this.stepBuilderService.buildForm(this.form()) as FormSchema;
+    if (!this.form) {
+      return;
+    }
+
+    this.builtForm = this.stepBuilderService.buildForm(this.form) as FormSchema;
   }
 }

@@ -62,7 +62,7 @@ const sampleForm = {
 
 describe('FormNavigationService', () => {
   let service: FormNavigationService;
-  const navigateByUrl = vi.fn().mockResolvedValue(true);
+  const navigateByUrl = jasmine.createSpy('navigateByUrl').and.resolveTo(true);
 
   beforeEach(() => {
     sessionStorage.clear();
@@ -83,7 +83,7 @@ describe('FormNavigationService', () => {
     });
 
     service = TestBed.inject(FormNavigationService);
-    navigateByUrl.mockClear();
+    navigateByUrl.calls.reset();
   });
 
   it('prefers the cached step index when one is available', () => {

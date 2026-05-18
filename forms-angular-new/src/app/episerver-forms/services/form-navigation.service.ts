@@ -3,14 +3,7 @@ import { Inject, Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import {
-  FormCacheService,
-  FormConstants,
-  FormStorageService,
-  FormSubmission,
-  StepDependConditionService,
-  StepHelperService
-} from '../../episerver-forms/episerver-sdk';
+import { FormCacheService, FormConstants, FormStorageService, FormSubmission, StepDependConditionService, StepHelperService } from '../../episerver-forms/episerver-sdk';
 import { FormSchema } from '../models/form-schema.model';
 
 @Injectable()

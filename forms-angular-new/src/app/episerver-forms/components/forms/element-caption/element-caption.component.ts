@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FormField } from '../../../models/form-schema.model';
 
 @Component({
@@ -9,7 +9,7 @@ import { FormField } from '../../../models/form-schema.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ElementCaptionComponent {
-  readonly field = input.required<FormField>();
-  readonly forId = input<string | null>(null);
-  readonly variant = input<'label' | 'legend' | 'div'>('label');
+  @Input() field!: FormField;
+  @Input() forId: string | null = null;
+  @Input() variant: 'label' | 'legend' | 'div' = 'label';
 }

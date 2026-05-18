@@ -13,11 +13,21 @@ class MemoryStorage implements Storage {
   get length(): number {
     return this.state.size;
   }
-  clear(): void { this.state.clear(); }
-  getItem(key: string): string | null { return this.state.has(key) ? this.state.get(key)! : null; }
-  key(index: number): string | null { return Array.from(this.state.keys())[index] ?? null; }
-  removeItem(key: string): void { this.state.delete(key); }
-  setItem(key: string, value: string): void { this.state.set(key, value); }
+  clear(): void {
+    this.state.clear();
+  }
+  getItem(key: string): string | null {
+    return this.state.has(key) ? this.state.get(key)! : null;
+  }
+  key(index: number): string | null {
+    return Array.from(this.state.keys())[index] ?? null;
+  }
+  removeItem(key: string): void {
+    this.state.delete(key);
+  }
+  setItem(key: string, value: string): void {
+    this.state.set(key, value);
+  }
 }
 
 const form: FormContainer = {
@@ -94,9 +104,7 @@ describe('FormStateInitService', () => {
 
     expect(state.currentStepIndex).toBe(0);
     expect(state.formSubmissions).toEqual([{ elementKey: 'name', value: 'Ada' }]);
-    expect(state.formValidationResults).toEqual([
-      { elementKey: 'name', result: { valid: true, message: '' } }
-    ]);
+    expect(state.formValidationResults).toEqual([{ elementKey: 'name', result: { valid: true, message: '' } }]);
   });
 
   it('hydrates saved submission values from storage', () => {

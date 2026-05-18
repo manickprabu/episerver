@@ -8,14 +8,7 @@ import { ApiClientConfig } from '../models';
 export class ApiClientService {
   constructor(private readonly http: HttpClient) {}
 
-  async send<T>(
-    config: ApiClientConfig,
-    path: string,
-    method: string,
-    params?: Record<string, string>,
-    headers?: Record<string, string>,
-    data?: unknown
-  ): Promise<T> {
+  async send<T>(config: ApiClientConfig, path: string, method: string, params?: Record<string, string>, headers?: Record<string, string>, data?: unknown): Promise<T> {
     const url = this.buildUrl(config.baseURL, path, params);
 
     return firstValueFrom(

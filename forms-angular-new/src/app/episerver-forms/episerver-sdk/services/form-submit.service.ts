@@ -2,16 +2,7 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
-import {
-  FormContainer,
-  FormFieldsData,
-  FormSubmission,
-  FormSubmissionData,
-  FormSubmitModel,
-  FormSubmitResult,
-  FormValidationResult,
-  ProblemDetail
-} from '../models';
+import { FormContainer, FormFieldsData, FormSubmission, FormSubmissionData, FormSubmitModel, FormSubmitResult, FormValidationResult, ProblemDetail } from '../models';
 import { equals, isNull } from '../utils';
 import { FormStorageService } from './form-storage.service';
 import { FormValidatorService } from './form-validator.service';
@@ -29,11 +20,11 @@ export class FormSubmitService {
   combineData(dataFromStorage: FormSubmission[], submissionData: FormSubmission[]): FormSubmission[] {
     const mapFromArray = new Map<string, FormSubmission>();
 
-    submissionData.forEach((element) => {
+    submissionData.forEach(element => {
       mapFromArray.set(element.elementKey, element);
     });
 
-    return [...submissionData, ...dataFromStorage.filter((element) => !mapFromArray.has(element.elementKey))];
+    return [...submissionData, ...dataFromStorage.filter(element => !mapFromArray.has(element.elementKey))];
   }
 
   async doSubmit(form: FormContainer, baseUrl: string, model: FormSubmitModel): Promise<FormSubmitResult> {
@@ -48,7 +39,7 @@ export class FormSubmitService {
     };
     const fieldsData: FormFieldsData = {};
 
-    model.submissionData.forEach((submission) => {
+    model.submissionData.forEach(submission => {
       const value = submission.value;
       const key = submission.elementKey;
 
@@ -113,9 +104,9 @@ export class FormSubmitService {
 
   doValidate(form: FormContainer, formSubmissions: FormSubmission[]): FormValidationResult[] {
     return form.formElements
-      .filter((element) => formSubmissions.some((submission) => equals(submission.elementKey, element.key)))
-      .map((element) => {
-        const value = formSubmissions.filter((submission) => equals(submission.elementKey, element.key))[0]?.value;
+      .filter(element => formSubmissions.some(submission => equals(submission.elementKey, element.key)))
+      .map(element => {
+        const value = formSubmissions.filter(submission => equals(submission.elementKey, element.key))[0]?.value;
         return {
           elementKey: element.key,
           result: this.formValidatorService.validate(element, value)

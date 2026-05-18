@@ -1,20 +1,10 @@
-import { ChangeDetectionStrategy, Component, forwardRef, input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'lib-control-text-field',
   standalone: false,
-  template: `
-    <input
-      class="sample-control"
-      type="text"
-      [value]="value"
-      [placeholder]="placeholder()"
-      [disabled]="disabled"
-      (input)="handleInput($event)"
-      (blur)="handleBlur()"
-    />
-  `,
+  template: ` <input class="sample-control" type="text" [value]="value" [placeholder]="placeholder" [disabled]="disabled" (input)="handleInput($event)" (blur)="handleBlur()" /> `,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -25,7 +15,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextFieldComponent implements ControlValueAccessor {
-  readonly placeholder = input('');
+  @Input() placeholder = '';
+
+  constructor(private readonly changeDetectorRef: ChangeDetectorRef) {}
 
   protected value = '';
   protected disabled = false;
@@ -35,6 +27,7 @@ export class TextFieldComponent implements ControlValueAccessor {
 
   writeValue(value: string | null): void {
     this.value = value ?? '';
+    this.changeDetectorRef.markForCheck();
   }
 
   registerOnChange(fn: (value: string) => void): void {
@@ -47,6 +40,7 @@ export class TextFieldComponent implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
+    this.changeDetectorRef.markForCheck();
   }
 
   protected handleInput(event: Event): void {

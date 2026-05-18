@@ -9,12 +9,24 @@ import { StepHelperService } from './step-helper.service';
 
 class MemoryStorage implements Storage {
   private readonly state = new Map<string, string>();
-  get length(): number { return this.state.size; }
-  clear(): void { this.state.clear(); }
-  getItem(key: string): string | null { return this.state.has(key) ? this.state.get(key)! : null; }
-  key(index: number): string | null { return Array.from(this.state.keys())[index] ?? null; }
-  removeItem(key: string): void { this.state.delete(key); }
-  setItem(key: string, value: string): void { this.state.set(key, value); }
+  get length(): number {
+    return this.state.size;
+  }
+  clear(): void {
+    this.state.clear();
+  }
+  getItem(key: string): string | null {
+    return this.state.has(key) ? this.state.get(key)! : null;
+  }
+  key(index: number): string | null {
+    return Array.from(this.state.keys())[index] ?? null;
+  }
+  removeItem(key: string): void {
+    this.state.delete(key);
+  }
+  setItem(key: string, value: string): void {
+    this.state.set(key, value);
+  }
 }
 
 const form: FormContainer = {

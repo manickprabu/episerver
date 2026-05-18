@@ -80,15 +80,6 @@ const EPISERVER_FORMS_COMPONENTS = [
   declarations: [...EPISERVER_FORMS_COMPONENTS],
   imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule, EpiserverFormsSdkModule],
   exports: [CommonModule, FormsModule, ReactiveFormsModule, ...EPISERVER_FORMS_COMPONENTS],
-  providers: [
-    EpiserverFormAdapterService,
-    FormAuthService,
-    FormConfirmationService,
-    FormLoaderService,
-    FormLoginStateService,
-    FormNavigationService,
-    FormSchemaFormService,
-    FormSubmissionService
-  ]
+  providers: [EpiserverFormAdapterService, FormAuthService, FormConfirmationService, FormLoaderService, FormLoginStateService, FormNavigationService, FormSchemaFormService, FormSubmissionService]
 })
 export class EpiserverFormsModule {}

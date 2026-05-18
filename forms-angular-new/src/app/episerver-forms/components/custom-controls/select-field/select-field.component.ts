@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, forwardRef, input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 export interface SelectFieldOption {
@@ -10,16 +10,10 @@ export interface SelectFieldOption {
   selector: 'lib-control-select-field',
   standalone: false,
   template: `
-    <select
-      class="sample-control"
-      [value]="value"
-      [disabled]="disabled"
-      (change)="handleChange($event)"
-      (blur)="handleBlur()"
-    >
+    <select class="sample-control" [value]="value" [disabled]="disabled" (change)="handleChange($event)" (blur)="handleBlur()">
       <option value="">Select an option</option>
-      @for (option of options(); track option.value) {
-        <option [value]="option.value">{{ option.label }}</option>
+      @for (option of options; track option.value) {
+        <option [value]="option.value" [selected]="option.value === value">{{ option.label }}</option>
       }
     </select>
   `,
@@ -33,7 +27,9 @@ export interface SelectFieldOption {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SelectFieldComponent implements ControlValueAccessor {
-  readonly options = input<SelectFieldOption[]>([]);
+  @Input() options: SelectFieldOption[] = [];
+
+  constructor(private readonly changeDetectorRef: ChangeDetectorRef) {}
 
   protected value = '';
   protected disabled = false;
@@ -43,6 +39,7 @@ export class SelectFieldComponent implements ControlValueAccessor {
 
   writeValue(value: string | null): void {
     this.value = value ?? '';
+    this.changeDetectorRef.markForCheck();
   }
 
   registerOnChange(fn: (value: string) => void): void {
@@ -55,6 +52,7 @@ export class SelectFieldComponent implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
+    this.changeDetectorRef.markForCheck();
   }
 
   protected handleChange(event: Event): void {

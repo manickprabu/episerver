@@ -1,14 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import {
-  ElementDependencies,
-  FormConstants,
-  FormContainer,
-  FormState,
-  FormSubmission,
-  FormValidationResult,
-  StepDependencies
-} from '../models';
+import { ElementDependencies, FormConstants, FormContainer, FormState, FormSubmission, FormValidationResult, StepDependencies } from '../models';
 import { getDefaultValue, equals, isNullOrEmpty } from '../utils';
 import { FormCacheService } from './form-cache.service';
 import { FormStorageService } from './form-storage.service';
@@ -30,8 +22,8 @@ export class FormStateInitService {
     let stepDependencies: StepDependencies[] = [];
     let elementDependencies: ElementDependencies[] = [];
 
-    formContainer.steps?.forEach((step) => {
-      step.elements.forEach((element) => {
+    formContainer.steps?.forEach(step => {
+      step.elements.forEach(element => {
         if (element.key !== step.formStep.key) {
           formValidationResults = formValidationResults.concat({
             elementKey: element.key,
@@ -53,16 +45,14 @@ export class FormStateInitService {
     });
 
     if (formData.length > 0) {
-      formSubmissions = formSubmissions.map((submission) => {
-        const savedData = formData.find((item) => equals(item.elementKey, submission.elementKey));
+      formSubmissions = formSubmissions.map(submission => {
+        const savedData = formData.find(item => equals(item.elementKey, submission.elementKey));
         return savedData ?? submission;
       });
     }
 
     const stepIndexCached = this.formCacheService.get<string>(FormConstants.FormCurrentStep + formContainer.key);
-    const currentStepIndex = isNullOrEmpty(stepIndexCached)
-      ? this.stepHelperService.getCurrentStepIndex(formContainer, currentPageUrl)
-      : parseInt(stepIndexCached!, 10);
+    const currentStepIndex = isNullOrEmpty(stepIndexCached) ? this.stepHelperService.getCurrentStepIndex(formContainer, currentPageUrl) : parseInt(stepIndexCached!, 10);
 
     return {
       isReset: false,

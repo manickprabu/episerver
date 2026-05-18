@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { FormField } from '../../../../models/form-schema.model';
 import { FormSchemaFormService } from '../../../../services/form-schema-form.service';
 
@@ -13,22 +13,24 @@ import { FormSchemaFormService } from '../../../../services/form-schema-form.ser
 export class SelectFieldComponent {
   constructor(private readonly formSchemaFormService: FormSchemaFormService) {}
 
-  readonly field = input.required<FormField>();
-  readonly formGroup = input.required<FormGroup>();
-  readonly submitted = input(false);
-  protected readonly control = computed(() => this.formSchemaFormService.controlFor(this.formGroup(), this.field()));
+  @Input() field!: FormField;
+  @Input() formGroup: FormGroup | null = null;
+  @Input('control') controlInput: FormControl<unknown> | null = null;
+  @Input() submitted = false;
 
-  protected onMultiSelectChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const value = Array.from(select.selectedOptions).map((option) => option.value);
-    const control = this.control();
-    control?.setValue(value);
-    control?.markAsTouched();
+  protected get resolvedControl(): FormControl<unknown> | null {
+    if (this.controlInput) {
+      return this.controlInput;
+    }
+
+    if (!this.formGroup) {
+      return null;
+    }
+
+    return this.formSchemaFormService.controlFor(this.formGroup, this.field) as FormControl<unknown> | null;
   }
 
-  protected onSingleSelectChange(value: string): void {
-    const control = this.control();
-    control?.setValue(value);
-    control?.markAsTouched();
+  protected markTouched(): void {
+    this.resolvedControl?.markAsTouched();
   }
 }

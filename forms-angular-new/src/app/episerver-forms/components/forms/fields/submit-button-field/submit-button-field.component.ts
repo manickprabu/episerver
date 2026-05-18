@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FormField } from '../../../../models/form-schema.model';
 
 @Component({
@@ -9,6 +9,6 @@ import { FormField } from '../../../../models/form-schema.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SubmitButtonFieldComponent {
-  readonly field = input.required<FormField>();
-  readonly disabled = input(false);
+  @Input() field!: FormField;
+  @Input() disabled = false;
 }

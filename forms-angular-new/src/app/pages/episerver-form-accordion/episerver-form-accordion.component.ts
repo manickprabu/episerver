@@ -2,11 +2,11 @@ import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
-import { FormSubmission } from '../../episerver-forms/episerver-sdk';
+import { EpiserverFieldDefinitionLike, FieldVisibilityState, FormDependConditionsService, FormSubmission } from '../../episerver-forms/episerver-sdk';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormField, FormSchema, FormStep, FormSubmissionResult } from '../../episerver-forms/models/form-schema.model';
-import { EpiserverFieldDefinition, EpiserverFormDefinition, FieldVisibilityState } from '../../episerver-forms/models/episerver-form-definition.model';
+import { EpiserverFieldDefinition, EpiserverFormDefinition } from '../../episerver-forms/models/episerver-form-definition.model';
 import { EpiserverFormAccordionVisibilityService } from './episerver-form-accordion-visibility.service';
 import { EpiserverFormAdapterService } from '../../episerver-forms/services/episerver-form-adapter.service';
 import { FormNavigationService } from '../../episerver-forms/services/form-navigation.service';
@@ -51,13 +51,14 @@ export class EpiserverFormAccordionComponent {
     private readonly formSchemaFormService: FormSchemaFormService,
     private readonly formSubmissionService: FormSubmissionService,
     private readonly episerverFormAccordionService: EpiserverFormAccordionService,
-    private readonly visibilityService: EpiserverFormAccordionVisibilityService
+    private readonly accordionVisibilityService: EpiserverFormAccordionVisibilityService,
+    private readonly formDependConditionsService: FormDependConditionsService
   ) {
     this.endpoint = this.episerverFormAccordionService.endpoint;
     this.draftModeLabel = 'Save progress to http://localhost:8000/test-episerver-form as a partial submission.';
 
     this.episerverFormAccordionService.loadForm().subscribe({
-      next: (source) => this.initializeForm(source),
+      next: source => this.initializeForm(source),
       error: () => {
         this.isLoading = false;
         this.setWarningStatus('Unable to load form from http://localhost:8000/test-episerver-form.');
@@ -88,13 +89,13 @@ export class EpiserverFormAccordionComponent {
     }
 
     const submissions = this.formSubmissionService.collectCurrentStepSubmissions(this.form, this.formGroup, this.currentStepIndex, []);
-    const fieldKeys = this.visibleStepFields(step).map((field) => field.key);
+    const fieldKeys = this.visibleStepFields(step).map(field => field.key);
     this.formSubmissionService.clearValidationResults(this.formGroup, fieldKeys);
     const results = this.formSubmissionService.validateStep(this.form, submissions);
     this.formSubmissionService.applyValidationResults(this.formGroup, results);
     this.markControlsTouched(step);
 
-    if (results.some((result) => !result.result.valid)) {
+    if (results.some(result => !result.result.valid)) {
       this.hasSubmitted = true;
       this.focusFirstInvalidControl(fieldKeys);
       return;
@@ -125,11 +126,11 @@ export class EpiserverFormAccordionComponent {
   }
 
   protected isStepOpen(stepIndex: number): boolean {
-    return this.currentStepIndex === stepIndex;
+    return this.accordionVisibilityService.isStepOpen(this.currentStepIndex, stepIndex);
   }
 
-  protected isStepAccessible(_stepIndex: number): boolean {
-    return true;
+  protected isStepAccessible(stepIndex: number): boolean {
+    return this.accordionVisibilityService.isStepAccessible(stepIndex);
   }
 
   protected isStepComplete(stepIndex: number): boolean {
@@ -139,9 +140,8 @@ export class EpiserverFormAccordionComponent {
     }
 
     const controls = this.controlsForStep(step);
-    return controls.length === 0 || controls.every((control) => control.valid);
+    return controls.length === 0 || controls.every(control => control.valid);
   }
-
 
   protected accordionBorderColor(stepIndex: number): string {
     if (this.isStepComplete(stepIndex)) {
@@ -176,14 +176,9 @@ export class EpiserverFormAccordionComponent {
   }
 
   protected stepHeading(step: FormStep, stepIndex: number): string {
-    const stepFieldKeys = new Set(step.elements.map((field) => field.key));
+    const stepFieldKeys = new Set(step.elements.map(field => field.key));
     const rawTitleField = this.source.fields.find(
-      (field) =>
-        stepFieldKeys.has(field.contentGuid) &&
-        field.name === 'Title' &&
-        field.type === 'PredefinedHiddenElementBlockProxy' &&
-        typeof field.properties.PredefinedValue === 'string' &&
-        field.properties.PredefinedValue.trim().length > 0
+      field => stepFieldKeys.has(field.contentGuid) && field.name === 'Title' && field.type === 'PredefinedHiddenElementBlockProxy' && typeof field.properties.PredefinedValue === 'string' && field.properties.PredefinedValue.trim().length > 0
     );
 
     if (rawTitleField?.properties.PredefinedValue) {
@@ -200,7 +195,7 @@ export class EpiserverFormAccordionComponent {
   }
 
   protected visibleStepFields(step: FormStep): FormField[] {
-    return step.elements.filter((field) => field.contentType !== 'FormStepBlock' && this.isFieldVisible(field.key)) as FormField[];
+    return step.elements.filter(field => field.contentType !== 'FormStepBlock' && this.isFieldVisible(field.key)) as FormField[];
   }
 
   protected dependencyEvaluations(): FieldVisibilityState['evaluations'] {
@@ -222,14 +217,14 @@ export class EpiserverFormAccordionComponent {
   protected submitFinal(): void {
     this.hasSubmitted = true;
 
-    const fieldKeys = this.visibleFormFields().map((field) => field.key);
+    const fieldKeys = this.visibleFormFields().map(field => field.key);
     const submissions = this.visibleFormSubmissions();
     this.formSubmissionService.clearValidationResults(this.formGroup, fieldKeys);
     const results = this.formSubmissionService.validateStep(this.form, submissions);
     this.formSubmissionService.applyValidationResults(this.formGroup, results);
     this.markAllControlsTouched();
 
-    if (results.some((result) => !result.result.valid)) {
+    if (results.some(result => !result.result.valid)) {
       this.focusFirstInvalidControl(fieldKeys);
       return;
     }
@@ -253,67 +248,49 @@ export class EpiserverFormAccordionComponent {
   }
 
   private isFieldVisible(fieldGuid: string): boolean {
-    return this.visibilityService.isFieldVisible(fieldGuid, this.visibilityState);
+    return this.formDependConditionsService.isFieldVisible(fieldGuid, this.visibilityState);
   }
 
   private visibleFormFields(): FormField[] {
-    return this.form.formElements.filter(
-      (field) => field.contentType !== 'FormStepBlock' && this.isFieldVisible(field.key)
-    ) as FormField[];
+    return this.form.formElements.filter(field => field.contentType !== 'FormStepBlock' && this.isFieldVisible(field.key)) as FormField[];
   }
 
   private visibleFormSubmissions(): FormSubmission[] {
-    const visibleKeys = new Set(this.visibleFormFields().map((field) => field.key));
+    const visibleKeys = new Set(this.visibleFormFields().map(field => field.key));
 
-    return this.formSubmissionService
-      .toFormSubmissions(this.form, this.formGroup)
-      .filter((submission) => visibleKeys.has(submission.elementKey) || submission.elementKey.startsWith('__'));
+    return this.formSubmissionService.toFormSubmissions(this.form, this.formGroup).filter(submission => visibleKeys.has(submission.elementKey) || submission.elementKey.startsWith('__'));
   }
 
   private submit(isFinalized: boolean, submitStepIndex = this.currentStepIndex): void {
     this.isSubmitting = true;
     const submissions = this.visibleFormSubmissions();
-    const model = this.formSubmissionService.buildSubmitModel(
-      this.form,
-      submissions,
-      submitStepIndex,
-      this.currentPageUrl(),
-      undefined,
-      isFinalized,
-      this.submissionKey
-    );
+    const model = this.formSubmissionService.buildSubmitModel(this.form, submissions, submitStepIndex, this.currentPageUrl(), undefined, isFinalized, this.submissionKey);
 
-    const request = isFinalized
-      ? this.episerverFormAccordionService.submitFinal(this.source, model)
-      : this.episerverFormAccordionService.savePartial(this.source, model);
+    const request = isFinalized ? this.episerverFormAccordionService.submitFinal(this.source, model) : this.episerverFormAccordionService.savePartial(this.source, model);
 
-    request
-      .subscribe({
-        next: (result) => {
-          this.submissionKey = result.submissionKey ?? this.submissionKey;
-          this.submitSucceeded = !!(result.success && isFinalized);
-          this.isWarningStatus = false;
-          this.statusMessage =
-            result.messages?.map((message) => message.message).join('<br>') ||
-            (isFinalized ? this.form.properties.submitSuccessMessage || 'Thanks, your form has been submitted.' : 'Draft saved.');
-          this.isSubmitting = false;
+    request.subscribe({
+      next: result => {
+        this.submissionKey = result.submissionKey ?? this.submissionKey;
+        this.submitSucceeded = !!(result.success && isFinalized);
+        this.isWarningStatus = false;
+        this.statusMessage = result.messages?.map(message => message.message).join('<br>') || (isFinalized ? this.form.properties.submitSuccessMessage || 'Thanks, your form has been submitted.' : 'Draft saved.');
+        this.isSubmitting = false;
 
-          if (isFinalized && result.success) {
-            this.formNavigationService.clearNavigationState(this.form);
-          } else {
-            this.persistNavigationState();
-          }
-        },
-        error: (error: unknown) => {
-          const problem = error as { detail?: string; errors?: Record<string, string[]> };
-          this.formSubmissionService.applyServerValidation(this.formGroup, problem as never);
-          this.setWarningStatus(problem?.detail || 'Form submission failed.');
-          this.isSubmitting = false;
-          this.focusFirstInvalidControl();
+        if (isFinalized && result.success) {
+          this.formNavigationService.clearNavigationState(this.form);
+        } else {
+          this.persistNavigationState();
         }
-      });
+      },
+      error: (error: unknown) => {
+        const problem = error as { detail?: string; errors?: Record<string, string[]> };
+        this.formSubmissionService.applyServerValidation(this.formGroup, problem as never);
+        this.setWarningStatus(problem?.detail || 'Form submission failed.');
+        this.isSubmitting = false;
+        this.focusFirstInvalidControl();
+      }
+    });
   }
-
 
   private resolveNextStepIndex(): number {
     const sdkNextStepIndex = this.formNavigationService.findNextStep(this.form, this.currentStepIndex, []);
@@ -334,11 +311,7 @@ export class EpiserverFormAccordionComponent {
   }
 
   private persistNavigationState(): void {
-    this.formNavigationService.goToStep(
-      this.form,
-      this.currentStepIndex,
-      this.visibleFormSubmissions()
-    );
+    this.formNavigationService.goToStep(this.form, this.currentStepIndex, this.visibleFormSubmissions());
   }
 
   private currentPageUrl(): string {
@@ -346,10 +319,10 @@ export class EpiserverFormAccordionComponent {
   }
 
   private setupVisibilityTracking(): void {
-    this.visibilityService
-      .watchVisibility(this.source.fields, this.formGroup)
+    this.formDependConditionsService
+      .watchVisibility(this.visibilityFields(), this.formGroup)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((state) => {
+      .subscribe(state => {
         this.visibilityState = state;
         this.applyFieldVisibilityToForm(state);
         this.changeDetectorRef.markForCheck();
@@ -357,24 +330,11 @@ export class EpiserverFormAccordionComponent {
   }
 
   private applyFieldVisibilityToForm(state: FieldVisibilityState): void {
-    this.form.formElements
-      .filter((field) => field.contentType !== 'FormStepBlock')
-      .forEach((field) => {
-        const control = this.formGroup.get(field.key);
-        if (!control) {
-          return;
-        }
+    this.formDependConditionsService.syncHiddenControls(this.visibilityFields(), this.formGroup, state);
+  }
 
-        const visible = this.isFieldVisible(field.key);
-        if (visible && control.disabled) {
-          control.enable({ emitEvent: false });
-        }
-
-        if (!visible && control.enabled) {
-          control.disable({ emitEvent: false });
-          control.markAsUntouched();
-        }
-      });
+  private visibilityFields(): EpiserverFieldDefinitionLike[] {
+    return this.form.formElements as unknown as EpiserverFieldDefinitionLike[];
   }
 
   private initializeForm(source: EpiserverFormDefinition): void {
@@ -388,7 +348,6 @@ export class EpiserverFormAccordionComponent {
     this.nextButtonLabel = this.form.localizations?.['nextButtonLabel'] || 'Next';
     this.previousButtonLabel = this.form.localizations?.['previousButtonLabel'] || 'Previous';
 
-    this.patchDraftValues(this.formNavigationService.loadDraft(this.form));
     this.setupVisibilityTracking();
     this.currentStepIndex = this.formNavigationService.resolveInitialStepIndex(this.form, this.currentPageUrl());
     this.isLoading = false;
@@ -406,16 +365,16 @@ export class EpiserverFormAccordionComponent {
 
   private controlsForStep(step: FormStep) {
     return this.visibleStepFields(step)
-      .map((field) => this.formGroup.get(field.key))
+      .map(field => this.formGroup.get(field.key))
       .filter((control): control is NonNullable<typeof control> => !!control);
   }
 
   private markControlsTouched(step: FormStep): void {
-    this.controlsForStep(step).forEach((control) => control.markAsTouched());
+    this.controlsForStep(step).forEach(control => control.markAsTouched());
   }
 
   private markAllControlsTouched(): void {
-    Object.values(this.formGroup.controls).forEach((control) => control.markAsTouched());
+    Object.values(this.formGroup.controls).forEach(control => control.markAsTouched());
   }
 
   private patchDraftValues(submissions: FormSubmission[]): void {
@@ -425,8 +384,8 @@ export class EpiserverFormAccordionComponent {
 
     const patch: Record<string, unknown> = {};
 
-    submissions.forEach((submission) => {
-      const field = this.form.formElements.find((item) => item.key === submission.elementKey);
+    submissions.forEach(submission => {
+      const field = this.form.formElements.find(item => item.key === submission.elementKey);
       if (!field) {
         return;
       }

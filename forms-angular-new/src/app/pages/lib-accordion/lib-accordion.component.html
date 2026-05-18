@@ -1,16 +1,5 @@
-<section
-  class="lib-accordion"
-  [class.lib-accordion--open]="isOpen()"
-  [class.lib-accordion--disabled]="disabled()"
-  [style.border-color]="hostBorderColor()"
->
-  <button
-    type="button"
-    class="lib-accordion__trigger"
-    [attr.aria-expanded]="isOpen()"
-    [disabled]="disabled()"
-    (click)="onToggle()"
-  >
+<section class="lib-accordion" [class.lib-accordion--open]="isOpen()" [class.lib-accordion--disabled]="disabled()" [style.border-color]="hostBorderColor()">
+  <button type="button" class="lib-accordion__trigger" [attr.aria-expanded]="isOpen()" [disabled]="disabled()" (click)="onToggle()">
     <span class="lib-accordion__heading">
       @if (icon()) {
         <span class="lib-accordion__icon" [style.color]="hostBorderColor()">{{ icon() }}</span>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 import { IdentityInfo } from '../../episerver-sdk';
 import { FormSchema } from '../../models/form-schema.model';
@@ -10,9 +10,9 @@ import { FormSchema } from '../../models/form-schema.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormBodyComponent {
-  readonly form = input.required<FormSchema>();
-  readonly identityInfo = input<IdentityInfo | undefined>(undefined);
-  readonly baseUrl = input.required<string>();
-  readonly history = input<unknown>(undefined);
-  readonly currentPageUrl = input<string | undefined>(undefined);
+  @Input() form!: FormSchema;
+  @Input() identityInfo: IdentityInfo | undefined = undefined;
+  @Input() baseUrl!: string;
+  @Input() history: unknown = undefined;
+  @Input() currentPageUrl: string | undefined = undefined;
 }

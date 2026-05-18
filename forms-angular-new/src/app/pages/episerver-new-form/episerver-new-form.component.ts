@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Inje
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 
-import { FormDependConditionsService } from '../../episerver-forms/episerver-sdk';
+import { FieldVisibilityState, FormDependConditionsService } from '../../episerver-forms/episerver-sdk';
 import { EpiserverFormDefinition } from '../../episerver-forms/models/episerver-form-definition.model';
 import { FormField, FormSchema, FormStep } from '../../episerver-forms/models/form-schema.model';
 import { FormSchemaFormService } from '../../episerver-forms/services/form-schema-form.service';
@@ -28,10 +28,8 @@ export class EpiserverNewFormComponent {
   protected isSubmitting = false;
   protected submitSucceeded = false;
   protected statusMessage = '';
-  protected dependencyInactiveElements: string[] = [];
+  protected visibilityState: FieldVisibilityState = { visibilityByGuid: {}, visibilityByContentLinkId: {}, evaluations: [] };
   protected libraryPreviewOpen = false;
-
-  private elementDependencies: Array<{ elementKey: string; isSatisfied: boolean; sastisfiedAction?: string }> = [];
 
   constructor(
     @Inject(DOCUMENT) protected readonly document: Document,
@@ -43,7 +41,7 @@ export class EpiserverNewFormComponent {
     private readonly formSubmissionService: FormSubmissionService
   ) {
     this.episerverNewFormService.loadMockForm().subscribe({
-      next: (source) => this.initializeForm(source),
+      next: source => this.initializeForm(source),
       error: () => {
         this.isLoading = false;
         this.statusMessage = 'Unable to load mock form data.';
@@ -69,13 +67,11 @@ export class EpiserverNewFormComponent {
   }
 
   protected visibleStepFields(step: FormStep): FormField[] {
-    return step.elements.filter(
-      (field) => field.contentType !== 'FormStepBlock' && !this.dependencyInactiveElements.includes(field.key)
-    ) as FormField[];
+    return step.elements.filter(field => field.contentType !== 'FormStepBlock' && this.isFieldVisible(field.key)) as FormField[];
   }
 
   protected stepTitle(step: FormStep, index: number): string {
-    const fieldKeys = new Set(step.elements.map((field) => field.key));
+    const fieldKeys = new Set(step.elements.map(field => field.key));
     return this.episerverNewFormService.stepTitle(this.source, fieldKeys, `Step ${index + 1}`);
   }
 
@@ -83,20 +79,16 @@ export class EpiserverNewFormComponent {
     this.hasSubmitted = true;
     this.statusMessage = '';
 
-    const visibleFields = this.form.formElements.filter(
-      (field) => field.contentType !== 'FormStepBlock' && !this.dependencyInactiveElements.includes(field.key)
-    );
-    const fieldKeys = visibleFields.map((field) => field.key);
-    const submissions = this.formSubmissionService
-      .toFormSubmissions(this.form, this.formGroup)
-      .filter((submission) => !this.dependencyInactiveElements.includes(submission.elementKey));
+    const visibleFields = this.form.formElements.filter(field => field.contentType !== 'FormStepBlock' && this.isFieldVisible(field.key));
+    const fieldKeys = visibleFields.map(field => field.key);
+    const submissions = this.formSubmissionService.toFormSubmissions(this.form, this.formGroup).filter(submission => this.isFieldVisible(submission.elementKey));
 
     this.formSubmissionService.clearValidationResults(this.formGroup, fieldKeys);
     const validationResults = this.formSubmissionService.validateStep(this.form, submissions);
     this.formSubmissionService.applyValidationResults(this.formGroup, validationResults);
     this.markVisibleControlsTouched(fieldKeys);
 
-    if (validationResults.some((result) => !result.result.valid)) {
+    if (validationResults.some(result => !result.result.valid)) {
       this.submitSucceeded = false;
       this.focusFirstInvalidControl(fieldKeys);
       return;
@@ -114,54 +106,17 @@ export class EpiserverNewFormComponent {
     this.form = builtForm.form;
     this.formGroup = builtForm.formGroup;
     this.steps = builtForm.steps;
+    this.setupVisibilityTracking();
     this.isLoading = false;
-
-    this.refreshDependencies();
-
-    this.formGroup.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.refreshDependencies();
-      this.changeDetectorRef.markForCheck();
-    });
-  }
-
-  private refreshDependencies(): void {
-    const submissions = this.formSubmissionService.toFormSubmissions(this.form, this.formGroup);
-    const nextDependencies: Array<{ elementKey: string; isSatisfied: boolean; sastisfiedAction?: string }> = [];
-    const inactiveElements: string[] = [];
-
-    for (const field of this.form.formElements) {
-      const satisfiedAction = String(field.properties['satisfiedAction'] ?? '');
-      const hasConditions = Array.isArray(field.properties['conditions']) && field.properties['conditions'].length > 0;
-
-      if (!satisfiedAction || !hasConditions) {
-        continue;
-      }
-
-      const isSatisfied = this.formDependConditionsService.checkConditions(field, submissions, this.elementDependencies);
-      const normalizedAction = satisfiedAction.toLowerCase();
-      const isVisible = isSatisfied ? normalizedAction === 'show' : normalizedAction === 'hide';
-
-      nextDependencies.push({
-        elementKey: field.key,
-        isSatisfied,
-        sastisfiedAction: satisfiedAction
-      });
-
-      if (!isVisible) {
-        inactiveElements.push(field.key);
-      }
-    }
-
-    this.elementDependencies = nextDependencies;
-    this.dependencyInactiveElements = inactiveElements;
+    this.changeDetectorRef.markForCheck();
   }
 
   private markVisibleControlsTouched(fieldKeys: string[]): void {
-    fieldKeys.forEach((fieldKey) => this.formGroup.get(fieldKey)?.markAsTouched());
+    fieldKeys.forEach(fieldKey => this.formGroup.get(fieldKey)?.markAsTouched());
   }
 
   private focusFirstInvalidControl(fieldKeys: string[]): void {
-    const invalidKey = fieldKeys.find((fieldKey) => this.formGroup.get(fieldKey)?.invalid);
+    const invalidKey = fieldKeys.find(fieldKey => this.formGroup.get(fieldKey)?.invalid);
     if (!invalidKey) {
       return;
     }
@@ -170,5 +125,20 @@ export class EpiserverNewFormComponent {
       const target = this.document.getElementById(invalidKey) as HTMLElement | null;
       target?.focus();
     });
+  }
+
+  private isFieldVisible(fieldKey: string): boolean {
+    return this.formDependConditionsService.isFieldVisible(fieldKey, this.visibilityState);
+  }
+
+  private setupVisibilityTracking(): void {
+    this.formDependConditionsService
+      .watchVisibility(this.form.formElements, this.formGroup)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(state => {
+        this.visibilityState = state;
+        this.formDependConditionsService.syncHiddenControls(this.form.formElements, this.formGroup, state);
+        this.changeDetectorRef.markForCheck();
+      });
   }
 }

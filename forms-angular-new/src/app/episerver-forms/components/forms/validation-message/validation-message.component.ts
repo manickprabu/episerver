@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 import { FormField } from '../../../models/form-schema.model';
 import { FormSchemaFormService } from '../../../services/form-schema-form.service';
@@ -10,19 +10,18 @@ import { FormSchemaFormService } from '../../../services/form-schema-form.servic
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ValidationMessageComponent {
-  
   constructor(private readonly formSchemaFormService: FormSchemaFormService) {}
 
-  readonly field = input.required<FormField>();
-  readonly control = input<AbstractControl | null>(null);
-  readonly submitted = input(false);
+  @Input() field!: FormField;
+  @Input() control: AbstractControl | null = null;
+  @Input() submitted = false;
 
-  protected readonly message = computed(() => {
-    const control = this.control();
-    if (!control || !(control.touched || this.submitted()) || !control.invalid) {
+  protected get message(): string {
+    const control = this.control;
+    if (!control || !(control.touched || this.submitted) || !control.invalid) {
       return '';
     }
 
-    return this.formSchemaFormService.getValidationMessage(this.field(), control);
-  });
+    return this.formSchemaFormService.getValidationMessage(this.field, control);
+  }
 }

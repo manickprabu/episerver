@@ -9,9 +9,7 @@ export type ConditionFunction = (actualValue: unknown, patternOfExpected: string
 export class ConditionFunctionsService {
   readonly functions: Record<string, ConditionFunction> = {
     [ConditionFunctionType.Contains]: (actualValue, dependencyFieldValue) => {
-      const normalized = isNull(actualValue)
-        ? ''
-        : getConcatString(String(actualValue), ',').toLocaleUpperCase();
+      const normalized = isNull(actualValue) ? '' : getConcatString(String(actualValue), ',').toLocaleUpperCase();
       const expected = dependencyFieldValue ? dependencyFieldValue.toLocaleUpperCase() : '';
       return normalized.indexOf(expected) >= 0;
     },
@@ -19,18 +17,10 @@ export class ConditionFunctionsService {
       const normalized = !actualValue ? '' : getConcatString(String(actualValue), ',').toLocaleUpperCase();
       const actualValueNull = isNullOrEmpty(normalized);
       const dependencyFieldValueNull = isNullOrEmpty(dependencyFieldValue);
-      return (
-        (!actualValueNull && dependencyFieldValueNull) ||
-        (actualValueNull && !dependencyFieldValueNull) ||
-        (!actualValueNull &&
-          !dependencyFieldValueNull &&
-          normalized.indexOf(dependencyFieldValue.toLocaleUpperCase()) < 0)
-      );
+      return (!actualValueNull && dependencyFieldValueNull) || (actualValueNull && !dependencyFieldValueNull) || (!actualValueNull && !dependencyFieldValueNull && normalized.indexOf(dependencyFieldValue.toLocaleUpperCase()) < 0);
     },
     [ConditionFunctionType.Equals]: (actualValue, dependencyFieldValue) => {
-      const normalized = isNullOrEmpty(actualValue as string)
-        ? ''
-        : getConcatString(String(actualValue), ',').toLocaleUpperCase();
+      const normalized = isNullOrEmpty(actualValue as string) ? '' : getConcatString(String(actualValue), ',').toLocaleUpperCase();
       const expected = dependencyFieldValue ? dependencyFieldValue.toLocaleUpperCase() : '';
       return normalized === expected;
     },

@@ -72,15 +72,7 @@ describe('FormSubmissionService', () => {
   });
 
   it('builds the same submit model shape used by the SDK submitter', () => {
-    const model = service.buildSubmitModel(
-      sampleForm,
-      [{ elementKey: 'firstName', value: 'Ada' }],
-      1,
-      'https://app.example/forms/container',
-      'token-123',
-      true,
-      'partial-456'
-    );
+    const model = service.buildSubmitModel(sampleForm, [{ elementKey: 'firstName', value: 'Ada' }], 1, 'https://app.example/forms/container', 'token-123', true, 'partial-456');
 
     expect(model).toEqual({
       formKey: 'support-request',

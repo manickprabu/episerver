@@ -10,11 +10,7 @@
     <form class="episerverForms {{ validationCssClass }}" [formGroup]="formGroup" (ngSubmit)="submitForm()" novalidate>
       @if (statusMessage) {
         <div class="form__Status">
-          <div
-            class="form__Status__Message"
-            [class.form__Success__Message]="submitSucceeded"
-            [class.form__Warning__Message]="!submitSucceeded"
-          >
+          <div class="form__Status__Message" [class.form__Success__Message]="submitSucceeded" [class.form__Warning__Message]="!submitSucceeded">
             {{ statusMessage }}
           </div>
         </div>
@@ -30,16 +26,10 @@
             [pillText]="isStepOpen(stepIndex) ? 'Open' : 'Available'"
             [title]="stepTitle(step, stepIndex)"
             [loading]="isSubmitting && isStepOpen(stepIndex)"
-            (toggleAccordion)="openStep(stepIndex)"
-          >
+            (toggleAccordion)="openStep(stepIndex)">
             <section class="form__Element__Step">
               @for (field of visibleStepFields(step); track field.key) {
-                <lib-episerver-form
-                  [field]="field"
-                  [formGroup]="formGroup"
-                  [submitted]="hasSubmitted"
-                  [submitDisabled]="isSubmitting"
-                />
+                <lib-episerver-form [field]="field" [formGroup]="formGroup" [submitted]="hasSubmitted" [submitDisabled]="isSubmitting" />
               }
             </section>
           </lib-accordion>
@@ -50,20 +40,5 @@
         <button type="submit" class="episerver-new-form-page__submit">Submit mock form</button>
       </div>
     </form>
-
-    <lib-accordion
-      [accordionOpen]="libraryPreviewOpen"
-      borderColor="rgba(15, 23, 42, 0.14)"
-      icon="⌘"
-      pillColor="#475569"
-      pillText="Library preview"
-      title="Library renderer preview"
-      [loading]="false"
-      (toggleAccordion)="toggleLibraryPreview()"
-    >
-      @if (libraryPreviewOpen) {
-        <lib-form-body [form]="form" [baseUrl]="''" [currentPageUrl]="document.location?.href || ''" />
-      }
-    </lib-accordion>
   }
 </section>

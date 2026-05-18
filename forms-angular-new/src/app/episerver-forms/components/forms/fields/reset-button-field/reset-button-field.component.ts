@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormField } from '../../../../models/form-schema.model';
 
 @Component({
@@ -9,6 +9,6 @@ import { FormField } from '../../../../models/form-schema.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResetButtonFieldComponent {
-  readonly field = input.required<FormField>();
-  readonly triggered = output<void>();
+  @Input() field!: FormField;
+  @Output() readonly triggered = new EventEmitter<void>();
 }

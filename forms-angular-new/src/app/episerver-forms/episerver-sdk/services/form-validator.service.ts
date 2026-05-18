@@ -1,25 +1,12 @@
 import { Injectable } from '@angular/core';
 
-import {
-  AllowedExtensionsValidatorModel,
-  ElementValidationResult,
-  ElementValidatorBase,
-  FormElementBase,
-  MaxFileSizeValidationModel,
-  RegularExpressionValidatorModel,
-  ValidatableElementBaseProperties,
-  ValidatorType
-} from '../models';
+import { AllowedExtensionsValidatorModel, ElementValidationResult, ElementValidatorBase, FormElementBase, MaxFileSizeValidationModel, RegularExpressionValidatorModel, ValidatableElementBaseProperties, ValidatorType } from '../models';
 import { isFileValid, isMatchedReg, isNull, isNullOrEmpty, isNumeric } from '../utils';
 
 @Injectable()
 export class FormValidatorService {
   validateRequired(value: unknown): boolean {
-    if (
-      isNull(value) ||
-      (typeof value === 'string' && isNullOrEmpty(value.trim())) ||
-      (value instanceof Array && value.length === 0)
-    ) {
+    if (isNull(value) || (typeof value === 'string' && isNullOrEmpty(value.trim())) || (value instanceof Array && value.length === 0)) {
       return false;
     }
 
@@ -42,11 +29,9 @@ export class FormValidatorService {
 
     const validatorModel = model as AllowedExtensionsValidatorModel;
     const files = value ?? [];
-    const acceptTypes = isNullOrEmpty(validatorModel.accept)
-      ? []
-      : validatorModel.accept.split(',').map((type) => type.substring(1));
+    const acceptTypes = isNullOrEmpty(validatorModel.accept) ? [] : validatorModel.accept.split(',').map(type => type.substring(1));
 
-    return files.every((file) => isFileValid(file.name, acceptTypes));
+    return files.every(file => isFileValid(file.name, acceptTypes));
   }
 
   validateFileSize(value: Array<{ size: number }> | null | undefined, model: ElementValidatorBase['model']): boolean {
@@ -55,7 +40,7 @@ export class FormValidatorService {
     }
 
     const validatorModel = model as MaxFileSizeValidationModel;
-    return (value ?? []).every((file) => file.size <= validatorModel.sizeInBytes);
+    return (value ?? []).every(file => file.size <= validatorModel.sizeInBytes);
   }
 
   validateNumeric(value: unknown): boolean {
@@ -70,7 +55,7 @@ export class FormValidatorService {
       return result;
     }
 
-    validatorProps.validators!.every((validator) => {
+    validatorProps.validators!.every(validator => {
       let valid = true;
 
       switch (validator.type) {

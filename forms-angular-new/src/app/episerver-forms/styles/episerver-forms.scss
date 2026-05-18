@@ -1,13 +1,10 @@
-@use './variables' as vars;
 
 .episerverForms {
   display: grid;
   gap: 1rem;
-  color: vars.$form-text-color;
+  color: var(--light-black);
 
   .form {
-    &__Title {}
-
     &__Description {
       margin-bottom: 1rem;
     }
@@ -20,14 +17,14 @@
       }
 
       .form__Success__Message {
-        background-color: vars.$form-primary-color;
-        color: vars.$form-text-color;
+        background-color: var(--bahama-blue);
+        color: var(--light-black);
       }
 
       .form__Warning__Message,
       .form__Readonly__Message {
-        background-color: vars.$form-warning-background-color;
-        color: vars.$form-warning-foreground-color;
+        background-color: var(--timeline-white);
+        color: var(--red);
       }
 
       .hide {
@@ -43,8 +40,8 @@
       }
 
       .form__Success__Message {
-        background-color: vars.$form-primary-color;
-        color: vars.$form-text-color;
+        background-color: var(--bahama-blue);
+        color: var(--light-black);
       }
 
       .hide {
@@ -63,9 +60,9 @@
         text-align: center;
         color: inherit;
         font-size: inherit;
-        border: 1px solid vars.$form-active-color;
-        border-radius: vars.$form-border-radius;
-        background-image: linear-gradient(to top, vars.$form-surface-color, #e6e6e6);
+        border: 1px solid var(--athens-grey);
+        border-radius: 0.75rem;
+        background-image: linear-gradient(to top, var(--white), #e6e6e6);
 
         &:disabled {
           cursor: not-allowed;
@@ -77,12 +74,12 @@
         display: inline-block;
         width: 40%;
         vertical-align: middle;
-        border: 1px solid vars.$form-active-color;
+        border: 1px solid var(--athens-grey);
 
         &--Progress {
           width: 0%;
           height: 1rem;
-          background-color: vars.$form-active-color;
+          background-color: var(--athens-grey);
         }
 
         &--Text {
@@ -93,8 +90,8 @@
 
     &__Element {
       display: grid;
-      grid-template-columns: minmax(0, vars.$form-label-width) minmax(0, calc(100% - vars.$form-label-width));
-      column-gap: vars.$form-layout-gap;
+      grid-template-columns: minmax(0, 50%) minmax(0, calc(100% - 50%));
+      column-gap: 1rem;
       align-items: start;
       margin: 0 0 1.5rem;
 
@@ -132,11 +129,9 @@
 
       &__ValidationError {
         display: block;
-        color: vars.$form-warning-foreground-color;
+        color: var(--red);
         word-wrap: break-word;
       }
-
-      &--NonData {}
     }
 
     &ImageSubmitButton {
@@ -183,7 +178,7 @@
         }
 
         .formChoice__Input:checked ~ img {
-          border: 1px solid vars.$form-active-color;
+          border: 1px solid var(--athens-grey);
         }
       }
     }
@@ -209,17 +204,17 @@
         align-items: center;
         justify-content: center;
         margin: 10px;
-        color: vars.$form-surface-color;
+        color: var(--white);
         font-size: 14px;
         font-weight: bold;
         cursor: pointer;
-        background-color: vars.$form-range-button-color;
+        background-color: var(--grey-green);
         border: none;
       }
 
       &__Slider__Button__Disable {
         cursor: default;
-        background-color: vars.$form-range-button-disabled;
+        background-color: var(--grey);
       }
 
       &__Min,
@@ -239,9 +234,9 @@
     &__Warning {
       .Warning {
         display: block;
-        color: vars.$form-warning-foreground-color;
+        color: var(--red);
         word-wrap: break-word;
-        background-color: vars.$form-warning-background-color;
+        background-color: var(--timeline-white);
       }
     }
 
@@ -257,16 +252,16 @@
   }
 
   .validationFail {
-    color: vars.$form-warning-foreground-color;
+    color: var(--red);
 
     input,
     textarea,
     select {
-      border-color: vars.$form-warning-foreground-color;
+      border-color: var(--red);
     }
 
     legend {
-      color: vars.$form-warning-foreground-color;
+      color: var(--red);
     }
   }
 
@@ -289,17 +284,17 @@
       padding: 0.2rem;
       color: #000000;
       font-family: Verdana, sans-serif;
-      border-color: vars.$form-invisible-element-color;
-      border-radius: vars.$form-border-radius;
-      background-color: vars.$form-invisible-element-color;
+      border-color: rgba(184, 192, 197, 0.6);
+      border-radius: 0.75rem;
+      background-color: rgba(184, 192, 197, 0.6);
       box-shadow: 3px 3px 5px #cccccc;
 
       .formStep__Warning {
         .Warning {
           display: block;
-          color: vars.$form-warning-foreground-color;
+          color: var(--red);
           word-wrap: break-word;
-          background-color: vars.$form-warning-background-color;
+          background-color: var(--timeline-white);
         }
       }
     }
@@ -308,8 +303,8 @@
       display: inline-block;
       min-width: 18rem;
       padding: 0.2rem 1rem;
-      border: 1.5px outset vars.$form-invisible-element-color;
-      border-radius: vars.$form-border-radius;
+      border: 1.5px outset rgba(184, 192, 197, 0.6);
+      border-radius: 0.75rem;
     }
   }
 }

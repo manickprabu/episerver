@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 
 import { FormContainer, FormSubmission } from '../models';
 import { getConfirmationData, getStringValue } from './build-confirmation-message';
@@ -58,8 +57,6 @@ describe('build-confirmation-message', () => {
   });
 
   it('builds a summary for visible fields', () => {
-    expect(
-      getConfirmationData([{ elementKey: 'name', value: 'Ada' }], form, 0, [])
-    ).toBe('Name: Ada\n');
+    expect(getConfirmationData([{ elementKey: 'name', value: 'Ada' }], form, 0, [])).toBe('Name: Ada\n');
   });
 });
