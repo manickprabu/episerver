@@ -1,4 +1,5 @@
 export * from './episerver-forms.module';
+export * as EpiserverSdk from './episerver-sdk';
 
 export * from './components/form/form.component';
 export * from './components/form-login/form-login.component';

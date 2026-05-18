@@ -28,6 +28,10 @@ module.exports = function (config) {
         flags: ['--no-sandbox', '--disable-dev-shm-usage']
       }
     },
+    browserNoActivityTimeout: 120000,
+    browserDisconnectTimeout: 10000,
+    browserDisconnectTolerance: 3,
+    captureTimeout: 120000,
     restartOnFileChange: true
   });
 };
