@@ -1,0 +1,19 @@
+<lib-element-wrapper className="formTextbox formTextbox--DateTime" [control]="control" [submitted]="submitted">
+  <lib-element-caption [field]="field" [forId]="field.key" />
+  <div class="element-field">
+    <input
+      [id]="field.key"
+      [formControl]="$any(control)"
+      type="date"
+      class="element-field__control formTextbox__Input"
+      [attr.placeholder]="field.properties.placeHolder || null"
+      [attr.title]="field.properties.description || null"
+      [attr.aria-describedby]="field.key + '_desc'"
+      [attr.autocomplete]="field.properties.autoComplete || 'bday'"
+      [attr.min]="field.properties.min || null"
+      [attr.max]="field.properties.max || null"
+      [readOnly]="!!field.properties.readOnly" />
+    <lib-validation-message [field]="field" [control]="control" [submitted]="submitted" />
+    <lib-data-list [field]="field" />
+  </div>
+</lib-element-wrapper>

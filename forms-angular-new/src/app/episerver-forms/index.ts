@@ -15,6 +15,7 @@ export * from './components/forms/data-list/data-list.component';
 export * from './components/forms/element-caption/element-caption.component';
 export * from './components/forms/element-wrapper/element-wrapper.component';
 export * from './components/forms/fields/choice-field/choice-field.component';
+export * from './components/forms/fields/date-time-field/date-time-field.component';
 export * from './components/forms/fields/file-upload-field/file-upload-field.component';
 export * from './components/forms/fields/form-step-field/form-step-field.component';
 export * from './components/forms/fields/hidden-field/hidden-field.component';

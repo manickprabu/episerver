@@ -18,6 +18,7 @@ import { DataListComponent } from './components/forms/data-list/data-list.compon
 import { ElementCaptionComponent } from './components/forms/element-caption/element-caption.component';
 import { ElementWrapperComponent } from './components/forms/element-wrapper/element-wrapper.component';
 import { ChoiceFieldComponent } from './components/forms/fields/choice-field/choice-field.component';
+import { DateTimeFieldComponent } from './components/forms/fields/date-time-field/date-time-field.component';
 import { FileUploadFieldComponent } from './components/forms/fields/file-upload-field/file-upload-field.component';
 import { FormStepFieldComponent } from './components/forms/fields/form-step-field/form-step-field.component';
 import { HiddenFieldComponent } from './components/forms/fields/hidden-field/hidden-field.component';
@@ -55,6 +56,7 @@ const EPISERVER_FORMS_COMPONENTS = [
   ElementCaptionComponent,
   ElementWrapperComponent,
   ChoiceFieldComponent,
+  DateTimeFieldComponent,
   FileUploadFieldComponent,
   FormStepFieldComponent,
   HiddenFieldComponent,

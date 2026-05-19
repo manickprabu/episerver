@@ -37,7 +37,7 @@ describe('FormSchemaFormService', () => {
   });
 
   it('builds controls and initial values, skipping step blocks', () => {
-    const textField = createField({ key: 'text', properties: { label: 'Text', validators: [] } as never });
+    const textField = createField({ key: 'text', properties: { label: 'Text', validators: [], disabled: true } as never });
     const stepField = createField({ key: 'step', contentType: 'FormStepBlock' });
     const builtForm = {
       formElements: [textField, stepField],
@@ -51,6 +51,7 @@ describe('FormSchemaFormService', () => {
     expect(stepBuilderService.buildForm).toHaveBeenCalled();
     expect(Object.keys(result.formGroup.controls)).toEqual(['text']);
     expect(result.initialValue['text']).toBe('');
+    expect(result.formGroup.get('text')?.disabled).toBeTrue();
     expect(result.steps.length).toBe(1);
   });
 

@@ -23,6 +23,9 @@
   @case ('SelectionElementBlock') {
     <lib-select-field [field]="field" [formGroup]="formGroup" [submitted]="submitted" />
   }
+  @case ('DateTimeElementBlock') {
+    <lib-date-time-field [field]="field" [formGroup]="formGroup" [submitted]="submitted" />
+  }
   @case ('UrlElementBlock') {
     <lib-url-field [field]="field" [formGroup]="formGroup" [submitted]="submitted" />
   }

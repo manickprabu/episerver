@@ -26,14 +26,16 @@ export type FormFieldProperties = AnyFormElementProperties &
     autoComplete?: string;
     predefinedValue?: unknown;
     defaultValue?: unknown;
+    readOnly?: boolean;
+    disabled?: boolean;
     paragraphText?: string;
     disablePlaceholdersReplacement?: boolean;
     showSelectionInputControl?: boolean;
     allowMultiSelect?: boolean;
     allowMultiple?: boolean;
     fileTypes?: string;
-    min?: number;
-    max?: number;
+    min?: number | string;
+    max?: number | string;
     step?: number;
     image?: string;
     items?: FormFieldOption[];

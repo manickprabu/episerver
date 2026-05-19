@@ -26,10 +26,16 @@ export class FormSchemaFormService {
       }
 
       const value = this.getInitialValue(field);
-      controls[field.key] = new FormControl(value, {
-        nonNullable: false,
-        validators: this.buildValidators(field)
-      });
+      controls[field.key] = new FormControl(
+        {
+          value,
+          disabled: Boolean(field.properties.disabled)
+        },
+        {
+          nonNullable: false,
+          validators: this.buildValidators(field)
+        }
+      );
       initialValue[field.key] = value;
     }
 

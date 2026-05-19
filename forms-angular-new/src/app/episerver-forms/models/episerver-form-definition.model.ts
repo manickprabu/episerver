@@ -29,7 +29,8 @@ export enum EpiserverFieldType {
   ResetButtonElementBlockProxy = 'ResetButtonElementBlockProxy',
   ParagraphTextElementBlockProxy = 'ParagraphTextElementBlockProxy',
   ImageChoiceElementBlockProxy = 'ImageChoiceElementBlockProxy',
-  UrlElementBlockProxy = 'UrlElementBlockProxy'
+  UrlElementBlockProxy = 'UrlElementBlockProxy',
+  DateTimeElementBlockProxy = 'DateTimeElementBlockProxy'
 }
 
 export interface EpiserverFieldCondition {

@@ -3,20 +3,31 @@
 }
 
 .formChoice {
+  width: 100%;
+
+  .element-field {
+    width: 100%;
+  }
+
   fieldset {
+    display: grid;
+    gap: 0.75rem;
+    width: 100%;
     margin: 0;
     padding: 0;
     border: 0;
+    min-inline-size: 0;
 
     > div {
       display: flex;
-      align-items: center;
-      gap: 0.65rem;
-      margin-top: 0.65rem;
-      padding: 0.65rem 0.8rem;
+      align-items: flex-start;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.875rem 1rem;
       background: var(--white);
       border: 1px solid var(--light-grey);
       border-radius: var(--form-border-radius);
+      box-sizing: border-box;
       transition:
         border-color 160ms ease,
         background-color 160ms ease,
@@ -26,26 +37,34 @@
         border-color: var(--grey);
         background: var(--athens-grey);
       }
+
+      &:has(.formChoice__Input:focus-visible) {
+        border-color: var(--ocean);
+        box-shadow: 0 0 0 3px var(--form-focus-shadow);
+      }
     }
   }
 
   &__Input {
     flex: 0 0 auto;
-    margin: 0;
+    margin: 0.125rem 0 0;
     accent-color: var(--ocean);
+    cursor: pointer;
   }
 
   &__Label {
     display: inline-block;
-    margin-left: 0;
+    flex: 1 1 auto;
+    margin: 0;
     color: var(--dark-grey);
-    line-height: 1.4;
+    line-height: 1.45;
     cursor: pointer;
   }
 
   .form__Element--validationFail & {
     fieldset > div {
       border-color: var(--azalea);
+      background: var(--white);
     }
   }
 }

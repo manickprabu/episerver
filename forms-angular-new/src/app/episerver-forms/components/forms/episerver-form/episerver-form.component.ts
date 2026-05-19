@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 import { FormGroup } from '@angular/forms';
 import { FormField } from '../../../models/form-schema.model';
 import { ChoiceFieldComponent } from '../fields/choice-field/choice-field.component';
+import { DateTimeFieldComponent } from '../fields/date-time-field/date-time-field.component';
 import { FileUploadFieldComponent } from '../fields/file-upload-field/file-upload-field.component';
 import { FormStepFieldComponent } from '../fields/form-step-field/form-step-field.component';
 import { HiddenFieldComponent } from '../fields/hidden-field/hidden-field.component';

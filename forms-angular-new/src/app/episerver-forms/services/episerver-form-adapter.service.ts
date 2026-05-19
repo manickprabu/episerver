@@ -70,6 +70,8 @@ export class EpiserverFormAdapterService {
         placeHolder: field.properties.PlaceHolder,
         autoComplete: field.properties.AutoComplete,
         predefinedValue: (field.value ?? field.properties.DefaultValue) as string | undefined,
+        readOnly: Boolean(field.contentLink?.isReadOnly ?? field.properties['ReadOnly'] ?? field.properties['IsReadOnly']),
+        disabled: Boolean(field.properties['Disabled']),
         paragraphText: field.properties.ParagraphText as string | undefined,
         allowMultiSelect: Boolean(field.properties.AllowMultiSelect),
         allowMultiple: Boolean(field.properties.AllowMultiple),
