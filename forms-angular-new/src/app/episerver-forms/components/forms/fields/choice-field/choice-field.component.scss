@@ -2,7 +2,7 @@
   display: block;
 }
 
-.formChoice {
+:host ::ng-deep .formChoice {
   width: 100%;
 
   .element-field {
@@ -23,7 +23,7 @@
       align-items: flex-start;
       gap: 0.75rem;
       width: 100%;
-      padding: 0.875rem 1rem;
+      padding: 0.25rem 1rem;
       background: var(--white);
       border: 1px solid var(--light-grey);
       border-radius: var(--form-border-radius);
