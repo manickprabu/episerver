@@ -516,6 +516,14 @@ const DEBUG_EPISERVER_FORM: EpiserverFormDefinition = {
             caption: 'By submitting this document, you confirm that the information provided is true, accurate and complete to the best of your knowledge on behalf of all legal owners of this property.',
             value: 'Disclaimer',
             checked: false
+          },{
+            caption: '2By firm that the information provided is true, accurate and complete to the best of your knowledge on behalf of all legal owners of this property.',
+            value: 'Disclaimer2',
+            checked: false
+          },{
+            caption: '3By submitting this , accurate and complete to the best of your knowledge on behalf of all legal owners of this property.',
+            value: 'Disclaimer3',
+            checked: false
           }
         ],
         ValidatorMessages: [

@@ -69,22 +69,25 @@ export class EpiserverFormComponent {
   }
 
   protected stepHeading(step: FormStep, stepIndex: number): string {
-    const stepFieldKeys = new Set(step.elements.map(field => field.key));
-    const rawTitleField = this.source.fields.find(
-      field => stepFieldKeys.has(field.contentGuid) && field.name === 'Title' && field.type === 'PredefinedHiddenElementBlockProxy' && typeof field.properties.PredefinedValue === 'string' && field.properties.PredefinedValue.trim().length > 0
-    );
-
-    if (rawTitleField?.properties.PredefinedValue) {
-      return this.numberedSectionTitle(stepIndex, rawTitleField.properties.PredefinedValue);
+    if (stepIndex === 0) {
+      const firstStepTitle = this.firstStepHiddenTitle(step);
+      if (firstStepTitle) {
+        return this.numberedSectionTitle(stepIndex, firstStepTitle);
+      }
     }
 
-    const stepProperties = (step.formStep.properties ?? {}) as Record<string, unknown>;
-    const label = stepProperties['label'];
-    if (label && !step.formStep.key.endsWith('-step-0')) {
-      return this.numberedSectionTitle(stepIndex, String(label));
+    const formStepTitle = this.formStepTitle(step);
+    if (formStepTitle) {
+      return this.numberedSectionTitle(stepIndex, formStepTitle);
     }
 
     return this.numberedSectionTitle(stepIndex, 'Step ' + (stepIndex + 1));
+  }
+
+  protected stepDescription(step: FormStep): string {
+    const stepProperties = (step.formStep.properties ?? {}) as Record<string, unknown>;
+    const description = stepProperties['description'];
+    return typeof description === 'string' ? description.trim() : '';
   }
 
   protected visibleStepFields(step: FormStep): FormField[] {
@@ -204,6 +207,26 @@ export class EpiserverFormComponent {
 
   private numberedSectionTitle(stepIndex: number, title: string): string {
     return `${stepIndex + 1}. ${title}`;
+  }
+
+  private formStepTitle(step: FormStep): string {
+    const stepProperties = (step.formStep.properties ?? {}) as Record<string, unknown>;
+    const label = stepProperties['label'];
+    return typeof label === 'string' ? label.trim() : '';
+  }
+
+  private firstStepHiddenTitle(step: FormStep): string {
+    const stepFieldKeys = new Set(step.elements.map(field => field.key));
+    const rawTitleField = this.source.fields.find(
+      field =>
+        stepFieldKeys.has(field.contentGuid) &&
+        field.name === 'Title' &&
+        field.type === 'PredefinedHiddenElementBlockProxy' &&
+        typeof field.properties.PredefinedValue === 'string' &&
+        field.properties.PredefinedValue.trim().length > 0
+    );
+
+    return rawTitleField?.properties.PredefinedValue?.trim() ?? '';
   }
 
   private normalizeSourceValue(value: unknown, allowMultiSelect: boolean): unknown {

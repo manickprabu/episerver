@@ -32,9 +32,10 @@
             [pillColor]="isStepOpen(stepIndex) ? '#2563eb' : '#64748b'"
             [pillText]="isStepOpen(stepIndex) ? 'Open' : 'Available'"
             [title]="stepHeading(step, stepIndex)"
-            [loading]="isSubmitting && isStepOpen(stepIndex)"
+             [loading]="isSubmitting && isStepOpen(stepIndex)"
             (toggleAccordion)="openStep(stepIndex)">
             <section class="form__Element__Step">
+              <p>{{stepDescription(step)}}</p>
               @for (field of visibleStepFields(step); track field.key) {
                 <lib-episerver-form [field]="field" [formGroup]="formGroup" [submitted]="hasSubmitted" [submitDisabled]="isSubmitting" />
               }

@@ -27,6 +27,86 @@ const DEBUG_EPISERVER_FORM: EpiserverFormDefinition = {
       }
     },
     {
+            "name": "Number",
+            "id": 31826,
+            "contentGuid": "a12817e2-019c-445a-b219-cff2842be0fb",
+            "editViewFriendlyTitle": "Number",
+            "type": "NumberElementBlockProxy",
+            "value": "",
+            "properties": {
+                "Label": "Number",
+                "Validators": "EPiServer.Forms.Implementation.Validation.RequiredValidator|||EPiServer.Forms.Implementation.Validation.IntegerValidator|||EPiServer.Forms.Implementation.Validation.PositiveIntegerValidator",
+                "PlaceHolder": "Int",
+                "ValidatorMessages": [
+                    {
+                        "validator": "EPiServer.Forms.Implementation.Validation.PositiveIntegerValidator",
+                        "message": "Enter a valid positive integer."
+                    },
+                    {
+                        "validator": "EPiServer.Forms.Implementation.Validation.IntegerValidator",
+                        "message": "Enter a valid integer."
+                    },
+                    {
+                        "validator": "EPiServer.Forms.Implementation.Validation.RequiredValidator",
+                        "message": "This field is required."
+                    }
+                ],
+                "Conditions": []
+            }
+        },
+        {
+            "name": "Date time",
+            "id": 31827,
+            "contentGuid": "6c4c9200-6ca9-445a-b114-ae347bec5fbe",
+            "editViewFriendlyTitle": "Date time",
+            "type": "DateTimeElementBlockProxy",
+            "value": "",
+            "properties": {
+                "Label": "Date time",
+                "Conditions": []
+            }
+        },
+        {
+            "name": "Multiple or single choice",
+            "id": 31829,
+            "contentGuid": "247c5155-e63a-43b5-bf76-44ce9ca5d3e4",
+            "editViewFriendlyTitle": "Multiple or single choice",
+            "type": "ChoiceElementBlockProxy",
+            "value": "",
+            "properties": {
+                "Label": "Multiple or single choice",
+                "Feed": "FormsFeed_UseManualInput",
+                "Items": [
+                  {
+            caption: 'this property.',
+            value: 'Disclaimer',
+            checked: false
+          },{
+            caption: '2By firm ners of this property.',
+            value: 'Disclaimer2',
+            checked: false
+          },{
+            caption: '3By submitting this , ',
+            value: 'Disclaimer3',
+            checked: false
+          }
+                ],
+                "Conditions": []
+            }
+        },
+        {
+            "name": "File upload",
+            "id": 31828,
+            "contentGuid": "d9d1c0b7-1d48-4a17-bb2b-77c17de3b3e2",
+            "editViewFriendlyTitle": "File upload",
+            "type": "FileUploadElementBlockProxy",
+            "value": "",
+            "properties": {
+                "Label": "File upload",
+                "Conditions": []
+            }
+        },
+    {
       name: 'Is the property a probate sale, in receivership, held by a Trust or owned by a developer?',
       id: 31801,
       contentGuid: 'cb818013-6cf8-409c-aff7-e0d599b431a9',

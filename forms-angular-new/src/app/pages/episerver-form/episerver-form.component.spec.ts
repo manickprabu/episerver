@@ -48,15 +48,24 @@ describe('EpiserverFormComponent', () => {
   const stepField = {
     key: 'step-guid',
     contentType: 'FormStepBlock',
-    properties: { label: 'Type of Seller' }
+    properties: { label: 'Type of Seller', description: 'Seller step description' }
+  } as any;
+  const secondStepField = {
+    key: 'step-guid-2',
+    contentType: 'FormStepBlock',
+    properties: { label: 'About my home', description: 'Some description to explain about my home that benefits the user' }
   } as any;
 
   const form = {
-    formElements: [titleField, visibleField, hiddenField, stepField],
+    formElements: [titleField, visibleField, hiddenField, stepField, secondStepField],
     steps: [
       {
         formStep: stepField,
         elements: [titleField, visibleField, hiddenField]
+      },
+      {
+        formStep: secondStepField,
+        elements: [visibleField]
       }
     ],
     properties: { submitSuccessMessage: 'Submitted' }
@@ -143,6 +152,8 @@ describe('EpiserverFormComponent', () => {
     expect((component as any).isLoading).toBeFalse();
     expect((component as any).formGroup.get('source-guid')?.value).toBe('Yes');
     expect((component as any).stepHeading(form.steps[0], 0)).toBe('1. Type of Seller');
+    expect((component as any).stepHeading(form.steps[1], 1)).toBe('2. About my home');
+    expect((component as any).stepDescription(form.steps[1])).toBe('Some description to explain about my home that benefits the user');
     expect((component as any).visibleStepFields(form.steps[0]).map((field: any) => field.key)).toEqual(['title-guid', 'source-guid']);
 
     (component as any).openStep(2);
