@@ -27,15 +27,15 @@
         @for (step of steps; track trackStep($index, step); let stepIndex = $index) {
           <lib-accordion
             [accordionOpen]="isStepOpen(stepIndex)"
-            [borderColor]="isStepOpen(stepIndex) ? 'rgba(59, 130, 246, 0.45)' : 'rgba(15, 23, 42, 0.14)'"
-            [icon]="isStepOpen(stepIndex) ? '•' : '○'"
-            [pillColor]="isStepOpen(stepIndex) ? '#2563eb' : '#64748b'"
-            [pillText]="isStepOpen(stepIndex) ? 'Open' : 'Available'"
+            [borderColor]="accordionBorderColor(step, stepIndex)"
+            [icon]="accordionIcon(step)"
+            [pillColor]="accordionPillColor(step, stepIndex)"
+            [pillText]="accordionPillText(step, stepIndex)"
             [title]="stepHeading(step, stepIndex)"
-             [loading]="isSubmitting && isStepOpen(stepIndex)"
+            [description]="stepDescription(step)"
+            [loading]="isSubmitting && isStepOpen(stepIndex)"
             (toggleAccordion)="openStep(stepIndex)">
             <section class="form__Element__Step">
-              <p>{{stepDescription(step)}}</p>
               @for (field of visibleStepFields(step); track field.key) {
                 <lib-episerver-form [field]="field" [formGroup]="formGroup" [submitted]="hasSubmitted" [submitDisabled]="isSubmitting" />
               }

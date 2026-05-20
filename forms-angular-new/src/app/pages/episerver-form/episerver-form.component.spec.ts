@@ -155,9 +155,17 @@ describe('EpiserverFormComponent', () => {
     expect((component as any).stepHeading(form.steps[1], 1)).toBe('2. About my home');
     expect((component as any).stepDescription(form.steps[1])).toBe('Some description to explain about my home that benefits the user');
     expect((component as any).visibleStepFields(form.steps[0]).map((field: any) => field.key)).toEqual(['title-guid', 'source-guid']);
+    expect((component as any).accordionPillText(form.steps[0], 0)).toBe('Completed');
+    expect((component as any).accordionPillText(form.steps[1], 1)).toBe('To do');
 
     (component as any).openStep(2);
     expect((component as any).isStepOpen(2)).toBeTrue();
+    expect((component as any).accordionPillText(form.steps[1], 1)).toBe('To do');
+    (component as any).openStep(1);
+    expect((component as any).isStepOpen(1)).toBeTrue();
+    expect((component as any).accordionPillText(form.steps[1], 1)).toBe('In Progress');
+    (component as any).openStep(1);
+    expect((component as any).isStepOpen(1)).toBeFalse();
     expect((component as any).validationCssClass).toBe('validationSuccess');
 
     (component as any).savePartial();

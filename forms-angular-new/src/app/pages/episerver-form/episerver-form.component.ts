@@ -25,6 +25,7 @@ export class EpiserverFormComponent {
   protected formGroup!: FormGroup;
   protected steps: FormStep[] = [];
   protected endpoint = '';
+  protected readonly openStepIndexes = new Set<number>([0]);
   protected currentStepIndex = 0;
   protected isSubmitting = false;
   protected hasSubmitted = false;
@@ -62,10 +63,57 @@ export class EpiserverFormComponent {
 
   protected openStep(stepIndex: number): void {
     this.currentStepIndex = stepIndex;
+
+    if (this.openStepIndexes.has(stepIndex)) {
+      this.openStepIndexes.delete(stepIndex);
+      return;
+    }
+
+    this.openStepIndexes.add(stepIndex);
   }
 
   protected isStepOpen(stepIndex: number): boolean {
-    return this.currentStepIndex === stepIndex;
+    return this.openStepIndexes.has(stepIndex);
+  }
+
+  protected accordionBorderColor(step: FormStep, stepIndex: number): string {
+    if (this.isStepComplete(step)) {
+      return 'rgba(22, 163, 74, 0.35)';
+    }
+
+    if (this.isStepOpen(stepIndex)) {
+      return 'rgba(59, 130, 246, 0.45)';
+    }
+
+    return 'rgba(15, 23, 42, 0.14)';
+  }
+
+  protected accordionIcon(step: FormStep): string {
+    return this.isStepComplete(step) ? '✓' : '•';
+  }
+
+  protected accordionPillColor(step: FormStep, stepIndex: number): string {
+    if (this.isStepComplete(step)) {
+      return '#16a34a';
+    }
+
+    if (this.isStepInProgress(step, stepIndex)) {
+      return '#2563eb';
+    }
+
+    return '#64748b';
+  }
+
+  protected accordionPillText(step: FormStep, stepIndex: number): string {
+    if (this.isStepComplete(step)) {
+      return 'Completed';
+    }
+
+    if (this.isStepInProgress(step, stepIndex)) {
+      return 'In Progress';
+    }
+
+    return 'To do';
   }
 
   protected stepHeading(step: FormStep, stepIndex: number): string {
@@ -207,6 +255,43 @@ export class EpiserverFormComponent {
 
   private numberedSectionTitle(stepIndex: number, title: string): string {
     return `${stepIndex + 1}. ${title}`;
+  }
+
+  private isStepInProgress(step: FormStep, stepIndex: number): boolean {
+    return this.isStepOpen(stepIndex) || this.stepHasAnyValue(step);
+  }
+
+  private isStepComplete(step: FormStep): boolean {
+    const fields = this.visibleStepFields(step).filter(field => this.shouldTrackStepProgress(field));
+    return fields.length > 0 && fields.every(field => this.isFieldFilled(field));
+  }
+
+  private stepHasAnyValue(step: FormStep): boolean {
+    return this.visibleStepFields(step)
+      .filter(field => this.shouldTrackStepProgress(field))
+      .some(field => this.isFieldFilled(field));
+  }
+
+  private shouldTrackStepProgress(field: FormField): boolean {
+    return !['PredefinedHiddenElementBlock', 'ParagraphTextElementBlock', 'SubmitButtonElementBlock', 'ResetButtonElementBlock'].includes(field.contentType);
+  }
+
+  private isFieldFilled(field: FormField): boolean {
+    const control = this.formGroup.get(field.key);
+    if (!control || control.disabled) {
+      return false;
+    }
+
+    const value = control.value;
+    if (typeof value === 'string') {
+      return value.trim().length > 0;
+    }
+
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    return value !== null && value !== undefined && value !== '';
   }
 
   private formStepTitle(step: FormStep): string {
