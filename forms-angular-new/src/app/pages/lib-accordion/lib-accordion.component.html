@@ -4,7 +4,12 @@
       @if (icon()) {
         <span class="lib-accordion__icon" [style.color]="hostBorderColor()">{{ icon() }}</span>
       }
-      <span class="lib-accordion__title">{{ title() }}</span>
+      <span class="lib-accordion__heading-copy">
+        <span class="lib-accordion__title">{{ title() }}</span>
+        @if (description()) {
+          <span class="lib-accordion__description">{{ description() }}</span>
+        }
+      </span>
     </span>
 
     <span class="lib-accordion__meta">

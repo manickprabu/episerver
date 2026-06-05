@@ -37,7 +37,7 @@
             (toggleAccordion)="openStep(stepIndex)">
             <section class="form__Element__Step">
               @for (field of visibleStepFields(step); track field.key) {
-                <lib-episerver-form [field]="field" [formGroup]="formGroup" [submitted]="hasSubmitted" [submitDisabled]="isSubmitting" />
+                <lib-episerver-form [field]="field" [formGroup]="formGroup" [submitted]="hasSubmitted" [submitDisabled]="isSubmitting || isReadOnlyMode" />
               }
             </section>
           </lib-accordion>
@@ -45,8 +45,8 @@
       </div>
 
       <div class="episerver-form-page__footer-actions">
-        <button type="button" class="episerver-form-page__draft" [disabled]="isSubmitting" (click)="savePartial()">Save progress</button>
-        <button type="submit" class="episerver-form-page__submit" [disabled]="isSubmitting">Submit</button>
+        <button type="button" class="episerver-form-page__draft" [disabled]="isSubmitting || isReadOnlyMode" (click)="savePartial()">Save progress</button>
+        <button type="submit" class="episerver-form-page__submit" [disabled]="isSubmitting || isReadOnlyMode">Submit</button>
       </div>
     </form>
   }

@@ -31,6 +31,7 @@ export class EpiserverFormComponent {
   protected hasSubmitted = false;
   protected submitSucceeded = false;
   protected isWarningStatus = false;
+  protected isReadOnlyMode = false;
   protected statusMessage = '';
   protected submissionKey = '';
   protected visibilityState: FieldVisibilityState = { visibilityByGuid: {}, visibilityByContentLinkId: {}, evaluations: [] };
@@ -143,10 +144,18 @@ export class EpiserverFormComponent {
   }
 
   protected savePartial(): void {
+    if (this.isReadOnlyMode) {
+      return;
+    }
+
     this.submit(false);
   }
 
   protected submitFinal(): void {
+    if (this.isReadOnlyMode) {
+      return;
+    }
+
     this.hasSubmitted = true;
 
     const fieldKeys = this.visibleFormFields().map(field => field.key);
@@ -197,6 +206,7 @@ export class EpiserverFormComponent {
 
   private initializeForm(source: EpiserverFormDefinition): void {
     this.source = source;
+    this.isReadOnlyMode = Boolean(source.isFinalised ?? source.isFinalized);
     this.form = this.episerverFormAdapterService.adaptForm(source);
     const builtForm = this.formSchemaFormService.buildForm(this.form);
     this.form = builtForm.form;
@@ -209,6 +219,12 @@ export class EpiserverFormComponent {
     const initialVisibilityState = this.formDependConditionsService.evaluateFieldVisibility(this.form.formElements, this.formGroup.getRawValue() as Record<string, unknown>);
     this.visibilityState = initialVisibilityState;
     this.formDependConditionsService.syncHiddenControls(this.form.formElements, this.formGroup, initialVisibilityState, this.dependencyDisabledKeys);
+
+    if (this.isReadOnlyMode) {
+      this.formGroup.disable({ emitEvent: false });
+      this.statusMessage = 'This form has already been finalised and is now read-only.';
+      this.isWarningStatus = false;
+    }
 
     this.setupVisibilityTracking();
     this.isLoading = false;

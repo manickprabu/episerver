@@ -14,6 +14,7 @@ export class LibAccordionComponent {
   readonly pillColor = input<string | null>(null);
   readonly pillText = input<string | null>(null);
   readonly title = input('');
+  readonly description = input<string | null>(null);
   readonly loading = input(false);
   readonly disabled = input(false);
 

@@ -10,6 +10,7 @@ import { EpiserverFormService } from './episerver-form.service';
 
 describe('EpiserverFormComponent', () => {
   const source = {
+    isFinalised: true,
     fields: [
       {
         name: 'Title',
@@ -150,7 +151,10 @@ describe('EpiserverFormComponent', () => {
     const { component, episerverFormService, formSubmissionService, formDependConditionsService, watchVisibility$ } = createComponent();
 
     expect((component as any).isLoading).toBeFalse();
+    expect((component as any).isReadOnlyMode).toBeTrue();
     expect((component as any).formGroup.get('source-guid')?.value).toBe('Yes');
+    expect((component as any).formGroup.disabled).toBeTrue();
+    expect((component as any).statusMessage).toContain('read-only');
     expect((component as any).stepHeading(form.steps[0], 0)).toBe('1. Type of Seller');
     expect((component as any).stepHeading(form.steps[1], 1)).toBe('2. About my home');
     expect((component as any).stepDescription(form.steps[1])).toBe('Some description to explain about my home that benefits the user');
@@ -169,8 +173,8 @@ describe('EpiserverFormComponent', () => {
     expect((component as any).validationCssClass).toBe('validationSuccess');
 
     (component as any).savePartial();
-    expect(formSubmissionService.buildSubmitModel).toHaveBeenCalled();
-    expect(episerverFormService.savePartial).toHaveBeenCalled();
+    expect(formSubmissionService.buildSubmitModel).not.toHaveBeenCalled();
+    expect(episerverFormService.savePartial).not.toHaveBeenCalled();
 
     watchVisibility$.next({ visibilityByGuid: { 'source-guid': true, 'hidden-guid': true }, visibilityByContentLinkId: {}, evaluations: [] });
     expect(formDependConditionsService.syncHiddenControls).toHaveBeenCalled();
@@ -178,6 +182,8 @@ describe('EpiserverFormComponent', () => {
 
   it('handles invalid final submit and focuses the first invalid control', () => {
     const { component, documentStub, formSubmissionService, episerverFormService } = createComponent();
+    (component as any).isReadOnlyMode = false;
+    (component as any).formGroup.enable({ emitEvent: false });
     formSubmissionService.validateStep.and.returnValue([{ result: { valid: false } }]);
     formSubmissionService.applyValidationResults.and.callFake((formGroup: FormGroup) => {
       formGroup.get('hidden-guid')?.setErrors({ required: true });
@@ -198,6 +204,8 @@ describe('EpiserverFormComponent', () => {
     expect((loadFailure.component as any).statusMessage).toContain('Unable to load form');
 
     const successCase = createComponent();
+    (successCase.component as any).isReadOnlyMode = false;
+    (successCase.component as any).formGroup.enable({ emitEvent: false });
     successCase.episerverFormService.savePartial.and.returnValue(throwError(() => ({ detail: 'Bad request' })));
     (successCase.component as any).savePartial();
 

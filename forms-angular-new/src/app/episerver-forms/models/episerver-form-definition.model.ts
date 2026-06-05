@@ -93,6 +93,8 @@ export interface EpiserverFormDefinition {
   formId?: number | string;
   formGuid?: string;
   submissionId?: string;
+  isFinalised?: boolean;
+  isFinalized?: boolean;
   contentGuid: string;
   name: string;
   title?: string;
