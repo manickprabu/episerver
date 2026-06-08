@@ -85,6 +85,16 @@ describe('FormStorageService', () => {
     expect(service.loadFormDataFromStorage(form)).toEqual(submission);
   });
 
+  it('keeps uploaded files in memory while storing a JSON-safe snapshot', () => {
+    const file = new File(['resume'], 'resume.pdf', { type: 'application/pdf' });
+    const submission: FormSubmission[] = [{ elementKey: 'attachments', value: [{ name: file.name, file }] }];
+
+    service.saveFormDataToStorage(form, submission);
+
+    expect(service.loadFormDataFromStorage(form)).toEqual(submission);
+    expect(storage.getItem(form.key)).toBe('[{"elementKey":"attachments","value":[]}]');
+  });
+
   it('returns an empty array when nothing is stored', () => {
     expect(service.loadFormDataFromStorage(form)).toEqual([]);
   });

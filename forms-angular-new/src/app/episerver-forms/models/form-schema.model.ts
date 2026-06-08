@@ -50,6 +50,11 @@ export type FormField = FormElementBase & {
   properties: FormFieldProperties;
 };
 
+export interface FormUploadedFile {
+  name?: string;
+  file?: File;
+}
+
 export type FormSchemaProperties = FormContainerProperties;
 
 export type FormStep = Step & {

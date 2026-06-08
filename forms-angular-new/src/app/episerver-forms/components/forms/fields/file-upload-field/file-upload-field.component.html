@@ -1,15 +1,94 @@
 <lib-element-wrapper className="formFileUpload" [control]="control" [submitted]="submitted">
   <lib-element-caption [field]="field" [forId]="field.key" />
   <div class="element-field">
-    <input
-      [id]="field.key"
-      type="file"
-      class="element-field__control formFileUpload__Input"
-      [multiple]="!!field.properties.allowMultiple"
-      [attr.accept]="field.properties.fileTypes || null"
-      [attr.title]="field.properties.description || null"
-      [attr.aria-describedby]="field.key + '_desc'"
-      (change)="onFileChange($event)" />
+    <div class="formFileUpload__Controls">
+      <button
+        type="button"
+        class="formFileUpload__Trigger"
+        [attr.aria-controls]="field.key + '_dialog'"
+        aria-haspopup="dialog"
+        [attr.aria-expanded]="isModalOpen"
+        (click)="openModal()">
+        Upload files
+      </button>
+
+      @if (selectedFiles.length) {
+        <ul class="formFileUpload__SelectedList" [attr.aria-label]="field.properties.label + ' selected files'">
+          @for (file of selectedFiles; track trackFile($index, file); let index = $index) {
+            <li class="formFileUpload__SelectedItem">
+              <span class="formFileUpload__SelectedName">{{ file.name }}</span>
+              <button type="button" class="formFileUpload__Remove" (click)="removeSelectedFile(index)">Remove</button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    @if (field.properties.description) {
+      <p class="formFileUpload__Description">{{ field.properties.description }}</p>
+    }
+
     <lib-validation-message [field]="field" [control]="control" [submitted]="submitted" />
+
+    @if (isModalOpen) {
+      <div class="formFileUpload__ModalBackdrop">
+        <section
+          [id]="field.key + '_dialog'"
+          class="formFileUpload__Modal"
+          role="dialog"
+          aria-modal="true"
+          [attr.aria-labelledby]="field.key + '_dialog_title'"
+          (keydown.escape)="closeModal()">
+          <div class="formFileUpload__ModalHeader">
+            <h3 [id]="field.key + '_dialog_title'" class="formFileUpload__ModalTitle">{{ field.properties.label }}</h3>
+            <button type="button" class="formFileUpload__Close" aria-label="Close upload dialog" (click)="closeModal()">Close</button>
+          </div>
+
+          <div class="formFileUpload__ModalBody">
+            <input
+              [id]="field.key"
+              type="file"
+              class="element-field__control formFileUpload__Input"
+              multiple
+              [disabled]="hasReachedFileLimit"
+              [attr.accept]="field.properties.fileTypes || null"
+              [attr.title]="field.properties.description || null"
+              [attr.aria-describedby]="field.key + '_desc ' + field.key + '_upload_error'"
+              (change)="onFileChange($event)" />
+
+            @if (hasReachedFileLimit) {
+              <p class="formFileUpload__Hint">Maximum 5 files selected. Remove a file to add another.</p>
+            }
+
+            @if (selectionError) {
+              <span class="form__Element__ValidationError" [id]="field.key + '_upload_error'" role="alert">
+                {{ selectionError }}
+              </span>
+            }
+
+            @if (draftFiles.length) {
+              <ul class="formFileUpload__DraftList" [attr.aria-label]="field.properties.label + ' files pending confirmation'">
+                @for (file of draftFiles; track trackFile($index, file); let index = $index) {
+                  <li class="formFileUpload__DraftItem">
+                    <div class="formFileUpload__DraftMeta">
+                      <span class="formFileUpload__DraftName">{{ file.name }}</span>
+                      <span class="formFileUpload__DraftSize">{{ fileSizeLabel(file) }}</span>
+                    </div>
+                    <button type="button" class="formFileUpload__Remove" (click)="removeDraftFile(index)">Remove</button>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="formFileUpload__Empty">No files selected.</p>
+            }
+          </div>
+
+          <div class="formFileUpload__ModalActions">
+            <button type="button" class="formFileUpload__SecondaryAction" (click)="closeModal()">Close</button>
+            <button type="button" class="formFileUpload__PrimaryAction" (click)="confirmSelection()">Confirm</button>
+          </div>
+        </section>
+      </div>
+    }
   </div>
 </lib-element-wrapper>

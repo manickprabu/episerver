@@ -85,4 +85,34 @@ describe('FormSubmissionService', () => {
       currentStepIndex: 1
     });
   });
+
+  it('keeps uploaded file arrays intact when converting form values into submissions', () => {
+    const resume = new File(['resume'], 'resume.pdf', { type: 'application/pdf' });
+    const formWithUpload = {
+      ...sampleForm,
+      formElements: [
+        ...sampleForm.formElements,
+        {
+          key: 'attachments',
+          contentType: 'FileUploadElementBlock',
+          displayName: 'Attachments',
+          locale: 'en',
+          localizations: {},
+          properties: { label: 'Attachments', description: '' }
+        }
+      ]
+    } as FormSchema;
+    const formGroup = new FormGroup({
+      firstName: new FormControl('Ada'),
+      interests: new FormControl(['planning', 'payloads']),
+      attachments: new FormControl([{ name: 'resume.pdf', file: resume }])
+    });
+
+    const submissions = service.toFormSubmissions(formWithUpload, formGroup);
+
+    expect(submissions).toContain({
+      elementKey: 'attachments',
+      value: [{ name: 'resume.pdf', file: resume }]
+    });
+  });
 });

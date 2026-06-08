@@ -58,7 +58,7 @@ export class FormSubmitService {
             formData.append(`${key}_file_${index}`, file);
           }
 
-          if (index > 0 && index !== files.length - 1) {
+          if (index > 0) {
             fileNames += ' | ';
           }
 

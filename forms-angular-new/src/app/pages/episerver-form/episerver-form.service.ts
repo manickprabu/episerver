@@ -97,13 +97,26 @@ const DEBUG_EPISERVER_FORM: EpiserverFormDefinition = {
         },
         {
             "name": "File upload",
-            "id": 31828,
+            "id": 311828,
             "contentGuid": "d9d1c0b7-1d48-4a17-bb2b-77c17de3b3e2",
             "editViewFriendlyTitle": "File upload",
             "type": "FileUploadElementBlockProxy",
             "value": "",
             "properties": {
                 "Label": "File upload",
+                "Conditions": []
+            }
+        },
+
+        {
+            "name": "File upload",
+            "id": 318228,
+            "contentGuid": "d9d1c0b7-1d48-4a17-bb2b-77c17de3b3edd2",
+            "editViewFriendlyTitle": "File upload 2",
+            "type": "FileUploadElementBlockProxy",
+            "value": "",
+            "properties": {
+                "Label": "File upload 2",
                 "Conditions": []
             }
         },

@@ -152,6 +152,40 @@ describe('FormSubmitService', () => {
     expect(storage.getItem(form.key)).toBeNull();
   });
 
+  it('appends uploaded files and stores a readable file name list in multipart submissions', async () => {
+    const resume = new File(['resume'], 'resume.pdf', { type: 'application/pdf' });
+    const coverLetter = new File(['cover'], 'cover-letter.pdf', { type: 'application/pdf' });
+
+    const promise = service.doSubmit(form, '/', {
+      formKey: 'demo-form',
+      locale: 'en',
+      submissionData: [
+        { elementKey: 'attachments', value: [{ name: resume.name, file: resume }, { name: coverLetter.name, file: coverLetter }] }
+      ],
+      isFinalized: false,
+      partialSubmissionKey: 'partial-2',
+      hostedPageUrl: 'https://example.com/form',
+      accessToken: 'token-123',
+      currentStepIndex: 0
+    });
+
+    const req = httpMock.expectOne('/_forms/v1/forms');
+    const formData = req.request.body as FormData;
+
+    expect(formData.get('attachments')).toBe('resume.pdf | cover-letter.pdf');
+    expect(formData.get('attachments_file_0')).toBe(resume);
+    expect(formData.get('attachments_file_1')).toBe(coverLetter);
+
+    req.flush({
+      success: true,
+      submissionKey: 'partial-2',
+      validationFail: false,
+      messages: []
+    });
+
+    await expectAsync(promise).toBeResolved();
+  });
+
   it('returns field validation results before submit', () => {
     const results = service.doValidate(form, [{ elementKey: 'name', value: '' } as FormSubmission]);
 

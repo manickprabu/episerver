@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 
 import { StepBuilderService } from '../../episerver-forms/episerver-sdk';
-import { FormField, FormFieldOption, FormFieldValidator, FormSchema, FormStep, ValidatorType } from '../models/form-schema.model';
+import { FormField, FormFieldOption, FormFieldValidator, FormSchema, FormStep, FormUploadedFile, ValidatorType } from '../models/form-schema.model';
+
+const MAX_UPLOAD_FILES = 5;
+const MAX_UPLOAD_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
 export interface BuiltForm {
   form: FormSchema;
@@ -122,8 +125,11 @@ export class FormSchemaFormService {
     if (control.hasError('allowedExtensions')) {
       return 'The selected file type is not allowed.';
     }
+    if (control.hasError('maxFileCount')) {
+      return 'You can upload up to 5 files.';
+    }
     if (control.hasError('maxFileSize')) {
-      return 'The selected file is too large.';
+      return 'Each file must be 5MB or smaller.';
     }
 
     return 'Invalid value.';
@@ -132,6 +138,7 @@ export class FormSchemaFormService {
   private buildValidators(field: FormField): ValidatorFn[] {
     const validators: ValidatorFn[] = [];
     const fieldValidators = field.properties.validators ?? [];
+    let configuredMaxFileSize: number | null = null;
 
     for (const validator of fieldValidators) {
       switch (validator.type) {
@@ -163,7 +170,7 @@ export class FormSchemaFormService {
         case 'MaxFileSizeValidator': {
           const maxSize = (validator.model as { sizeInBytes?: number }).sizeInBytes;
           if (typeof maxSize === 'number') {
-            validators.push(this.maxFileSizeValidator(maxSize));
+            configuredMaxFileSize = configuredMaxFileSize === null ? maxSize : Math.min(configuredMaxFileSize, maxSize);
           }
           break;
         }
@@ -184,13 +191,32 @@ export class FormSchemaFormService {
     if (typeof field.properties.max === 'number') {
       validators.push(Validators.max(field.properties.max));
     }
+    if (field.contentType === 'FileUploadElementBlock') {
+      validators.push(this.maxFileCountValidator(MAX_UPLOAD_FILES));
+      validators.push(
+        this.maxFileSizeValidator(
+          configuredMaxFileSize === null ? MAX_UPLOAD_FILE_SIZE_BYTES : Math.min(configuredMaxFileSize, MAX_UPLOAD_FILE_SIZE_BYTES)
+        )
+      );
+    }
 
     return validators;
   }
 
+  private maxFileCountValidator(maxFiles: number): ValidatorFn {
+    return control => {
+      const value = control.value as FormUploadedFile[] | null;
+      if (!Array.isArray(value) || value.length <= maxFiles) {
+        return null;
+      }
+
+      return { maxFileCount: true };
+    };
+  }
+
   private maxFileSizeValidator(maxSize: number): ValidatorFn {
     return control => {
-      const value = control.value as Array<{ file?: File }> | null;
+      const value = control.value as FormUploadedFile[] | null;
       if (!Array.isArray(value) || value.length === 0) {
         return null;
       }
@@ -207,7 +233,7 @@ export class FormSchemaFormService {
       .filter(Boolean);
 
     return control => {
-      const value = control.value as Array<{ name?: string }> | null;
+      const value = control.value as FormUploadedFile[] | null;
       if (!Array.isArray(value) || value.length === 0) {
         return null;
       }

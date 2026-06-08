@@ -135,7 +135,11 @@ describe('FormSchemaFormService', () => {
 
     const fileSizeControl = new FormControl('x');
     fileSizeControl.setErrors({ maxFileSize: true });
-    expect(service.getValidationMessage(field, fileSizeControl)).toBe('The selected file is too large.');
+    expect(service.getValidationMessage(field, fileSizeControl)).toBe('Each file must be 5MB or smaller.');
+
+    const fileCountControl = new FormControl('x');
+    fileCountControl.setErrors({ maxFileCount: true });
+    expect(service.getValidationMessage(field, fileCountControl)).toBe('You can upload up to 5 files.');
 
     const unknownControl = new FormControl('x');
     unknownControl.setErrors({ custom: true });
@@ -143,7 +147,7 @@ describe('FormSchemaFormService', () => {
     expect(service.getValidationMessage(field, null)).toBe('');
   });
 
-  it('applies validators for required, email, pattern, min, max, file size and extensions', () => {
+  it('applies validators for required, email, pattern, min, max, file size, file count and extensions', () => {
     const field = createField({
       key: 'validated',
       contentType: 'TextboxElementBlock',
@@ -155,7 +159,7 @@ describe('FormSchemaFormService', () => {
           { type: ValidatorType.RequiredValidator, model: { message: 'Required' } },
           { type: ValidatorType.EmailValidator, model: { message: 'Email' } },
           { type: ValidatorType.RegularExpressionValidator, model: { jsPattern: '^ok$' } },
-          { type: ValidatorType.MaxFileSizeValidator, model: { sizeInBytes: 5 } },
+          { type: ValidatorType.MaxFileSizeValidator, model: { sizeInBytes: 10 } },
           { type: ValidatorType.AllowedExtensionsValidator, model: { accept: '.pdf,.docx' } }
         ]
       } as never
@@ -182,8 +186,19 @@ describe('FormSchemaFormService', () => {
     expect(control.hasError('maxFileSize')).toBeTrue();
     expect(control.hasError('allowedExtensions')).toBeTrue();
 
+    control.setValue([
+      { name: '1.pdf', file: new File(['1'], '1.pdf') },
+      { name: '2.pdf', file: new File(['2'], '2.pdf') },
+      { name: '3.pdf', file: new File(['3'], '3.pdf') },
+      { name: '4.pdf', file: new File(['4'], '4.pdf') },
+      { name: '5.pdf', file: new File(['5'], '5.pdf') },
+      { name: '6.pdf', file: new File(['6'], '6.pdf') }
+    ] as never);
+    expect(control.hasError('maxFileCount')).toBeTrue();
+
     control.setValue([{ name: 'file.pdf', file: new File(['1234'], 'file.pdf') }] as never);
     expect(control.hasError('maxFileSize')).toBeFalse();
     expect(control.hasError('allowedExtensions')).toBeFalse();
+    expect(control.hasError('maxFileCount')).toBeFalse();
   });
 });
