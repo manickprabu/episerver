@@ -55,6 +55,7 @@ export interface FormUploadedFile {
   name?: string;
   size?: number;
   url?: string;
+  assetGuid?: string;
   file?: File;
 }
 

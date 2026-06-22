@@ -88,12 +88,12 @@ describe('FormSchemaFormService', () => {
         createField({
           contentType: 'FileUploadElementBlock',
           properties: {
-            predefinedValue: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf"}]',
+            predefinedValue: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf","AssetGuid":"asset-123"}]',
             validators: []
           } as never
         })
       )
-    ).toEqual([{ name: 'demo-test.pdf', url: '/globalassets/forms-upload-assets/demo-test2.pdf', size: undefined, file: undefined }]);
+    ).toEqual([{ name: 'demo-test.pdf', url: '/globalassets/forms-upload-assets/demo-test2.pdf', assetGuid: 'asset-123', size: undefined, file: undefined }]);
     expect(service.getInitialValue(createField({ contentType: 'PredefinedHiddenElementBlock', properties: { predefinedValue: 'hidden', validators: [] } as never }))).toBe('hidden');
     expect(service.getInitialValue(createField({ contentType: 'SubmitButtonElementBlock' }))).toBeNull();
     expect(service.getInitialValue(createField({ contentType: 'TextboxElementBlock', properties: { defaultValue: 'hello', validators: [] } as never }))).toBe('hello');

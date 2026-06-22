@@ -32,7 +32,7 @@ describe('EpiserverFormAccordionService', () => {
           contentLink: { id: 31796 },
           id: 31796,
           type: 'FileUploadElementBlockProxy',
-          value: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf"}]',
+          value: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf","AssetGuid":"asset-123"}]',
           properties: {}
         }
       ]
@@ -90,7 +90,7 @@ describe('EpiserverFormAccordionService', () => {
 
   it('builds FormData when attachments are included', () => {
     const model = createModel();
-    model.submissionData = [{ elementKey: 'guid-1', value: [{ name: 'photo.jpg', file: new File(['img'], 'photo.jpg') }] }] as never;
+    model.submissionData = [{ elementKey: 'guid-1', value: [{ name: 'photo.jpg', url: '', assetGuid: '', file: new File(['img'], 'photo.jpg') }] }] as never;
 
     service.submitFinal(createSource(), model).subscribe();
 
@@ -99,7 +99,7 @@ describe('EpiserverFormAccordionService', () => {
     const formData = request.request.body as FormData;
     expect(formData instanceof FormData).toBeTrue();
     expect(formData.get('__field_31796_file_0')).toEqual(jasmine.any(File));
-    expect(JSON.parse(String(formData.get('data'))).Fields).toEqual({ __field_31796: 'photo.jpg' });
+    expect(JSON.parse(String(formData.get('data'))).Fields).toEqual({ __field_31796: '[{"DownloadUrl":"","Name":"photo.jpg","AssetGuid":""}]' });
     request.flush({ success: true });
   });
 

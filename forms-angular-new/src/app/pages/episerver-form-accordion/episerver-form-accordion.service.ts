@@ -643,23 +643,25 @@ export class EpiserverFormAccordionService {
       return false;
     }
 
-    const files = value as Array<{ name: string; file?: File }>;
-    let fileNames = '';
+    const files = value as Array<{ name?: string; url?: string; assetGuid?: string; file?: File }>;
+    let hasBrowserFile = false;
 
     for (let index = 0; index < files.length; index += 1) {
       const file = files[index].file;
       if (file) {
+        hasBrowserFile = true;
         formData.append(serializedKey + '_file_' + index, file);
       }
-
-      if (index > 0) {
-        fileNames += ' | ';
-      }
-      fileNames += files[index].name;
     }
 
-    fields[serializedKey] = fileNames;
-    return true;
+    fields[serializedKey] = JSON.stringify(
+      files.map(file => ({
+        DownloadUrl: file.url ?? '',
+        Name: file.name ?? file.file?.name ?? '',
+        AssetGuid: file.assetGuid ?? ''
+      }))
+    );
+    return hasBrowserFile;
   }
 
   private collectRemovedFileFields(source: EpiserverFormDefinition, model: FormSubmitModel): string[] {

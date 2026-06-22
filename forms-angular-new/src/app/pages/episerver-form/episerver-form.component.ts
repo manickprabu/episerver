@@ -359,7 +359,7 @@ export class EpiserverFormComponent {
     return value;
   }
 
-  private normalizeUploadedFiles(value: unknown): Array<{ name?: string; size?: number; url?: string }> {
+  private normalizeUploadedFiles(value: unknown): Array<{ name?: string; size?: number; url?: string; assetGuid?: string }> {
     const parsed = this.parseUploadedFilesValue(value);
     if (!Array.isArray(parsed)) {
       return [];
@@ -367,7 +367,7 @@ export class EpiserverFormComponent {
 
     return parsed
       .map(entry => this.normalizeUploadedFile(entry))
-      .filter((entry): entry is { name?: string; size?: number; url?: string } => entry !== null);
+      .filter((entry): entry is { name?: string; size?: number; url?: string; assetGuid?: string } => entry !== null);
   }
 
   private parseUploadedFilesValue(value: unknown): unknown {
@@ -387,7 +387,7 @@ export class EpiserverFormComponent {
     }
   }
 
-  private normalizeUploadedFile(value: unknown): { name?: string; size?: number; url?: string } | null {
+  private normalizeUploadedFile(value: unknown): { name?: string; size?: number; url?: string; assetGuid?: string } | null {
     if (!value || typeof value !== 'object') {
       return null;
     }
@@ -395,6 +395,7 @@ export class EpiserverFormComponent {
     const file = value as Record<string, unknown>;
     const name = this.readString(file, ['name', 'Name', 'fileName', 'FileName']);
     const url = this.readString(file, ['url', 'Url', 'downloadUrl', 'DownloadUrl', 'value', 'Value']);
+    const assetGuid = this.readString(file, ['assetGuid', 'AssetGuid']);
     const size = this.readNumber(file, ['size', 'Size']);
 
     if (!name && !url) {
@@ -404,7 +405,8 @@ export class EpiserverFormComponent {
     return {
       name: name ?? url?.split('/').pop() ?? 'File',
       size: size ?? undefined,
-      url: url ?? undefined
+      url: url ?? undefined,
+      assetGuid: assetGuid ?? undefined
     };
   }
 

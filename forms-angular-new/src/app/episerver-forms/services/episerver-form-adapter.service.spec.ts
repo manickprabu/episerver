@@ -12,7 +12,7 @@ describe('EpiserverFormAdapterService', () => {
         {
           contentGuid: 'upload-guid',
           type: 'FileUploadElementBlockProxy',
-          value: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf"}]',
+          value: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf","AssetGuid":"asset-123"}]',
           properties: {
             Label: 'Attachment'
           }
@@ -27,7 +27,8 @@ describe('EpiserverFormAdapterService', () => {
       {
         name: 'demo-test.pdf',
         size: undefined,
-        url: '/globalassets/forms-upload-assets/demo-test2.pdf'
+        url: '/globalassets/forms-upload-assets/demo-test2.pdf',
+        assetGuid: 'asset-123'
       }
     ]);
     expect(form.formElements[0].properties.allowMultiple).toBeFalse();

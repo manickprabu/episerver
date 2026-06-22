@@ -141,7 +141,8 @@ describe('FileUploadFieldComponent', () => {
       resume: new FormControl([
         {
           Name: 'existing-contract.pdf',
-          DownloadUrl: '/globalassets/forms-upload-assets/existing-contract.pdf'
+          DownloadUrl: '/globalassets/forms-upload-assets/existing-contract.pdf',
+          AssetGuid: 'asset-123'
         }
       ] as unknown as never)
     });
@@ -188,6 +189,21 @@ describe('FileUploadFieldComponent', () => {
     selectFiles(input, createFile('too-large.pdf', 3 * 1024 * 1024 + 1));
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('too-large.pdf exceeds the 3MB limit.');
+
+    selectFiles(input, createFile('fresh.pdf', 100));
+    fixture.detectChanges();
+    click(fixture, '.formFileUpload__PrimaryAction');
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.formGroup.get('resume')?.value).toEqual([
+      {
+        name: 'fresh.pdf',
+        size: 100,
+        url: '',
+        assetGuid: '',
+        file: jasmine.any(File)
+      }
+    ]);
   });
 });
 

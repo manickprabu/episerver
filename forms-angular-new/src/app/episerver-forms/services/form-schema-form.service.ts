@@ -336,6 +336,7 @@ export class FormSchemaFormService {
     const file = value as Record<string, unknown>;
     const name = this.readString(file, ['name', 'Name', 'fileName', 'FileName']);
     const url = this.readString(file, ['url', 'Url', 'downloadUrl', 'DownloadUrl', 'value', 'Value']);
+    const assetGuid = this.readString(file, ['assetGuid', 'AssetGuid']);
     const size = this.readNumber(file, ['size', 'Size']);
     const browserFile = file['file'] instanceof File ? file['file'] : undefined;
 
@@ -347,6 +348,7 @@ export class FormSchemaFormService {
       name: name ?? browserFile?.name ?? url?.split('/').pop() ?? 'File',
       size: size ?? browserFile?.size ?? undefined,
       url: url ?? undefined,
+      assetGuid: assetGuid ?? undefined,
       file: browserFile
     };
   }

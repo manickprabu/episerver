@@ -33,7 +33,7 @@ describe('EpiserverFormService', () => {
           contentGuid: 'guid-1',
           contentLink: { id: 31801 },
           type: 'FileUploadElementBlockProxy',
-          value: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf"}]',
+          value: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf","AssetGuid":"asset-123"}]',
           properties: {}
         },
         { id: 31802, contentGuid: 'guid-2', properties: {} }
@@ -101,7 +101,7 @@ describe('EpiserverFormService', () => {
     const model = createModel();
     model.isFinalized = true;
     model.submissionData = [
-      { elementKey: 'guid-1', value: [{ name: 'contract.pdf', file: new File(['123'], 'contract.pdf') }] }
+      { elementKey: 'guid-1', value: [{ name: 'contract.pdf', url: '', assetGuid: '', file: new File(['123'], 'contract.pdf') }] }
     ] as never;
 
     service.submitFinal(createSource(), model).subscribe();
@@ -120,7 +120,7 @@ describe('EpiserverFormService', () => {
       HostedPageUrl: 'http://localhost/form',
       CurrentStep: 2,
       Fields: {
-        __field_31801: 'contract.pdf'
+        __field_31801: '[{"DownloadUrl":"","Name":"contract.pdf","AssetGuid":""}]'
       }
     });
 
@@ -157,6 +157,33 @@ describe('EpiserverFormService', () => {
       HostedPageUrl: 'http://localhost/form',
       CurrentStep: 2,
       Fields: {}
+    });
+
+    request.flush({ success: true });
+  });
+
+  it('keeps existing file list metadata in the submitted field value', () => {
+    const model = createModel();
+    model.submissionData = [
+      {
+        elementKey: 'guid-1',
+        value: [{ name: 'demo-test.pdf', url: '/globalassets/forms-upload-assets/demo-test2.pdf', assetGuid: 'asset-123' }]
+      }
+    ] as never;
+
+    service.savePartial(createSource(), model).subscribe();
+
+    const request = httpMock.expectOne('http://localhost:8000/test-episerver-form');
+    expect(request.request.body).toEqual({
+      FormKey: 'form-guid',
+      Locale: 'en',
+      IsFinalized: false,
+      SubmissionKey: 'submission-guid',
+      HostedPageUrl: 'http://localhost/form',
+      CurrentStep: 2,
+      Fields: {
+        __field_31801: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf","AssetGuid":"asset-123"}]'
+      }
     });
 
     request.flush({ success: true });
