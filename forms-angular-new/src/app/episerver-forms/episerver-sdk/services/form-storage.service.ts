@@ -77,6 +77,6 @@ export class FormStorageService {
   }
 
   private isUploadedFileEntry(value: unknown): boolean {
-    return typeof value === 'object' && value !== null && ('file' in value || 'name' in value);
+    return typeof value === 'object' && value !== null && 'file' in value && (value as { file?: unknown }).file instanceof File;
   }
 }

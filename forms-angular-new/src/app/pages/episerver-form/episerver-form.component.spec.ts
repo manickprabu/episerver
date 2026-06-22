@@ -72,7 +72,11 @@ describe('EpiserverFormComponent', () => {
     properties: { submitSuccessMessage: 'Submitted' }
   } as any;
 
-  function createComponent(loadForm$ = of(source)) {
+  function createComponent(loadForm$ = of(source), adaptedForm = form, formGroup: FormGroup = new FormGroup({
+    'title-guid': new FormControl(''),
+    'source-guid': new FormControl(''),
+    'hidden-guid': new FormControl('')
+  })) {
     const documentStub = {
       location: { href: 'http://localhost/episerver-form' },
       baseURI: 'http://localhost/',
@@ -92,15 +96,11 @@ describe('EpiserverFormComponent', () => {
       submitFinal: jasmine.createSpy('submitFinal').and.returnValue(of({ success: true, submissionKey: 'submitted', messages: [{ message: 'Done' }] }))
     } as unknown as jasmine.SpyObj<EpiserverFormService>;
     const episerverFormAdapterService = {
-      adaptForm: jasmine.createSpy('adaptForm').and.returnValue(form),
+      adaptForm: jasmine.createSpy('adaptForm').and.returnValue(adaptedForm),
       initialSubmissionKey: jasmine.createSpy('initialSubmissionKey').and.returnValue('initial-key')
     } as unknown as jasmine.SpyObj<EpiserverFormAdapterService>;
     const formSchemaFormService = {
-      buildForm: jasmine.createSpy('buildForm').and.returnValue({ form, formGroup: new FormGroup({
-        'title-guid': new FormControl(''),
-        'source-guid': new FormControl(''),
-        'hidden-guid': new FormControl('')
-      }), steps: form.steps })
+      buildForm: jasmine.createSpy('buildForm').and.returnValue({ form: adaptedForm, formGroup, steps: adaptedForm.steps })
     } as unknown as jasmine.SpyObj<FormSchemaFormService>;
     const formSubmissionService = {
       buildSubmitModel: jasmine.createSpy('buildSubmitModel').and.returnValue({ submissionData: [], formKey: 'f', locale: 'en', isFinalized: false, partialSubmissionKey: 'initial-key', hostedPageUrl: 'http://localhost/episerver-form', currentStepIndex: 0 }),
@@ -212,5 +212,45 @@ describe('EpiserverFormComponent', () => {
     expect(successCase.formSubmissionService.applyServerValidation).toHaveBeenCalled();
     expect((successCase.component as any).isWarningStatus).toBeTrue();
     expect((successCase.component as any).statusMessage).toBe('Bad request');
+  });
+
+  it('normalizes file upload source values into a list on load', () => {
+    const uploadSource = {
+      isFinalised: false,
+      fields: [
+        {
+          name: 'Upload',
+          type: 'FileUploadElementBlockProxy',
+          contentGuid: 'upload-guid',
+          value: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf"}]',
+          properties: { AllowMultiSelect: true }
+        }
+      ]
+    } as any;
+    const uploadForm = {
+      formElements: [
+        {
+          key: 'upload-guid',
+          contentType: 'FileUploadElementBlock',
+          displayName: 'Upload',
+          properties: { label: 'Upload' }
+        }
+      ],
+      steps: [],
+      properties: { submitSuccessMessage: 'Submitted' }
+    } as any;
+    const uploadFormGroup = new FormGroup({
+      'upload-guid': new FormControl([])
+    });
+
+    const { component } = createComponent(of(uploadSource), uploadForm, uploadFormGroup);
+
+    expect((component as any).formGroup.get('upload-guid')?.value).toEqual([
+      {
+        name: 'demo-test.pdf',
+        size: undefined,
+        url: '/globalassets/forms-upload-assets/demo-test2.pdf'
+      }
+    ]);
   });
 });

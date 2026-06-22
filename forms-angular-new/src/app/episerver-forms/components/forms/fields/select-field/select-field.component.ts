@@ -33,4 +33,8 @@ export class SelectFieldComponent {
   protected markTouched(): void {
     this.resolvedControl?.markAsTouched();
   }
+
+  protected get placeholderLabel(): string {
+    return this.field.properties.placeHolder || this.field.localizations['selectionDefaultPlaceholder'] || 'Select an option';
+  }
 }

@@ -33,6 +33,7 @@ export type FormFieldProperties = AnyFormElementProperties &
     showSelectionInputControl?: boolean;
     allowMultiSelect?: boolean;
     allowMultiple?: boolean;
+    fileSize?: number;
     fileTypes?: string;
     min?: number | string;
     max?: number | string;
@@ -52,6 +53,8 @@ export type FormField = FormElementBase & {
 
 export interface FormUploadedFile {
   name?: string;
+  size?: number;
+  url?: string;
   file?: File;
 }
 

@@ -238,7 +238,7 @@ export class EpiserverFormComponent {
         continue;
       }
 
-      control.patchValue(this.normalizeSourceValue(sourceField.value, Boolean(sourceField.properties.AllowMultiSelect)), {
+      control.patchValue(this.normalizeSourceValue(sourceField.value, sourceField.type, Boolean(sourceField.properties.AllowMultiSelect)), {
         emitEvent: false
       });
     }
@@ -330,7 +330,11 @@ export class EpiserverFormComponent {
     return rawTitleField?.properties.PredefinedValue?.trim() ?? '';
   }
 
-  private normalizeSourceValue(value: unknown, allowMultiSelect: boolean): unknown {
+  private normalizeSourceValue(value: unknown, sourceFieldType: string, allowMultiSelect: boolean): unknown {
+    if (sourceFieldType === 'FileUploadElementBlockProxy') {
+      return this.normalizeUploadedFiles(value);
+    }
+
     if (!allowMultiSelect) {
       return value;
     }
@@ -349,6 +353,77 @@ export class EpiserverFormComponent {
     }
 
     return value;
+  }
+
+  private normalizeUploadedFiles(value: unknown): Array<{ name?: string; size?: number; url?: string }> {
+    const parsed = this.parseUploadedFilesValue(value);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed
+      .map(entry => this.normalizeUploadedFile(entry))
+      .filter((entry): entry is { name?: string; size?: number; url?: string } => entry !== null);
+  }
+
+  private parseUploadedFilesValue(value: unknown): unknown {
+    if (typeof value !== 'string') {
+      return value;
+    }
+
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return [];
+    }
+
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return [];
+    }
+  }
+
+  private normalizeUploadedFile(value: unknown): { name?: string; size?: number; url?: string } | null {
+    if (!value || typeof value !== 'object') {
+      return null;
+    }
+
+    const file = value as Record<string, unknown>;
+    const name = this.readString(file, ['name', 'Name', 'fileName', 'FileName']);
+    const url = this.readString(file, ['url', 'Url', 'downloadUrl', 'DownloadUrl', 'value', 'Value']);
+    const size = this.readNumber(file, ['size', 'Size']);
+
+    if (!name && !url) {
+      return null;
+    }
+
+    return {
+      name: name ?? url?.split('/').pop() ?? 'File',
+      size: size ?? undefined,
+      url: url ?? undefined
+    };
+  }
+
+  private readString(source: Record<string, unknown>, keys: string[]): string | null {
+    for (const key of keys) {
+      const value = source[key];
+      if (typeof value === 'string' && value.trim()) {
+        return value;
+      }
+    }
+
+    return null;
+  }
+
+  private readNumber(source: Record<string, unknown>, keys: string[]): number | null {
+    for (const key of keys) {
+      const value = source[key];
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+      }
+    }
+
+    return null;
   }
 
   private setupVisibilityTracking(): void {

@@ -13,6 +13,7 @@
   &__Trigger,
   &__PrimaryAction,
   &__SecondaryAction,
+  &__View,
   &__Remove,
   &__Close {
     cursor: pointer;
@@ -36,6 +37,11 @@
     gap: 0.75rem;
     align-items: center;
     justify-content: space-between;
+  }
+
+  &__View,
+  &__Remove {
+    white-space: nowrap;
   }
 
   &__SelectedName,

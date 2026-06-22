@@ -140,7 +140,7 @@ describe('low coverage components', () => {
     const input = document.createElement('input');
     Object.defineProperty(input, 'files', { value: [file] });
     (fileUpload as any).onFileChange({ target: input } as unknown as Event);
-    expect(control.value as unknown as Array<{ name: string; file: File }>).toEqual([{ name: 'doc.txt', file }]);
+    expect((fileUpload as any).draftFiles).toEqual([{ name: 'doc.txt', size: file.size, file }]);
 
     const hidden = new HiddenFieldComponent(formSchemaFormService);
     hidden.field = createField();

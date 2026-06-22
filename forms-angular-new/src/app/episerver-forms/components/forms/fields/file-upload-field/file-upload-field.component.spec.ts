@@ -1,4 +1,3 @@
-import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
@@ -25,18 +24,10 @@ function createField(key: string, label: string): FormField {
 }
 
 describe('FileUploadFieldComponent', () => {
-  let fixture: ComponentFixture<TestHostComponent>;
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
-      declarations: [
-        TestHostComponent,
-        FileUploadFieldComponent,
-        ElementWrapperComponent,
-        ElementCaptionComponent,
-        ValidationMessageComponent
-      ],
+      declarations: [FileUploadFieldComponent, ElementWrapperComponent, ElementCaptionComponent, ValidationMessageComponent],
       providers: [
         {
           provide: FormSchemaFormService,
@@ -47,54 +38,60 @@ describe('FileUploadFieldComponent', () => {
         }
       ]
     }).compileComponents();
-
-    fixture = TestBed.createComponent(TestHostComponent);
-    fixture.detectChanges();
   });
 
   it('confirms selected files and keeps each upload question independent', () => {
-    const [resumeUpload, portfolioUpload] = Array.from(fixture.nativeElement.querySelectorAll('.formFileUpload')) as HTMLElement[];
-    const resumeInput = openModal(resumeUpload);
+    const formGroup = new FormGroup({
+      resume: new FormControl([]),
+      portfolio: new FormControl([])
+    });
+    const resumeFixture = createComponent(createField('resume', 'Resume'), formGroup);
+    const portfolioFixture = createComponent(createField('portfolio', 'Portfolio'), formGroup);
 
+    const resumeInput = openModal(resumeFixture);
     selectFiles(resumeInput, createFile('resume.pdf', 1024), createFile('cover-letter.pdf', 2048));
-    fixture.detectChanges();
+    resumeFixture.detectChanges();
 
-    expect(resumeUpload.textContent).toContain('resume.pdf');
-    expect(resumeUpload.textContent).toContain('cover-letter.pdf');
+    expect(resumeFixture.nativeElement.textContent).toContain('resume.pdf');
+    expect(resumeFixture.nativeElement.textContent).toContain('cover-letter.pdf');
 
-    click(resumeUpload, '.formFileUpload__PrimaryAction');
-    fixture.detectChanges();
+    click(resumeFixture, '.formFileUpload__PrimaryAction');
+    resumeFixture.detectChanges();
+    portfolioFixture.detectChanges();
 
-    expect(resumeUpload.textContent).toContain('resume.pdf');
-    expect(resumeUpload.textContent).toContain('cover-letter.pdf');
-    expect(portfolioUpload.textContent).not.toContain('resume.pdf');
+    expect(resumeFixture.nativeElement.textContent).toContain('resume.pdf');
+    expect(resumeFixture.nativeElement.textContent).toContain('cover-letter.pdf');
+    expect(portfolioFixture.nativeElement.textContent).not.toContain('resume.pdf');
 
-    const portfolioInput = openModal(portfolioUpload);
+    const portfolioInput = openModal(portfolioFixture);
     selectFiles(portfolioInput, createFile('portfolio.zip', 4096));
-    fixture.detectChanges();
-    click(portfolioUpload, '.formFileUpload__PrimaryAction');
-    fixture.detectChanges();
+    portfolioFixture.detectChanges();
+    click(portfolioFixture, '.formFileUpload__PrimaryAction');
+    resumeFixture.detectChanges();
+    portfolioFixture.detectChanges();
 
-    expect((fixture.componentInstance.formGroup.get('resume')?.value as unknown[]).length).toBe(2);
-    expect((fixture.componentInstance.formGroup.get('portfolio')?.value as unknown[]).length).toBe(1);
+    expect((formGroup.get('resume')?.value as unknown[]).length).toBe(2);
+    expect((formGroup.get('portfolio')?.value as unknown[]).length).toBe(1);
+    expect((formGroup.get('resume')?.value as Array<{ size: number }>)[0].size).toBe(1024);
 
-    click(resumeUpload, '.formFileUpload__Remove');
-    fixture.detectChanges();
+    click(resumeFixture, '.formFileUpload__Remove');
+    resumeFixture.detectChanges();
+    portfolioFixture.detectChanges();
 
-    expect((fixture.componentInstance.formGroup.get('resume')?.value as unknown[]).length).toBe(1);
-    expect((fixture.componentInstance.formGroup.get('portfolio')?.value as unknown[]).length).toBe(1);
+    expect((formGroup.get('resume')?.value as unknown[]).length).toBe(1);
+    expect((formGroup.get('portfolio')?.value as unknown[]).length).toBe(1);
 
-    openModal(resumeUpload);
-    fixture.detectChanges();
-    expect(resumeUpload.querySelectorAll('.formFileUpload__DraftItem').length).toBe(1);
+    openModal(resumeFixture);
+    resumeFixture.detectChanges();
+    expect(resumeFixture.nativeElement.querySelectorAll('.formFileUpload__DraftItem').length).toBe(1);
   });
 
   it('shows a validation error when more than five files are selected', () => {
-    const resumeUpload = fixture.nativeElement.querySelector('.formFileUpload') as HTMLElement;
-    const resumeInput = openModal(resumeUpload);
+    const fixture = createComponent(createField('resume', 'Resume'), new FormGroup({ resume: new FormControl([]) }));
+    const input = openModal(fixture);
 
     selectFiles(
-      resumeInput,
+      input,
       createFile('1.txt', 100),
       createFile('2.txt', 100),
       createFile('3.txt', 100),
@@ -104,28 +101,28 @@ describe('FileUploadFieldComponent', () => {
     );
     fixture.detectChanges();
 
-    expect(resumeUpload.textContent).toContain('You can upload up to 5 files.');
+    expect(fixture.nativeElement.textContent).toContain('You can upload up to 5 files.');
     expect((fixture.componentInstance.formGroup.get('resume')?.value as unknown[]).length).toBe(0);
-    expect(resumeUpload.querySelectorAll('.formFileUpload__DraftItem').length).toBe(0);
+    expect(fixture.nativeElement.querySelectorAll('.formFileUpload__DraftItem').length).toBe(0);
   });
 
   it('shows a validation error when a selected file exceeds 5MB', () => {
-    const resumeUpload = fixture.nativeElement.querySelector('.formFileUpload') as HTMLElement;
-    const resumeInput = openModal(resumeUpload);
+    const fixture = createComponent(createField('resume', 'Resume'), new FormGroup({ resume: new FormControl([]) }));
+    const input = openModal(fixture);
 
-    selectFiles(resumeInput, createFile('too-large.mov', 5 * 1024 * 1024 + 1));
+    selectFiles(input, createFile('too-large.mov', 5 * 1024 * 1024 + 1));
     fixture.detectChanges();
 
-    expect(resumeUpload.textContent).toContain('too-large.mov exceeds the 5MB limit.');
+    expect(fixture.nativeElement.textContent).toContain('too-large.mov exceeds the 5MB limit.');
     expect((fixture.componentInstance.formGroup.get('resume')?.value as unknown[]).length).toBe(0);
   });
 
   it('disables the choose-files control when the upload reaches the max file count', () => {
-    const resumeUpload = fixture.nativeElement.querySelector('.formFileUpload') as HTMLElement;
-    const resumeInput = openModal(resumeUpload);
+    const fixture = createComponent(createField('resume', 'Resume'), new FormGroup({ resume: new FormControl([]) }));
+    const input = openModal(fixture);
 
     selectFiles(
-      resumeInput,
+      input,
       createFile('1.txt', 100),
       createFile('2.txt', 100),
       createFile('3.txt', 100),
@@ -134,36 +131,78 @@ describe('FileUploadFieldComponent', () => {
     );
     fixture.detectChanges();
 
-    const updatedInput = resumeUpload.querySelector('.formFileUpload__Input') as HTMLInputElement;
+    const updatedInput = fixture.nativeElement.querySelector('.formFileUpload__Input') as HTMLInputElement;
     expect(updatedInput.disabled).toBeTrue();
-    expect(resumeUpload.textContent).toContain('Maximum 5 files selected. Remove a file to add another.');
+    expect(fixture.nativeElement.textContent).toContain('Maximum 5 files selected. Remove a file to add another.');
+  });
+
+  it('repopulates existing uploaded files from the control value and opens them in a new tab', () => {
+    const formGroup = new FormGroup({
+      resume: new FormControl([
+        {
+          Name: 'existing-contract.pdf',
+          DownloadUrl: '/globalassets/forms-upload-assets/existing-contract.pdf'
+        }
+      ] as unknown as never)
+    });
+    const fixture = createComponent(createField('resume', 'Resume'), formGroup);
+
+    expect(fixture.nativeElement.textContent).toContain('existing-contract.pdf');
+
+    const openSpy = spyOn(window, 'open');
+    click(fixture, '.formFileUpload__View');
+
+    expect(openSpy).toHaveBeenCalledOnceWith('/globalassets/forms-upload-assets/existing-contract.pdf', '_blank', 'noopener,noreferrer');
+
+    openModal(fixture);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('existing-contract.pdf');
+  });
+
+  it('uses field properties for single-file mode, size limit and accepted file types', () => {
+    const fixture = createComponent(
+      {
+        ...createField('resume', 'Resume'),
+        properties: {
+          ...createField('resume', 'Resume').properties,
+          allowMultiple: false,
+          fileSize: 3,
+          fileTypes: '.pdf,.png'
+        }
+      } as FormField,
+      new FormGroup({ resume: new FormControl([]) })
+    );
+
+    const input = openModal(fixture);
+    expect(input.multiple).toBeFalse();
+    expect(input.accept).toBe('.pdf,.png');
+
+    selectFiles(input, createFile('1.pdf', 100), createFile('2.pdf', 100));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('You can upload 1 file only.');
+
+    selectFiles(input, createFile('too-large.pdf', 3 * 1024 * 1024 + 1));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('too-large.pdf exceeds the 3MB limit.');
   });
 });
 
-@Component({
-  template: `
-    <lib-file-upload-field [field]="resumeField" [formGroup]="formGroup"></lib-file-upload-field>
-    <lib-file-upload-field [field]="portfolioField" [formGroup]="formGroup"></lib-file-upload-field>
-  `,
-  standalone: false
-})
-class TestHostComponent {
-  readonly formGroup = new FormGroup({
-    resume: new FormControl([]),
-    portfolio: new FormControl([])
-  });
-
-  readonly resumeField = createField('resume', 'Resume');
-  readonly portfolioField = createField('portfolio', 'Portfolio');
+function createComponent(field: FormField, formGroup: FormGroup): ComponentFixture<FileUploadFieldComponent> {
+  const fixture = TestBed.createComponent(FileUploadFieldComponent);
+  fixture.componentInstance.field = field;
+  fixture.componentInstance.formGroup = formGroup;
+  fixture.detectChanges();
+  return fixture;
 }
 
-function openModal(host: HTMLElement): HTMLInputElement {
-  click(host, '.formFileUpload__Trigger');
-  return host.querySelector('.formFileUpload__Input') as HTMLInputElement;
+function openModal(fixture: ComponentFixture<FileUploadFieldComponent>): HTMLInputElement {
+  click(fixture, '.formFileUpload__Trigger');
+  fixture.detectChanges();
+  return fixture.nativeElement.querySelector('.formFileUpload__Input') as HTMLInputElement;
 }
 
-function click(host: HTMLElement, selector: string): void {
-  const button = host.querySelector(selector) as HTMLButtonElement;
+function click(fixture: ComponentFixture<FileUploadFieldComponent>, selector: string): void {
+  const button = fixture.nativeElement.querySelector(selector) as HTMLButtonElement;
   button.click();
 }
 

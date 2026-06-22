@@ -83,6 +83,17 @@ describe('FormSchemaFormService', () => {
     expect(service.getInitialValue(createField({ contentType: 'NumberElementBlock', properties: { min: 5, validators: [] } as never }))).toBe(5);
     expect(service.getInitialValue(createField({ contentType: 'RangeElementBlock', properties: { validators: [] } as never }))).toBe(0);
     expect(service.getInitialValue(createField({ contentType: 'FileUploadElementBlock' }))).toEqual([]);
+    expect(
+      service.getInitialValue(
+        createField({
+          contentType: 'FileUploadElementBlock',
+          properties: {
+            predefinedValue: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf"}]',
+            validators: []
+          } as never
+        })
+      )
+    ).toEqual([{ name: 'demo-test.pdf', url: '/globalassets/forms-upload-assets/demo-test2.pdf', size: undefined, file: undefined }]);
     expect(service.getInitialValue(createField({ contentType: 'PredefinedHiddenElementBlock', properties: { predefinedValue: 'hidden', validators: [] } as never }))).toBe('hidden');
     expect(service.getInitialValue(createField({ contentType: 'SubmitButtonElementBlock' }))).toBeNull();
     expect(service.getInitialValue(createField({ contentType: 'TextboxElementBlock', properties: { defaultValue: 'hello', validators: [] } as never }))).toBe('hello');
@@ -150,7 +161,7 @@ describe('FormSchemaFormService', () => {
   it('applies validators for required, email, pattern, min, max, file size, file count and extensions', () => {
     const field = createField({
       key: 'validated',
-      contentType: 'TextboxElementBlock',
+      contentType: 'FileUploadElementBlock',
       properties: {
         label: 'Validated',
         min: 2,
@@ -182,9 +193,12 @@ describe('FormSchemaFormService', () => {
     control.setValue(6 as never);
     expect(control.hasError('max')).toBeTrue();
 
-    control.setValue([{ name: 'file.exe', file: new File(['123456'], 'file.exe') }] as never);
+    control.setValue([{ name: 'file.exe', file: new File([new Uint8Array(11)], 'file.exe') }] as never);
     expect(control.hasError('maxFileSize')).toBeTrue();
     expect(control.hasError('allowedExtensions')).toBeTrue();
+
+    control.setValue([{ name: 'server-file.pdf', size: 20, url: '/files/server-file.pdf' }] as never);
+    expect(control.hasError('maxFileSize')).toBeTrue();
 
     control.setValue([
       { name: '1.pdf', file: new File(['1'], '1.pdf') },
@@ -200,5 +214,43 @@ describe('FormSchemaFormService', () => {
     expect(control.hasError('maxFileSize')).toBeFalse();
     expect(control.hasError('allowedExtensions')).toBeFalse();
     expect(control.hasError('maxFileCount')).toBeFalse();
+  });
+
+  it('uses file upload properties for max size, allowed types and single-file mode', () => {
+    const field = createField({
+      key: 'upload',
+      contentType: 'FileUploadElementBlock',
+      properties: {
+        label: 'Upload',
+        allowMultiple: false,
+        fileSize: 3,
+        fileTypes: '.pdf,.png',
+        validators: []
+      } as never
+    });
+
+    stepBuilderService.buildForm.and.returnValue({ formElements: [field], steps: [] } as never);
+    const result = service.buildForm({ formElements: [field], steps: [] } as unknown as FormSchema);
+    const control = result.formGroup.get('upload') as FormControl;
+
+    control.setValue([
+      { name: 'first.pdf', file: new File(['1'], 'first.pdf') },
+      { name: 'second.pdf', file: new File(['2'], 'second.pdf') }
+    ] as never);
+    expect(control.hasError('maxFileCount')).toBeTrue();
+
+    control.setValue([{ name: 'wrong.docx', file: new File(['1'], 'wrong.docx') }] as never);
+    expect(control.hasError('allowedExtensions')).toBeTrue();
+
+    control.setValue([{ name: 'big.pdf', size: 4 * 1024 * 1024, url: '/files/big.pdf' }] as never);
+    expect(control.hasError('maxFileSize')).toBeTrue();
+
+    const maxCountControl = new FormControl('x');
+    maxCountControl.setErrors({ maxFileCount: true });
+    expect(service.getValidationMessage(field, maxCountControl)).toBe('You can upload 1 file only.');
+
+    const maxSizeControl = new FormControl('x');
+    maxSizeControl.setErrors({ maxFileSize: true });
+    expect(service.getValidationMessage(field, maxSizeControl)).toBe('Each file must be 3MB or smaller.');
   });
 });

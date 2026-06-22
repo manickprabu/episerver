@@ -50,4 +50,38 @@ describe('FormValidatorService', () => {
     expect(service.validateNumeric('42')).toBe(true);
     expect(service.validateNumeric('fourty-two')).toBe(false);
   });
+
+  it('validates file size from uploaded file wrappers that carry the File object', () => {
+    const fileElement: FormElementBase = {
+      key: 'attachments',
+      contentType: 'FileUploadElementBlock',
+      displayName: 'Attachments',
+      properties: {
+        description: '',
+        label: 'Attachments',
+        validators: [
+          {
+            type: ValidatorType.MaxFileSizeValidator,
+            validationOrder: 1,
+            description: 'Max file size',
+            model: {
+              message: 'File too large.',
+              sizeInBytes: 5,
+              validationCssClass: '',
+              additionalAttributes: null
+            } as any
+          }
+        ]
+      },
+      localizations: {},
+      locale: 'en'
+    };
+
+    expect(service.validate(fileElement, [{ name: 'small.txt', size: 4 }])).toEqual({ valid: true, message: '' });
+    expect(service.validate(fileElement, [{ name: 'small.txt', file: new File(['1234'], 'small.txt') }])).toEqual({ valid: true, message: '' });
+    expect(service.validate(fileElement, [{ name: 'big.txt', file: new File(['123456'], 'big.txt') }])).toEqual({
+      valid: false,
+      message: 'File too large.'
+    });
+  });
 });

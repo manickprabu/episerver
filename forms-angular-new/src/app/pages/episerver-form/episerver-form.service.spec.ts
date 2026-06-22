@@ -28,7 +28,14 @@ describe('EpiserverFormService', () => {
       formGuid: 'form-guid',
       antiforgery: { headerName: 'RequestVerificationToken', token: 'token' },
       fields: [
-        { id: 31801, contentGuid: 'guid-1', contentLink: { id: 31801 }, properties: {} },
+        {
+          id: 31801,
+          contentGuid: 'guid-1',
+          contentLink: { id: 31801 },
+          type: 'FileUploadElementBlockProxy',
+          value: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf"}]',
+          properties: {}
+        },
         { id: 31802, contentGuid: 'guid-2', properties: {} }
       ]
     } as EpiserverFormDefinition;
@@ -128,6 +135,30 @@ describe('EpiserverFormService', () => {
 
     const request = httpMock.expectOne('http://localhost:8000/test-episerver-form');
     expect(request.request.headers.has('RequestVerificationToken')).toBeFalse();
+    request.flush({ success: true });
+  });
+
+  it('posts removed existing uploaded files as RemovedFileFields', () => {
+    const model = createModel();
+    model.submissionData = [{ elementKey: 'guid-1', value: [] }] as never;
+
+    service.savePartial(createSource(), model).subscribe();
+
+    const request = httpMock.expectOne('http://localhost:8000/test-episerver-form');
+    expect(request.request.body instanceof FormData).toBeTrue();
+
+    const body = request.request.body as FormData;
+    expect(body.getAll('RemovedFileFields')).toEqual(['__fields_31801|/globalassets/forms-upload-assets/demo-test2.pdf']);
+    expect(JSON.parse(String(body.get('data')))).toEqual({
+      FormKey: 'form-guid',
+      Locale: 'en',
+      IsFinalized: false,
+      SubmissionKey: 'submission-guid',
+      HostedPageUrl: 'http://localhost/form',
+      CurrentStep: 2,
+      Fields: {}
+    });
+
     request.flush({ success: true });
   });
 });

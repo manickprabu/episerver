@@ -26,7 +26,16 @@ describe('EpiserverFormAccordionService', () => {
   function createSource(): EpiserverFormDefinition {
     return {
       antiforgery: { headerName: 'X-CSRF', token: 'token' },
-      fields: [{ contentGuid: 'guid-1', contentLink: { id: 31796 }, properties: {} }]
+      fields: [
+        {
+          contentGuid: 'guid-1',
+          contentLink: { id: 31796 },
+          id: 31796,
+          type: 'FileUploadElementBlockProxy',
+          value: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf"}]',
+          properties: {}
+        }
+      ]
     } as EpiserverFormDefinition;
   }
 
@@ -91,6 +100,21 @@ describe('EpiserverFormAccordionService', () => {
     expect(formData instanceof FormData).toBeTrue();
     expect(formData.get('__field_31796_file_0')).toEqual(jasmine.any(File));
     expect(JSON.parse(String(formData.get('data'))).Fields).toEqual({ __field_31796: 'photo.jpg' });
+    request.flush({ success: true });
+  });
+
+  it('includes RemovedFileFields when an existing uploaded file is deleted', () => {
+    const model = createModel();
+    model.submissionData = [{ elementKey: 'guid-1', value: [] }] as never;
+
+    service.savePartial(createSource(), model).subscribe();
+
+    const request = httpMock.expectOne('http://localhost:8000/test-episerver-form');
+    expect(request.request.body instanceof FormData).toBeTrue();
+
+    const body = request.request.body as FormData;
+    expect(body.getAll('RemovedFileFields')).toEqual(['__fields_31796|/globalassets/forms-upload-assets/demo-test2.pdf']);
+    expect(JSON.parse(String(body.get('data'))).Fields).toEqual({});
     request.flush({ success: true });
   });
 });

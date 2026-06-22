@@ -34,13 +34,16 @@ export class FormValidatorService {
     return files.every(file => isFileValid(file.name, acceptTypes));
   }
 
-  validateFileSize(value: Array<{ size: number }> | null | undefined, model: ElementValidatorBase['model']): boolean {
+  validateFileSize(value: Array<{ size?: number; file?: File }> | null | undefined, model: ElementValidatorBase['model']): boolean {
     if (isNull(value)) {
       return true;
     }
 
     const validatorModel = model as MaxFileSizeValidationModel;
-    return (value ?? []).every(file => file.size <= validatorModel.sizeInBytes);
+    return (value ?? []).every(file => {
+      const size = typeof file.size === 'number' ? file.size : (file.file?.size ?? 0);
+      return size <= validatorModel.sizeInBytes;
+    });
   }
 
   validateNumeric(value: unknown): boolean {
@@ -77,7 +80,7 @@ export class FormValidatorService {
           valid = this.validateFileExtension(value as Array<{ name: string }>, validator.model);
           break;
         case ValidatorType.MaxFileSizeValidator:
-          valid = this.validateFileSize(value as Array<{ size: number }>, validator.model);
+          valid = this.validateFileSize(value as Array<{ size?: number; file?: File }>, validator.model);
           break;
         case ValidatorType.NumericValidator:
           valid = this.validateNumeric(value);

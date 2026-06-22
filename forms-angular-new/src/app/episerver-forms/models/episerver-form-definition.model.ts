@@ -63,6 +63,8 @@ export interface EpiserverFieldProperties {
   ValidatorMessages?: EpiserverValidatorMessage[];
   AllowMultiSelect?: boolean;
   AllowMultiple?: boolean;
+  FileSize?: number;
+  FileTypes?: string;
   FinalizeForm?: boolean;
   RedirectToPage?: string;
   AttachedContentLink?: string;

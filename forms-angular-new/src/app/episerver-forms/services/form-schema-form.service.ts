@@ -4,8 +4,8 @@ import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from
 import { StepBuilderService } from '../../episerver-forms/episerver-sdk';
 import { FormField, FormFieldOption, FormFieldValidator, FormSchema, FormStep, FormUploadedFile, ValidatorType } from '../models/form-schema.model';
 
-const MAX_UPLOAD_FILES = 5;
-const MAX_UPLOAD_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const DEFAULT_MAX_UPLOAD_FILES = 5;
+const DEFAULT_MAX_UPLOAD_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
 export interface BuiltForm {
   form: FormSchema;
@@ -74,7 +74,7 @@ export class FormSchemaFormService {
       case 'RangeElementBlock':
         return defaultValue ?? properties.min ?? 0;
       case 'FileUploadElementBlock':
-        return [];
+        return this.normalizeUploadedFiles(defaultValue);
       case 'PredefinedHiddenElementBlock':
         return defaultValue ?? '';
       case 'ResetButtonElementBlock':
@@ -126,10 +126,11 @@ export class FormSchemaFormService {
       return 'The selected file type is not allowed.';
     }
     if (control.hasError('maxFileCount')) {
-      return 'You can upload up to 5 files.';
+      const maxFiles = this.resolveMaxUploadFiles(field);
+      return maxFiles === 1 ? 'You can upload 1 file only.' : `You can upload up to ${maxFiles} files.`;
     }
     if (control.hasError('maxFileSize')) {
-      return 'Each file must be 5MB or smaller.';
+      return `Each file must be ${this.maxUploadFileSizeLabel(field)} or smaller.`;
     }
 
     return 'Invalid value.';
@@ -192,12 +193,17 @@ export class FormSchemaFormService {
       validators.push(Validators.max(field.properties.max));
     }
     if (field.contentType === 'FileUploadElementBlock') {
-      validators.push(this.maxFileCountValidator(MAX_UPLOAD_FILES));
+      validators.push(this.maxFileCountValidator(this.resolveMaxUploadFiles(field)));
       validators.push(
         this.maxFileSizeValidator(
-          configuredMaxFileSize === null ? MAX_UPLOAD_FILE_SIZE_BYTES : Math.min(configuredMaxFileSize, MAX_UPLOAD_FILE_SIZE_BYTES)
+          configuredMaxFileSize === null
+            ? this.resolveMaxUploadFileSizeBytes(field)
+            : Math.min(configuredMaxFileSize, this.resolveMaxUploadFileSizeBytes(field))
         )
       );
+      if (field.properties.fileTypes) {
+        validators.push(this.allowedExtensionsValidator(field.properties.fileTypes));
+      }
     }
 
     return validators;
@@ -221,7 +227,7 @@ export class FormSchemaFormService {
         return null;
       }
 
-      const invalid = value.some(entry => (entry.file?.size ?? 0) > maxSize);
+      const invalid = value.some(entry => this.fileSize(entry) > maxSize);
       return invalid ? { maxFileSize: true } : null;
     };
   }
@@ -246,6 +252,23 @@ export class FormSchemaFormService {
 
       return invalid ? { allowedExtensions: true } : null;
     };
+  }
+
+  private resolveMaxUploadFiles(field: FormField): number {
+    return field.properties.allowMultiple === false ? 1 : DEFAULT_MAX_UPLOAD_FILES;
+  }
+
+  private resolveMaxUploadFileSizeBytes(field: FormField): number {
+    if (typeof field.properties.fileSize === 'number' && Number.isFinite(field.properties.fileSize) && field.properties.fileSize > 0) {
+      return field.properties.fileSize * 1024 * 1024;
+    }
+
+    return DEFAULT_MAX_UPLOAD_FILE_SIZE_BYTES;
+  }
+
+  private maxUploadFileSizeLabel(field: FormField): string {
+    const sizeInMb = this.resolveMaxUploadFileSizeBytes(field) / (1024 * 1024);
+    return Number.isInteger(sizeInMb) ? `${sizeInMb}MB` : `${sizeInMb.toFixed(1)}MB`;
   }
 
   private toAngularErrorKey(validator: FormFieldValidator): string | null {
@@ -280,5 +303,77 @@ export class FormSchemaFormService {
 
   private getCheckedValues(items: FormFieldOption[] | undefined): string[] {
     return (items ?? []).filter(item => item.checked && Boolean(item.value)).map(item => item.value as string);
+  }
+
+  private normalizeUploadedFiles(value: unknown): FormUploadedFile[] {
+    if (Array.isArray(value)) {
+      return value
+        .map(entry => this.normalizeUploadedFile(entry))
+        .filter((entry): entry is FormUploadedFile => entry !== null);
+    }
+
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed) {
+        return [];
+      }
+
+      try {
+        return this.normalizeUploadedFiles(JSON.parse(trimmed));
+      } catch {
+        return [];
+      }
+    }
+
+    return [];
+  }
+
+  private normalizeUploadedFile(value: unknown): FormUploadedFile | null {
+    if (!value || typeof value !== 'object') {
+      return null;
+    }
+
+    const file = value as Record<string, unknown>;
+    const name = this.readString(file, ['name', 'Name', 'fileName', 'FileName']);
+    const url = this.readString(file, ['url', 'Url', 'downloadUrl', 'DownloadUrl', 'value', 'Value']);
+    const size = this.readNumber(file, ['size', 'Size']);
+    const browserFile = file['file'] instanceof File ? file['file'] : undefined;
+
+    if (!name && !url && !browserFile) {
+      return null;
+    }
+
+    return {
+      name: name ?? browserFile?.name ?? url?.split('/').pop() ?? 'File',
+      size: size ?? browserFile?.size ?? undefined,
+      url: url ?? undefined,
+      file: browserFile
+    };
+  }
+
+  private fileSize(file: FormUploadedFile): number {
+    return typeof file.size === 'number' ? file.size : (file.file?.size ?? 0);
+  }
+
+  private readString(source: Record<string, unknown>, keys: string[]): string | null {
+    for (const key of keys) {
+      const value = source[key];
+      if (typeof value === 'string' && value.trim()) {
+        return value;
+      }
+    }
+
+    return null;
+  }
+
+  private readNumber(source: Record<string, unknown>, keys: string[]): number | null {
+    for (const key of keys) {
+      const value = source[key];
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+      }
+    }
+
+    return null;
   }
 }

@@ -3,8 +3,8 @@ import { FormGroup } from '@angular/forms';
 import { FormField, FormUploadedFile } from '../../../../models/form-schema.model';
 import { FormSchemaFormService } from '../../../../services/form-schema-form.service';
 
-const MAX_UPLOAD_FILES = 5;
-const MAX_UPLOAD_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const DEFAULT_MAX_UPLOAD_FILES = 5;
+const DEFAULT_MAX_UPLOAD_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
 @Component({
   selector: 'lib-file-upload-field',
@@ -28,11 +28,24 @@ export class FileUploadFieldComponent {
   }
 
   protected get selectedFiles(): FormUploadedFile[] {
-    return Array.isArray(this.control?.value) ? (this.control?.value as FormUploadedFile[]) : [];
+    return this.normalizeFiles(this.control?.value);
   }
 
   protected get hasReachedFileLimit(): boolean {
-    return this.draftFiles.length >= MAX_UPLOAD_FILES;
+    return this.draftFiles.length >= this.maxUploadFiles;
+  }
+
+  protected get maxUploadFiles(): number {
+    return this.field.properties.allowMultiple === false ? 1 : DEFAULT_MAX_UPLOAD_FILES;
+  }
+
+  protected get allowMultipleUploads(): boolean {
+    return this.maxUploadFiles > 1;
+  }
+
+  protected get maxUploadFileSizeLabel(): string {
+    const sizeInMb = this.maxUploadFileSizeBytes / (1024 * 1024);
+    return Number.isInteger(sizeInMb) ? `${sizeInMb}MB` : `${sizeInMb.toFixed(1)}MB`;
   }
 
   protected openModal(): void {
@@ -66,9 +79,30 @@ export class FileUploadFieldComponent {
     this.selectionError = '';
   }
 
+  protected canViewFile(file: FormUploadedFile): boolean {
+    return Boolean(file.url || file.file);
+  }
+
+  protected viewFile(file: FormUploadedFile): void {
+    const url = file.url ?? (file.file ? URL.createObjectURL(file.file) : null);
+    if (!url) {
+      return;
+    }
+
+    window.open(url, '_blank', 'noopener,noreferrer');
+
+    if (!file.url && file.file) {
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    }
+  }
+
   protected onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const newFiles = Array.from(input.files ?? []).map(file => ({ name: file.name, file }));
+    const newFiles = Array.from(input.files ?? []).map(file => ({
+      name: file.name,
+      size: file.size,
+      file
+    }));
     if (!newFiles.length) {
       return;
     }
@@ -88,11 +122,11 @@ export class FileUploadFieldComponent {
   }
 
   protected trackFile(index: number, file: FormUploadedFile): string {
-    return `${file.name ?? 'file'}-${file.file?.size ?? 0}-${file.file?.lastModified ?? index}`;
+    return `${file.name ?? 'file'}-${file.url ?? 'local'}-${this.fileSize(file)}-${file.file?.lastModified ?? index}`;
   }
 
   protected fileSizeLabel(file: FormUploadedFile): string {
-    const size = file.file?.size ?? 0;
+    const size = this.fileSize(file);
     if (size >= 1024 * 1024) {
       return `${(size / (1024 * 1024)).toFixed(1)} MB`;
     }
@@ -106,21 +140,88 @@ export class FileUploadFieldComponent {
 
   private updateControl(files: FormUploadedFile[]): void {
     const control = this.control;
-    control?.setValue([...files]);
+    control?.setValue(this.normalizeFiles(files));
     control?.markAsTouched();
     control?.updateValueAndValidity();
   }
 
   private validateFiles(files: FormUploadedFile[]): string {
-    if (files.length > MAX_UPLOAD_FILES) {
-      return 'You can upload up to 5 files.';
+    if (files.length > this.maxUploadFiles) {
+      return this.maxUploadFiles === 1 ? 'You can upload 1 file only.' : `You can upload up to ${this.maxUploadFiles} files.`;
     }
 
-    const oversizedFile = files.find(entry => (entry.file?.size ?? 0) > MAX_UPLOAD_FILE_SIZE_BYTES);
+    const oversizedFile = files.find(entry => this.fileSize(entry) > this.maxUploadFileSizeBytes);
     if (oversizedFile) {
-      return `${oversizedFile.name ?? oversizedFile.file?.name ?? 'File'} exceeds the 5MB limit.`;
+      return `${oversizedFile.name ?? oversizedFile.file?.name ?? 'File'} exceeds the ${this.maxUploadFileSizeLabel} limit.`;
     }
 
     return '';
+  }
+
+  private get maxUploadFileSizeBytes(): number {
+    if (typeof this.field.properties.fileSize === 'number' && Number.isFinite(this.field.properties.fileSize) && this.field.properties.fileSize > 0) {
+      return this.field.properties.fileSize * 1024 * 1024;
+    }
+
+    return DEFAULT_MAX_UPLOAD_FILE_SIZE_BYTES;
+  }
+
+  private normalizeFiles(value: unknown): FormUploadedFile[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return value
+      .map(entry => this.normalizeFile(entry))
+      .filter((entry): entry is FormUploadedFile => entry !== null);
+  }
+
+  private normalizeFile(value: unknown): FormUploadedFile | null {
+    if (!value || typeof value !== 'object') {
+      return null;
+    }
+
+    const file = value as Record<string, unknown>;
+    const browserFile = file['file'] instanceof File ? file['file'] : undefined;
+    const name = this.readString(file, ['name', 'Name', 'fileName', 'FileName']);
+    const url = this.readString(file, ['url', 'Url', 'downloadUrl', 'DownloadUrl', 'value', 'Value']);
+    const size = this.readNumber(file, ['size', 'Size']);
+
+    if (!name && !url && !browserFile) {
+      return null;
+    }
+
+    return {
+      name: name ?? browserFile?.name ?? url?.split('/').pop() ?? 'File',
+      size: size ?? browserFile?.size ?? undefined,
+      url: url ?? undefined,
+      file: browserFile
+    };
+  }
+
+  private fileSize(file: FormUploadedFile): number {
+    return typeof file.size === 'number' ? file.size : (file.file?.size ?? 0);
+  }
+
+  private readString(source: Record<string, unknown>, keys: string[]): string | null {
+    for (const key of keys) {
+      const value = source[key];
+      if (typeof value === 'string' && value.trim()) {
+        return value;
+      }
+    }
+
+    return null;
+  }
+
+  private readNumber(source: Record<string, unknown>, keys: string[]): number | null {
+    for (const key of keys) {
+      const value = source[key];
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+      }
+    }
+
+    return null;
   }
 }

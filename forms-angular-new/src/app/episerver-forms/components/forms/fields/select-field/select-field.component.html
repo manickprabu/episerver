@@ -11,7 +11,7 @@
         [attr.autocomplete]="field.properties.autoComplete || null"
         [attr.title]="field.properties.description || null"
         (blur)="markTouched()">
-        @for (item of field.properties.items ?? []; track item.value) {
+        @for (item of field.properties.items || []; track item.value) {
           <option [value]="item.value || ''">{{ item.caption }}</option>
         }
       </select>
@@ -25,9 +25,9 @@
         [attr.title]="field.properties.description || null"
         (blur)="markTouched()">
         <option value="" [disabled]="$any(resolvedControl)?.value !== ''">
-          {{ field.properties.placeHolder || field.localizations['selectionDefaultPlaceholder'] || 'Select an option' }}
+          {{ placeholderLabel }}
         </option>
-        @for (item of field.properties.items ?? []; track item.value) {
+        @for (item of field.properties.items || []; track item.value) {
           <option [value]="item.value || ''">{{ item.caption }}</option>
         }
       </select>

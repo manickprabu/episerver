@@ -17,6 +17,9 @@
           @for (file of selectedFiles; track trackFile($index, file); let index = $index) {
             <li class="formFileUpload__SelectedItem">
               <span class="formFileUpload__SelectedName">{{ file.name }}</span>
+              @if (canViewFile(file)) {
+                <button type="button" class="formFileUpload__View" (click)="viewFile(file)">View</button>
+              }
               <button type="button" class="formFileUpload__Remove" (click)="removeSelectedFile(index)">Remove</button>
             </li>
           }
@@ -49,7 +52,7 @@
               [id]="field.key"
               type="file"
               class="element-field__control formFileUpload__Input"
-              multiple
+              [multiple]="allowMultipleUploads"
               [disabled]="hasReachedFileLimit"
               [attr.accept]="field.properties.fileTypes || null"
               [attr.title]="field.properties.description || null"
@@ -57,7 +60,13 @@
               (change)="onFileChange($event)" />
 
             @if (hasReachedFileLimit) {
-              <p class="formFileUpload__Hint">Maximum 5 files selected. Remove a file to add another.</p>
+              <p class="formFileUpload__Hint">
+                @if (maxUploadFiles === 1) {
+                  Maximum 1 file selected. Remove it to add another.
+                } @else {
+                  Maximum {{ maxUploadFiles }} files selected. Remove a file to add another.
+                }
+              </p>
             }
 
             @if (selectionError) {
@@ -72,8 +81,13 @@
                   <li class="formFileUpload__DraftItem">
                     <div class="formFileUpload__DraftMeta">
                       <span class="formFileUpload__DraftName">{{ file.name }}</span>
-                      <span class="formFileUpload__DraftSize">{{ fileSizeLabel(file) }}</span>
+                      @if (file.size !== undefined || file.file?.size !== undefined) {
+                        <span class="formFileUpload__DraftSize">{{ fileSizeLabel(file) }}</span>
+                      }
                     </div>
+                    @if (canViewFile(file)) {
+                      <button type="button" class="formFileUpload__View" (click)="viewFile(file)">View</button>
+                    }
                     <button type="button" class="formFileUpload__Remove" (click)="removeDraftFile(index)">Remove</button>
                   </li>
                 }

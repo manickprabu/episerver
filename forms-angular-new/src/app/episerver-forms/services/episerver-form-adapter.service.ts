@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { EpiserverFieldDefinition, EpiserverFormDefinition } from '../models/episerver-form-definition.model';
 import { ConditionCombinationType, ConditionFunctionType, SatisfiedActionType } from '../episerver-sdk';
-import { FormField, FormFieldValidator, FormSchema } from '../models/form-schema.model';
+import { FormField, FormFieldValidator, FormSchema, FormUploadedFile } from '../models/form-schema.model';
 
 @Injectable()
 export class EpiserverFormAdapterService {
@@ -69,12 +69,14 @@ export class EpiserverFormAdapterService {
         description: field.properties.Description ?? '',
         placeHolder: field.properties.PlaceHolder,
         autoComplete: field.properties.AutoComplete,
-        predefinedValue: (field.value ?? field.properties.DefaultValue) as string | undefined,
+        predefinedValue: this.mapFieldValue(field.value ?? field.properties.DefaultValue, contentType),
         readOnly: Boolean(field.contentLink?.isReadOnly ?? field.properties['ReadOnly'] ?? field.properties['IsReadOnly']),
         disabled: Boolean(field.properties['Disabled']),
         paragraphText: field.properties.ParagraphText as string | undefined,
         allowMultiSelect: Boolean(field.properties.AllowMultiSelect),
-        allowMultiple: Boolean(field.properties.AllowMultiple),
+        allowMultiple: typeof field.properties.AllowMultiple === 'boolean' ? field.properties.AllowMultiple : undefined,
+        fileSize: typeof field.properties.FileSize === 'number' ? field.properties.FileSize : undefined,
+        fileTypes: this.normalizeFileTypes(field.properties.FileTypes),
         finalizeForm: field.properties.FinalizeForm as boolean | undefined,
         redirectToPage: field.properties.RedirectToPage as string | undefined,
         attachedContentLink: field.properties.AttachedContentLink as string | undefined,
@@ -90,6 +92,85 @@ export class EpiserverFormAdapterService {
         satisfiedAction
       } as unknown as FormField['properties']
     };
+  }
+
+  private mapFieldValue(value: unknown, contentType: string): unknown {
+    if (contentType !== 'FileUploadElementBlock') {
+      return value;
+    }
+
+    return this.normalizeUploadedFiles(value);
+  }
+
+  private normalizeUploadedFiles(value: unknown): FormUploadedFile[] {
+    const parsed = this.parseUploadedFilesValue(value);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed
+      .map(entry => this.normalizeUploadedFile(entry))
+      .filter((entry): entry is FormUploadedFile => entry !== null);
+  }
+
+  private parseUploadedFilesValue(value: unknown): unknown {
+    if (typeof value !== 'string') {
+      return value;
+    }
+
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return [];
+    }
+
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return [];
+    }
+  }
+
+  private normalizeUploadedFile(value: unknown): FormUploadedFile | null {
+    if (!value || typeof value !== 'object') {
+      return null;
+    }
+
+    const file = value as Record<string, unknown>;
+    const name = this.readString(file, ['name', 'Name', 'fileName', 'FileName']);
+    const url = this.readString(file, ['url', 'Url', 'downloadUrl', 'DownloadUrl', 'value', 'Value']);
+    const size = this.readNumber(file, ['size', 'Size']);
+
+    if (!name && !url) {
+      return null;
+    }
+
+    return {
+      name: name ?? url?.split('/').pop() ?? 'File',
+      size: size ?? undefined,
+      url: url ?? undefined
+    };
+  }
+
+  private readString(source: Record<string, unknown>, keys: string[]): string | null {
+    for (const key of keys) {
+      const value = source[key];
+      if (typeof value === 'string' && value.trim()) {
+        return value;
+      }
+    }
+
+    return null;
+  }
+
+  private readNumber(source: Record<string, unknown>, keys: string[]): number | null {
+    for (const key of keys) {
+      const value = source[key];
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+      }
+    }
+
+    return null;
   }
 
   private buildSourceFieldKeyById(fields: EpiserverFieldDefinition[]): Map<number, string> {
@@ -179,6 +260,21 @@ export class EpiserverFormAdapterService {
       default:
         return SatisfiedActionType.Show;
     }
+  }
+
+  private normalizeFileTypes(fileTypes: unknown): string | undefined {
+    if (typeof fileTypes !== 'string') {
+      return undefined;
+    }
+
+    const normalized = fileTypes
+      .split(',')
+      .map(type => type.trim().replace(/^\./, ''))
+      .filter(Boolean)
+      .map(type => `.${type}`)
+      .join(',');
+
+    return normalized || undefined;
   }
 
   private mapValidators(validators: string | undefined, messages: Array<{ validator: string; message: string }> | undefined): FormFieldValidator[] {

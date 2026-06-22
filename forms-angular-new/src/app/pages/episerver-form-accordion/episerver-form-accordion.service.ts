@@ -600,6 +600,12 @@ export class EpiserverFormAccordionService {
       fields[serializedKey] = value;
     });
 
+    const removedFileFields = this.collectRemovedFileFields(source, model);
+    if (removedFileFields.length > 0) {
+      hasFileData = true;
+      removedFileFields.forEach(value => formData.append('RemovedFileFields', value));
+    }
+
     const payload = {
       FormKey: model.formKey,
       Locale: model.locale,
@@ -653,6 +659,66 @@ export class EpiserverFormAccordionService {
 
     fields[serializedKey] = fileNames;
     return true;
+  }
+
+  private collectRemovedFileFields(source: EpiserverFormDefinition, model: FormSubmitModel): string[] {
+    return model.submissionData.flatMap(submission => {
+      const sourceField = source.fields.find(field => field.contentGuid === submission.elementKey && field.type === 'FileUploadElementBlockProxy');
+      if (!sourceField) {
+        return [];
+      }
+
+      const fieldId = sourceField.contentLink?.id ?? sourceField.id;
+      if (typeof fieldId !== 'number') {
+        return [];
+      }
+
+      const originalUrls = new Set(this.extractUploadedFileUrls(sourceField.value));
+      if (originalUrls.size === 0) {
+        return [];
+      }
+
+      const currentUrls = new Set(this.extractUploadedFileUrls(submission.value));
+      return Array.from(originalUrls)
+        .filter(url => !currentUrls.has(url))
+        .map(url => `__fields_${fieldId}|${url}`);
+    });
+  }
+
+  private extractUploadedFileUrls(value: unknown): string[] {
+    const parsed = this.parseUploadedFileValue(value);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed
+      .map(entry => {
+        if (!entry || typeof entry !== 'object') {
+          return null;
+        }
+
+        const file = entry as Record<string, unknown>;
+        const url = file['url'] ?? file['Url'] ?? file['downloadUrl'] ?? file['DownloadUrl'] ?? file['value'] ?? file['Value'];
+        return typeof url === 'string' && url.trim() ? url : null;
+      })
+      .filter((url): url is string => url !== null);
+  }
+
+  private parseUploadedFileValue(value: unknown): unknown {
+    if (typeof value !== 'string') {
+      return value;
+    }
+
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return [];
+    }
+
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return [];
+    }
   }
 
   private cloneForm(source: EpiserverFormDefinition): EpiserverFormDefinition {

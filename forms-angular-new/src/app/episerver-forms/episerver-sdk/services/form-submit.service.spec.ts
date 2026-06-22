@@ -186,6 +186,62 @@ describe('FormSubmitService', () => {
     await expectAsync(promise).toBeResolved();
   });
 
+  it('appends removed existing uploaded files to multipart submissions', async () => {
+    const formWithUpload = {
+      ...form,
+      formElements: [
+        ...form.formElements,
+        {
+          key: 'attachments',
+          contentType: 'FileUploadElementBlock',
+          displayName: 'Attachments',
+          properties: {
+            label: 'Attachments',
+            description: '',
+            contentLinkId: 31910,
+            predefinedValue: [
+              { name: 'demo-test.pdf', url: '/globalassets/forms-upload-assets/demo-test2.pdf' },
+              { name: 'keep.pdf', url: '/globalassets/forms-upload-assets/keep.pdf' }
+            ]
+          },
+          localizations: {},
+          locale: 'en'
+        }
+      ]
+    } as FormContainer;
+
+    const promise = service.doSubmit(formWithUpload, '/', {
+      formKey: 'demo-form',
+      locale: 'en',
+      submissionData: [
+        {
+          elementKey: 'attachments',
+          value: [{ name: 'keep.pdf', url: '/globalassets/forms-upload-assets/keep.pdf' }]
+        }
+      ],
+      isFinalized: false,
+      partialSubmissionKey: 'partial-3',
+      hostedPageUrl: 'https://example.com/form',
+      accessToken: 'token-123',
+      currentStepIndex: 0
+    });
+
+    const req = httpMock.expectOne('/_forms/v1/forms');
+    const formData = req.request.body as FormData;
+
+    expect(formData.get('attachments')).toBe('keep.pdf');
+    expect(formData.getAll('RemovedFileFields')).toEqual(['__fields_31910|/globalassets/forms-upload-assets/demo-test2.pdf']);
+
+    req.flush({
+      success: true,
+      submissionKey: 'partial-3',
+      validationFail: false,
+      messages: []
+    });
+
+    await expectAsync(promise).toBeResolved();
+  });
+
   it('returns field validation results before submit', () => {
     const results = service.doValidate(form, [{ elementKey: 'name', value: '' } as FormSubmission]);
 

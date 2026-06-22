@@ -95,6 +95,22 @@ describe('FormStorageService', () => {
     expect(storage.getItem(form.key)).toBe('[{"elementKey":"attachments","value":[]}]');
   });
 
+  it('preserves existing uploaded file metadata in storage snapshots', () => {
+    const submission: FormSubmission[] = [
+      {
+        elementKey: 'attachments',
+        value: [{ name: 'resume.pdf', url: '/globalassets/forms-upload-assets/resume.pdf' }]
+      }
+    ];
+
+    service.saveFormDataToStorage(form, submission);
+
+    expect(service.loadFormDataFromStorage(form)).toEqual(submission);
+    expect(storage.getItem(form.key)).toBe(
+      '[{"elementKey":"attachments","value":[{"name":"resume.pdf","url":"/globalassets/forms-upload-assets/resume.pdf"}]}]'
+    );
+  });
+
   it('returns an empty array when nothing is stored', () => {
     expect(service.loadFormDataFromStorage(form)).toEqual([]);
   });

@@ -101,9 +101,12 @@ const DEBUG_EPISERVER_FORM: EpiserverFormDefinition = {
             "contentGuid": "d9d1c0b7-1d48-4a17-bb2b-77c17de3b3e2",
             "editViewFriendlyTitle": "File upload",
             "type": "FileUploadElementBlockProxy",
-            "value": "",
+            "value": "[{\"DownloadUrl\":\"/globalassets/forms-upload-assets/demo-test2.pdf\",\"Name\":\"demo-test.pdf\"}]",
             "properties": {
                 "Label": "File upload",
+                "AllowMultiple":true,
+                "FileSize":5,
+                "FileTypes":'pdf, png',
                 "Conditions": []
             }
         },
@@ -117,6 +120,9 @@ const DEBUG_EPISERVER_FORM: EpiserverFormDefinition = {
             "value": "",
             "properties": {
                 "Label": "File upload 2",
+                "AllowMultiple":true,
+                "FileSize":3,
+                "FileTypes":'jpg, pdf, png',
                 "Conditions": []
             }
         },
@@ -140,6 +146,26 @@ const DEBUG_EPISERVER_FORM: EpiserverFormDefinition = {
           {
             caption: 'No',
             value: 'No',
+            checked: false
+          },{
+            caption: 'N2o',
+            value: 'N2o',
+            checked: false
+          }, {
+            caption: 'Nddo',
+            value: 'Nddo',
+            checked: false
+          }, {
+            caption: 'cNo',
+            value: 'Nco',
+            checked: false
+          }, {
+            caption: 'Nqo',
+            value: 'Nqo',
+            checked: false
+          }, {
+            caption: 'Nto',
+            value: 'Ngo',
             checked: false
           }
         ],
@@ -686,6 +712,12 @@ export class EpiserverFormService {
       fields[serializedKey] = value;
     });
 
+    const removedFileFields = this.collectRemovedFileFields(source, model);
+    if (removedFileFields.length > 0) {
+      hasFileData = true;
+      removedFileFields.forEach(value => formData.append('RemovedFileFields', value));
+    }
+
     const payload = {
       FormKey: model.formKey,
       Locale: model.locale,
@@ -740,6 +772,66 @@ export class EpiserverFormService {
 
     fields[serializedKey] = fileNames;
     return true;
+  }
+
+  private collectRemovedFileFields(source: EpiserverFormDefinition, model: FormSubmitModel): string[] {
+    return model.submissionData.flatMap(submission => {
+      const sourceField = source.fields.find(field => field.contentGuid === submission.elementKey && field.type === 'FileUploadElementBlockProxy');
+      if (!sourceField) {
+        return [];
+      }
+
+      const fieldId = sourceField.contentLink?.id ?? sourceField.id;
+      if (typeof fieldId !== 'number') {
+        return [];
+      }
+
+      const originalUrls = new Set(this.extractUploadedFileUrls(sourceField.value));
+      if (originalUrls.size === 0) {
+        return [];
+      }
+
+      const currentUrls = new Set(this.extractUploadedFileUrls(submission.value));
+      return Array.from(originalUrls)
+        .filter(url => !currentUrls.has(url))
+        .map(url => `__fields_${fieldId}|${url}`);
+    });
+  }
+
+  private extractUploadedFileUrls(value: unknown): string[] {
+    const parsed = this.parseUploadedFileValue(value);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed
+      .map(entry => {
+        if (!entry || typeof entry !== 'object') {
+          return null;
+        }
+
+        const file = entry as Record<string, unknown>;
+        const url = file['url'] ?? file['Url'] ?? file['downloadUrl'] ?? file['DownloadUrl'] ?? file['value'] ?? file['Value'];
+        return typeof url === 'string' && url.trim() ? url : null;
+      })
+      .filter((url): url is string => url !== null);
+  }
+
+  private parseUploadedFileValue(value: unknown): unknown {
+    if (typeof value !== 'string') {
+      return value;
+    }
+
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return [];
+    }
+
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return [];
+    }
   }
 
   private cloneForm(source: EpiserverFormDefinition): EpiserverFormDefinition {

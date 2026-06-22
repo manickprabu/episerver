@@ -72,6 +72,10 @@ export class FormSubmitService {
       }
     });
 
+    for (const removedFileField of this.collectRemovedFileFields(form, model.submissionData)) {
+      formData.append('RemovedFileFields', removedFileField);
+    }
+
     formSubmissionData.Fields = fieldsData;
     formData.append('data', JSON.stringify(formSubmissionData));
 
@@ -112,5 +116,53 @@ export class FormSubmitService {
           result: this.formValidatorService.validate(element, value)
         } as FormValidationResult;
       });
+  }
+
+  private collectRemovedFileFields(form: FormContainer, submissions: FormSubmission[]): string[] {
+    return submissions.flatMap(submission => {
+      const formElement = form.formElements.find(element => equals(element.key, submission.elementKey));
+      if (!formElement || formElement.contentType !== 'FileUploadElementBlock') {
+        return [];
+      }
+
+      const contentLinkId = this.resolveContentLinkId(formElement);
+      if (contentLinkId === null) {
+        return [];
+      }
+
+      const originalUrls = new Set(this.extractUploadedFileUrls(formElement.properties['predefinedValue']));
+      if (originalUrls.size === 0) {
+        return [];
+      }
+
+      const currentUrls = new Set(this.extractUploadedFileUrls(submission.value));
+      return Array.from(originalUrls)
+        .filter(url => !currentUrls.has(url))
+        .map(url => `__fields_${contentLinkId}|${url}`);
+    });
+  }
+
+  private resolveContentLinkId(formElement: FormContainer['formElements'][number]): number | null {
+    const properties = formElement.properties as unknown as Record<string, unknown>;
+    const contentLinkId = properties['contentLinkId'] ?? null;
+    return typeof contentLinkId === 'number' ? contentLinkId : null;
+  }
+
+  private extractUploadedFileUrls(value: unknown): string[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    return value
+      .map(entry => {
+        if (!entry || typeof entry !== 'object') {
+          return null;
+        }
+
+        const file = entry as Record<string, unknown>;
+        const url = file['url'] ?? file['Url'] ?? file['downloadUrl'] ?? file['DownloadUrl'] ?? file['value'] ?? file['Value'];
+        return typeof url === 'string' && url.trim() ? url : null;
+      })
+      .filter((url): url is string => url !== null);
   }
 }
