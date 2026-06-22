@@ -62,6 +62,10 @@ export class EpiserverFormComponent {
     return this.hasSubmitted && this.formGroup.invalid ? 'validationFail' : 'validationSuccess';
   }
 
+  protected get apiBaseURLPrefix(): string {
+    return this.episerverFormService.apiBaseURLPrefix;
+  }
+
   protected openStep(stepIndex: number): void {
     this.currentStepIndex = stepIndex;
 

@@ -33,7 +33,7 @@
     <lib-image-choice-field [field]="field" [formGroup]="formGroup" [submitted]="submitted" />
   }
   @case ('FileUploadElementBlock') {
-    <lib-file-upload-field [field]="field" [formGroup]="formGroup" [submitted]="submitted" />
+    <lib-file-upload-field [field]="field" [formGroup]="formGroup" [submitted]="submitted" [apiBaseURLPrefix]="apiBaseURLPrefix" />
   }
   @case ('ResetButtonElementBlock') {
     <lib-reset-button-field [field]="field" (triggered)="reset.emit()" />

@@ -546,6 +546,7 @@ const DEBUG_EPISERVER_FORM: EpiserverFormDefinition = {
 @Injectable({ providedIn: 'root' })
 export class EpiserverFormAccordionService {
   readonly endpoint = 'http://localhost:8000/test-episerver-form';
+  apiBaseURLPrefix = 'http://localhost:8000/api/';
   readonly debug = true;
 
   constructor(private readonly httpClient: HttpClient) {}

@@ -660,6 +660,9 @@ export class EpiserverFormService {
   readonly endpoint = 'http://localhost:8000/test-episerver-form';
   readonly debug = true;
 
+
+  apiBaseURLPrefix = 'http://localhost:8000/api/'
+
   constructor(private readonly httpClient: HttpClient) {}
 
   loadForm(): Observable<EpiserverFormDefinition> {

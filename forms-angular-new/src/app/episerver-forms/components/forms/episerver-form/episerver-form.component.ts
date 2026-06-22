@@ -28,5 +28,6 @@ export class EpiserverFormComponent {
   @Input() formGroup!: FormGroup;
   @Input() submitted = false;
   @Input() submitDisabled = false;
+  @Input() apiBaseURLPrefix = '';
   @Output() readonly reset = new EventEmitter<void>();
 }

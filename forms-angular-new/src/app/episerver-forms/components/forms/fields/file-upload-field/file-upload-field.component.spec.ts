@@ -152,7 +152,11 @@ describe('FileUploadFieldComponent', () => {
     const openSpy = spyOn(window, 'open');
     click(fixture, '.formFileUpload__View');
 
-    expect(openSpy).toHaveBeenCalledOnceWith('/globalassets/forms-upload-assets/existing-contract.pdf', '_blank', 'noopener,noreferrer');
+    expect(openSpy).toHaveBeenCalledOnceWith(
+      'http://localhost:8000/api/globalassets/forms-upload-assets/existing-contract.pdf',
+      '_blank',
+      'noopener,noreferrer'
+    );
 
     openModal(fixture);
     fixture.detectChanges();
@@ -191,6 +195,7 @@ function createComponent(field: FormField, formGroup: FormGroup): ComponentFixtu
   const fixture = TestBed.createComponent(FileUploadFieldComponent);
   fixture.componentInstance.field = field;
   fixture.componentInstance.formGroup = formGroup;
+  fixture.componentInstance.apiBaseURLPrefix = 'http://localhost:8000/api/';
   fixture.detectChanges();
   return fixture;
 }

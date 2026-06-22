@@ -70,6 +70,10 @@ export class EpiserverFormAccordionComponent {
     return this.hasSubmitted && this.formGroup.invalid ? 'ValidationFail' : 'ValidationSuccess';
   }
 
+  protected get apiBaseURLPrefix(): string {
+    return this.episerverFormAccordionService.apiBaseURLPrefix;
+  }
+
   protected get hasMultipleSteps(): boolean {
     return this.steps.length > 1;
   }

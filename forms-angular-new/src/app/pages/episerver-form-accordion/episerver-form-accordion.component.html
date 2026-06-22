@@ -38,7 +38,13 @@
             (toggleAccordion)="openStep(stepIndex)">
             <section class="Form__Element__Step">
               @for (field of visibleStepFields(step); track field.key) {
-                <lib-episerver-form [field]="field" [formGroup]="formGroup" [submitted]="hasSubmitted" [submitDisabled]="isSubmitting" (reset)="handleReset()" />
+                <lib-episerver-form
+                  [field]="field"
+                  [formGroup]="formGroup"
+                  [submitted]="hasSubmitted"
+                  [submitDisabled]="isSubmitting"
+                  [apiBaseURLPrefix]="apiBaseURLPrefix"
+                  (reset)="handleReset()" />
               }
             </section>
           </lib-accordion>

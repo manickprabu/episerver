@@ -14,6 +14,7 @@ export class RenderElementInStepComponent {
   @Input() formGroup!: FormGroup;
   @Input() submitted = false;
   @Input() submitDisabled = false;
+  @Input() apiBaseURLPrefix = '';
   @Input() inactiveElements: string[] = [];
   @Output() readonly reset = new EventEmitter<void>();
 }

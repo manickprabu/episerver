@@ -19,6 +19,7 @@ export class FileUploadFieldComponent {
   @Input() field!: FormField;
   @Input() formGroup!: FormGroup;
   @Input() submitted = false;
+  @Input() apiBaseURLPrefix = '';
   protected isModalOpen = false;
   protected draftFiles: FormUploadedFile[] = [];
   protected selectionError = '';
@@ -84,7 +85,7 @@ export class FileUploadFieldComponent {
   }
 
   protected viewFile(file: FormUploadedFile): void {
-    const url = file.url ?? (file.file ? URL.createObjectURL(file.file) : null);
+    const url = file.url ? this.resolveExistingFileUrl(file.url) : (file.file ? URL.createObjectURL(file.file) : null);
     if (!url) {
       return;
     }
@@ -201,6 +202,19 @@ export class FileUploadFieldComponent {
 
   private fileSize(file: FormUploadedFile): number {
     return typeof file.size === 'number' ? file.size : (file.file?.size ?? 0);
+  }
+
+  private resolveExistingFileUrl(url: string): string {
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+
+    const baseUrlPrefix = this.apiBaseURLPrefix;
+    if (!baseUrlPrefix) {
+      return url;
+    }
+
+    return `${baseUrlPrefix.replace(/\/+$/, '')}/${url.replace(/^\/+/, '')}`;
   }
 
   private readString(source: Record<string, unknown>, keys: string[]): string | null {
