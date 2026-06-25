@@ -48,16 +48,18 @@
           </div>
 
           <div class="formFileUpload__ModalBody">
-            <input
-              [id]="field.key"
-              type="file"
-              class="element-field__control formFileUpload__Input"
+            <lib-file-upload
+              [title]="field.properties.label"
+              [control]="uploadSelectionControl"
+              [maxFileSize]="maxUploadFileSizeBytes"
+              [acceptedFileTypes]="acceptedFileTypes"
               [multiple]="allowMultipleUploads"
+              [maxFiles]="maxUploadFiles"
+              [selectedFiles]="draftFiles"
               [disabled]="hasReachedFileLimit"
-              [attr.accept]="field.properties.fileTypes || null"
-              [attr.title]="field.properties.description || null"
-              [attr.aria-describedby]="field.key + '_desc ' + field.key + '_upload_error'"
-              (change)="onFileChange($event)" />
+              [showTitle]="false"
+              [showSelectedFiles]="false"
+              (selectedFilesChange)="onDraftLocalFilesChange($event)" />
 
             @if (hasReachedFileLimit) {
               <p class="formFileUpload__Hint">
@@ -67,12 +69,6 @@
                   Maximum {{ maxUploadFiles }} files selected. Remove a file to add another.
                 }
               </p>
-            }
-
-            @if (selectionError) {
-              <span class="form__Element__ValidationError" [id]="field.key + '_upload_error'" role="alert">
-                {{ selectionError }}
-              </span>
             }
 
             @if (draftFiles.length) {

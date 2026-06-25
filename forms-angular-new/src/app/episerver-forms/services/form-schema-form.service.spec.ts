@@ -146,7 +146,7 @@ describe('FormSchemaFormService', () => {
 
     const fileSizeControl = new FormControl('x');
     fileSizeControl.setErrors({ maxFileSize: true });
-    expect(service.getValidationMessage(field, fileSizeControl)).toBe('Each file must be 5MB or smaller.');
+    expect(service.getValidationMessage(field, fileSizeControl)).toBe('Each file must be 20MB or smaller.');
 
     const fileCountControl = new FormControl('x');
     fileCountControl.setErrors({ maxFileCount: true });
@@ -252,5 +252,26 @@ describe('FormSchemaFormService', () => {
     const maxSizeControl = new FormControl('x');
     maxSizeControl.setErrors({ maxFileSize: true });
     expect(service.getValidationMessage(field, maxSizeControl)).toBe('Each file must be 3MB or smaller.');
+  });
+
+  it('uses default file types when the backend does not provide any', () => {
+    const field = createField({
+      key: 'upload',
+      contentType: 'FileUploadElementBlock',
+      properties: {
+        label: 'Upload',
+        validators: []
+      } as never
+    });
+
+    stepBuilderService.buildForm.and.returnValue({ formElements: [field], steps: [] } as never);
+    const result = service.buildForm({ formElements: [field], steps: [] } as unknown as FormSchema);
+    const control = result.formGroup.get('upload') as FormControl;
+
+    control.setValue([{ name: 'wrong.png', file: new File(['1'], 'wrong.png') }] as never);
+    expect(control.hasError('allowedExtensions')).toBeTrue();
+
+    control.setValue([{ name: 'allowed.pdf', file: new File(['1'], 'allowed.pdf') }] as never);
+    expect(control.hasError('allowedExtensions')).toBeFalse();
   });
 });

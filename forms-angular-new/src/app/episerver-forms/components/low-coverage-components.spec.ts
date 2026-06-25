@@ -137,10 +137,8 @@ describe('low coverage components', () => {
     fileUpload.field = createField({ contentType: 'FileUploadElementBlock' });
     fileUpload.formGroup = formGroup;
     const file = new File(['body'], 'doc.txt');
-    const input = document.createElement('input');
-    Object.defineProperty(input, 'files', { value: [file] });
-    (fileUpload as any).onFileChange({ target: input } as unknown as Event);
-    expect((fileUpload as any).draftFiles).toEqual([{ name: 'doc.txt', size: file.size, file }]);
+    (fileUpload as any).onDraftLocalFilesChange([file]);
+    expect((fileUpload as any).draftFiles).toEqual([{ name: 'doc.txt', size: file.size, url: undefined, assetGuid: undefined, file }]);
 
     const hidden = new HiddenFieldComponent(formSchemaFormService);
     hidden.field = createField();

@@ -12,6 +12,7 @@
       [attr.autocomplete]="field.properties.autoComplete || 'bday'"
       [attr.min]="field.properties.min || null"
       [attr.max]="field.properties.max || null"
+      [attr.readonly]="field.properties.readOnly ? '' : null"
       [readOnly]="!!field.properties.readOnly" />
     <lib-validation-message [field]="field" [control]="control" [submitted]="submitted" />
     <lib-data-list [field]="field" />

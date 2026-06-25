@@ -159,7 +159,7 @@ describe('EpiserverFormComponent', () => {
     expect((component as any).stepHeading(form.steps[1], 1)).toBe('2. About my home');
     expect((component as any).stepDescription(form.steps[1])).toBe('Some description to explain about my home that benefits the user');
     expect((component as any).visibleStepFields(form.steps[0]).map((field: any) => field.key)).toEqual(['title-guid', 'source-guid']);
-    expect((component as any).accordionPillText(form.steps[0], 0)).toBe('Completed');
+    expect((component as any).accordionPillText(form.steps[0], 0)).toBe('In Progress');
     expect((component as any).accordionPillText(form.steps[1], 1)).toBe('To do');
 
     (component as any).openStep(2);
@@ -249,7 +249,8 @@ describe('EpiserverFormComponent', () => {
       {
         name: 'demo-test.pdf',
         size: undefined,
-        url: '/globalassets/forms-upload-assets/demo-test2.pdf'
+        url: '/globalassets/forms-upload-assets/demo-test2.pdf',
+        assetGuid: undefined
       }
     ]);
   });

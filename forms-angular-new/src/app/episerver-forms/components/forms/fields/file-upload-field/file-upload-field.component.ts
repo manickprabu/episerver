@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { FormField, FormUploadedFile } from '../../../../models/form-schema.model';
 import { FormSchemaFormService } from '../../../../services/form-schema-form.service';
 
 const DEFAULT_MAX_UPLOAD_FILES = 5;
-const DEFAULT_MAX_UPLOAD_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const DEFAULT_MAX_UPLOAD_FILE_SIZE_BYTES = 20 * 1024 * 1024;
+const DEFAULT_UPLOAD_FILE_TYPES = '.pdf,.doc,.txt';
 
 @Component({
   selector: 'lib-file-upload-field',
@@ -22,7 +23,7 @@ export class FileUploadFieldComponent {
   @Input() apiBaseURLPrefix = '';
   protected isModalOpen = false;
   protected draftFiles: FormUploadedFile[] = [];
-  protected selectionError = '';
+  protected readonly uploadSelectionControl = new FormControl<FormUploadedFile[] | FormUploadedFile | null>(null);
 
   protected get control() {
     return this.formSchemaFormService.controlFor(this.formGroup, this.field);
@@ -49,20 +50,26 @@ export class FileUploadFieldComponent {
     return Number.isInteger(sizeInMb) ? `${sizeInMb}MB` : `${sizeInMb.toFixed(1)}MB`;
   }
 
+  protected get acceptedFileTypes(): string {
+    return typeof this.field.properties.fileTypes === 'string' && this.field.properties.fileTypes.trim()
+      ? this.field.properties.fileTypes
+      : DEFAULT_UPLOAD_FILE_TYPES;
+  }
+
   protected openModal(): void {
     this.draftFiles = [...this.selectedFiles];
-    this.selectionError = '';
+    this.uploadSelectionControl.setValue(this.draftFiles, { emitEvent: false });
     this.isModalOpen = true;
   }
 
   protected closeModal(): void {
     this.isModalOpen = false;
     this.draftFiles = [];
-    this.selectionError = '';
+    this.uploadSelectionControl.reset(null, { emitEvent: false });
   }
 
   protected confirmSelection(): void {
-    this.updateControl(this.draftFiles);
+    this.updateControl(this.normalizeFiles(this.uploadSelectionControl.value));
     this.closeModal();
   }
 
@@ -77,7 +84,11 @@ export class FileUploadFieldComponent {
 
   protected removeDraftFile(index: number): void {
     this.draftFiles = this.draftFiles.filter((_, currentIndex) => currentIndex !== index);
-    this.selectionError = '';
+    this.uploadSelectionControl.setValue(this.draftFiles, { emitEvent: false });
+  }
+
+  protected onDraftLocalFilesChange(files: FormUploadedFile[]): void {
+    this.draftFiles = this.normalizeFiles(files);
   }
 
   protected canViewFile(file: FormUploadedFile): boolean {
@@ -95,33 +106,6 @@ export class FileUploadFieldComponent {
     if (!file.url && file.file) {
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
     }
-  }
-
-  protected onFileChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const newFiles = Array.from(input.files ?? []).map(file => ({
-      name: file.name,
-      size: file.size,
-      url: '',
-      assetGuid: '',
-      file
-    }));
-    if (!newFiles.length) {
-      return;
-    }
-
-    const nextFiles = [...this.draftFiles, ...newFiles];
-    const errorMessage = this.validateFiles(nextFiles);
-    if (errorMessage) {
-      this.selectionError = errorMessage;
-      this.control?.markAsTouched();
-      input.value = '';
-      return;
-    }
-
-    this.draftFiles = nextFiles;
-    this.selectionError = '';
-    input.value = '';
   }
 
   protected trackFile(index: number, file: FormUploadedFile): string {
@@ -148,20 +132,7 @@ export class FileUploadFieldComponent {
     control?.updateValueAndValidity();
   }
 
-  private validateFiles(files: FormUploadedFile[]): string {
-    if (files.length > this.maxUploadFiles) {
-      return this.maxUploadFiles === 1 ? 'You can upload 1 file only.' : `You can upload up to ${this.maxUploadFiles} files.`;
-    }
-
-    const oversizedFile = files.find(entry => this.fileSize(entry) > this.maxUploadFileSizeBytes);
-    if (oversizedFile) {
-      return `${oversizedFile.name ?? oversizedFile.file?.name ?? 'File'} exceeds the ${this.maxUploadFileSizeLabel} limit.`;
-    }
-
-    return '';
-  }
-
-  private get maxUploadFileSizeBytes(): number {
+  protected get maxUploadFileSizeBytes(): number {
     if (typeof this.field.properties.fileSize === 'number' && Number.isFinite(this.field.properties.fileSize) && this.field.properties.fileSize > 0) {
       return this.field.properties.fileSize * 1024 * 1024;
     }
@@ -170,16 +141,27 @@ export class FileUploadFieldComponent {
   }
 
   private normalizeFiles(value: unknown): FormUploadedFile[] {
-    if (!Array.isArray(value)) {
-      return [];
+    if (Array.isArray(value)) {
+      return value
+        .map(entry => this.normalizeFile(entry))
+        .filter((entry): entry is FormUploadedFile => entry !== null);
     }
 
-    return value
-      .map(entry => this.normalizeFile(entry))
-      .filter((entry): entry is FormUploadedFile => entry !== null);
+    const normalized = this.normalizeFile(value);
+    return normalized ? [normalized] : [];
   }
 
   private normalizeFile(value: unknown): FormUploadedFile | null {
+    if (value instanceof File) {
+      return {
+        name: value.name,
+        size: value.size,
+        url: undefined,
+        assetGuid: undefined,
+        file: value
+      };
+    }
+
     if (!value || typeof value !== 'object') {
       return null;
     }

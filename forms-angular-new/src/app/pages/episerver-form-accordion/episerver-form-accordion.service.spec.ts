@@ -34,6 +34,14 @@ describe('EpiserverFormAccordionService', () => {
           type: 'FileUploadElementBlockProxy',
           value: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf","AssetGuid":"asset-123"}]',
           properties: {}
+        },
+        {
+          contentGuid: 'guid-2',
+          contentLink: { id: 31797 },
+          id: 31797,
+          type: 'SelectionElementBlockProxy',
+          value: 'No',
+          properties: {}
         }
       ]
     } as EpiserverFormDefinition;
@@ -47,7 +55,7 @@ describe('EpiserverFormAccordionService', () => {
       partialSubmissionKey: 'submission-guid',
       hostedPageUrl: 'http://localhost/form',
       currentStepIndex: 1,
-      submissionData: [{ elementKey: 'guid-1', value: 'Yes' }]
+      submissionData: [{ elementKey: 'guid-2', value: 'Yes' }]
     } as FormSubmitModel;
   }
 
@@ -81,7 +89,7 @@ describe('EpiserverFormAccordionService', () => {
       HostedPageUrl: 'http://localhost/form',
       CurrentStep: 1,
       Fields: {
-        __field_31796: 'Yes'
+        __field_31797: 'Yes'
       }
     });
 
@@ -114,7 +122,7 @@ describe('EpiserverFormAccordionService', () => {
 
     const body = request.request.body as FormData;
     expect(body.getAll('RemovedFileFields')).toEqual(['__fields_31796|/globalassets/forms-upload-assets/demo-test2.pdf']);
-    expect(JSON.parse(String(body.get('data'))).Fields).toEqual({});
+    expect(JSON.parse(String(body.get('data'))).Fields).toEqual({ __field_31796: [] });
     request.flush({ success: true });
   });
 });

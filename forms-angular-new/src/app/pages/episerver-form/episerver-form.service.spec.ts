@@ -36,7 +36,14 @@ describe('EpiserverFormService', () => {
           value: '[{"DownloadUrl":"/globalassets/forms-upload-assets/demo-test2.pdf","Name":"demo-test.pdf","AssetGuid":"asset-123"}]',
           properties: {}
         },
-        { id: 31802, contentGuid: 'guid-2', properties: {} }
+        {
+          id: 31802,
+          contentGuid: 'guid-2',
+          contentLink: { id: 31802 },
+          type: 'SelectionElementBlockProxy',
+          value: 'No',
+          properties: {}
+        }
       ]
     } as EpiserverFormDefinition;
   }
@@ -50,7 +57,6 @@ describe('EpiserverFormService', () => {
       hostedPageUrl: 'http://localhost/form',
       currentStepIndex: 2,
       submissionData: [
-        { elementKey: 'guid-1', value: 'Yes' },
         { elementKey: 'guid-2', value: 'No' },
         { elementKey: '__FormGuid', value: 'system' },
         { elementKey: 'empty', value: '' }
@@ -88,7 +94,6 @@ describe('EpiserverFormService', () => {
       HostedPageUrl: 'http://localhost/form',
       CurrentStep: 2,
       Fields: {
-        __field_31801: 'Yes',
         __field_31802: 'No',
         __FormGuid: 'system'
       }
@@ -156,7 +161,9 @@ describe('EpiserverFormService', () => {
       SubmissionKey: 'submission-guid',
       HostedPageUrl: 'http://localhost/form',
       CurrentStep: 2,
-      Fields: {}
+      Fields: {
+        __field_31801: []
+      }
     });
 
     request.flush({ success: true });

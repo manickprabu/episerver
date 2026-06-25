@@ -593,8 +593,9 @@ export class EpiserverFormAccordionService {
         return;
       }
 
-      if (this.appendFileData(value, serializedKey, formData, fields)) {
-        hasFileData = true;
+      const fileDataHandled = this.appendFileData(value, serializedKey, formData, fields);
+      if (fileDataHandled !== null) {
+        hasFileData = hasFileData || fileDataHandled;
         return;
       }
 
@@ -638,9 +639,9 @@ export class EpiserverFormAccordionService {
     return map;
   }
 
-  private appendFileData(value: unknown, serializedKey: string, formData: FormData, fields: Record<string, unknown>): boolean {
+  private appendFileData(value: unknown, serializedKey: string, formData: FormData, fields: Record<string, unknown>): boolean | null {
     if (!Array.isArray(value) || value.length === 0 || typeof value[0] !== 'object') {
-      return false;
+      return null;
     }
 
     const files = value as Array<{ name?: string; url?: string; assetGuid?: string; file?: File }>;

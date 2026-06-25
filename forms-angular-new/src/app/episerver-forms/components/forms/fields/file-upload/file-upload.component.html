@@ -1,0 +1,46 @@
+<div class="file-upload">
+  @if (showTitle) {
+    <label class="title" [innerHTML]="title"></label>
+  }
+
+  <div class="file-upload-container dropzone" draggable="true" [ngClass]="{ disabled: disabled || control?.disabled }">
+    <h4>Drag files here</h4>
+    <p>
+      only {{ allowedFileExtensions.join(', ') }} files at {{ formatLimitLabel(maxFileSize) }} or less
+      @if (multiple && maxFiles > 1) {
+        <br />
+        up to {{ maxFiles }} files
+      }
+      <br />
+      or
+    </p>
+    <button type="button" [disabled]="disabled">{{ buttonText }}</button>
+    <input
+      type="file"
+      id="fileUpload"
+      [multiple]="multiple"
+      [disabled]="disabled"
+      [attr.accept]="acceptedFileTypes"
+      (change)="handleFileInput($event)"
+      [title]="tooltipText" />
+  </div>
+
+  @if (showSelectedFiles && draggedFiles.length) {
+  <div class="dragged-files-wrapper">
+    @for (file of draggedFiles; track (file.name || 'file') + '-' + (file.file?.lastModified || file.url || $index); let index = $index) {
+    <div class="file">
+      <span>
+        {{ file.name }} @if (file.size !== undefined || file.file?.size !== undefined) {
+          <span class="size">{{ formatFileSize(file.size || file.file?.size || 0) }}</span>
+        }
+      </span>
+      <button type="button" class="delete-file" (click)="deleteFile(index)">X</button>
+    </div>
+    }
+  </div>
+  }
+
+  @if (hasError) {
+    <div class="form__Element__ValidationError" role="alert">{{ fileUploadErrorMsg }}</div>
+  }
+</div>

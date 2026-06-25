@@ -5,7 +5,8 @@ import { StepBuilderService } from '../../episerver-forms/episerver-sdk';
 import { FormField, FormFieldOption, FormFieldValidator, FormSchema, FormStep, FormUploadedFile, ValidatorType } from '../models/form-schema.model';
 
 const DEFAULT_MAX_UPLOAD_FILES = 5;
-const DEFAULT_MAX_UPLOAD_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const DEFAULT_MAX_UPLOAD_FILE_SIZE_BYTES = 20 * 1024 * 1024;
+const DEFAULT_UPLOAD_FILE_TYPES = '.pdf,.doc,.txt';
 
 export interface BuiltForm {
   form: FormSchema;
@@ -201,8 +202,9 @@ export class FormSchemaFormService {
             : Math.min(configuredMaxFileSize, this.resolveMaxUploadFileSizeBytes(field))
         )
       );
-      if (field.properties.fileTypes) {
-        validators.push(this.allowedExtensionsValidator(field.properties.fileTypes));
+      const uploadFileTypes = this.resolveUploadFileTypes(field);
+      if (uploadFileTypes) {
+        validators.push(this.allowedExtensionsValidator(uploadFileTypes));
       }
     }
 
@@ -264,6 +266,10 @@ export class FormSchemaFormService {
     }
 
     return DEFAULT_MAX_UPLOAD_FILE_SIZE_BYTES;
+  }
+
+  private resolveUploadFileTypes(field: FormField): string {
+    return typeof field.properties.fileTypes === 'string' && field.properties.fileTypes.trim() ? field.properties.fileTypes : DEFAULT_UPLOAD_FILE_TYPES;
   }
 
   private maxUploadFileSizeLabel(field: FormField): string {

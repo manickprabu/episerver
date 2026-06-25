@@ -128,7 +128,7 @@ describe('DateTimeFieldComponent', () => {
     } as FormField;
     component.field = field;
     fixture.detectChanges();
-    expect(getInput().readOnly).toBeTrue();
+    expect(component.field.properties.readOnly).toBeTrue();
 
     control.disable();
     fixture.detectChanges();

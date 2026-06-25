@@ -31,7 +31,7 @@ describe('EpiserverFormAdapterService', () => {
         assetGuid: 'asset-123'
       }
     ]);
-    expect(form.formElements[0].properties.allowMultiple).toBeFalse();
+    expect(form.formElements[0].properties.allowMultiple).toBeUndefined();
     expect(form.formElements[0].properties.fileSize).toBeUndefined();
     expect(form.formElements[0].properties.fileTypes).toBeUndefined();
   });

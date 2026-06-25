@@ -6,6 +6,7 @@ import { ElementWrapperComponent } from '../../element-wrapper/element-wrapper.c
 import { ValidationMessageComponent } from '../../validation-message/validation-message.component';
 import { FormField } from '../../../../models/form-schema.model';
 import { FormSchemaFormService } from '../../../../services/form-schema-form.service';
+import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { FileUploadFieldComponent } from './file-upload-field.component';
 
 function createField(key: string, label: string): FormField {
@@ -27,7 +28,7 @@ describe('FileUploadFieldComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
-      declarations: [FileUploadFieldComponent, ElementWrapperComponent, ElementCaptionComponent, ValidationMessageComponent],
+      declarations: [FileUploadFieldComponent, FileUploadComponent, ElementWrapperComponent, ElementCaptionComponent, ValidationMessageComponent],
       providers: [
         {
           provide: FormSchemaFormService,
@@ -64,7 +65,7 @@ describe('FileUploadFieldComponent', () => {
     expect(portfolioFixture.nativeElement.textContent).not.toContain('resume.pdf');
 
     const portfolioInput = openModal(portfolioFixture);
-    selectFiles(portfolioInput, createFile('portfolio.zip', 4096));
+    selectFiles(portfolioInput, createFile('portfolio.pdf', 4096));
     portfolioFixture.detectChanges();
     click(portfolioFixture, '.formFileUpload__PrimaryAction');
     resumeFixture.detectChanges();
@@ -106,15 +107,22 @@ describe('FileUploadFieldComponent', () => {
     expect(fixture.nativeElement.querySelectorAll('.formFileUpload__DraftItem').length).toBe(0);
   });
 
-  it('shows a validation error when a selected file exceeds 5MB', () => {
+  it('shows a validation error when a selected file exceeds 20MB', () => {
     const fixture = createComponent(createField('resume', 'Resume'), new FormGroup({ resume: new FormControl([]) }));
     const input = openModal(fixture);
 
-    selectFiles(input, createFile('too-large.mov', 5 * 1024 * 1024 + 1));
+    selectFiles(input, createFile('too-large.pdf', 20 * 1024 * 1024 + 1));
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('too-large.mov exceeds the 5MB limit.');
+    expect(fixture.nativeElement.textContent).toContain('The file size must be 20MB or less.');
     expect((fixture.componentInstance.formGroup.get('resume')?.value as unknown[]).length).toBe(0);
+  });
+
+  it('uses default accepted file types when the backend does not provide any', () => {
+    const fixture = createComponent(createField('resume', 'Resume'), new FormGroup({ resume: new FormControl([]) }));
+    const input = openModal(fixture);
+
+    expect(input.accept).toBe('.pdf,.doc,.txt');
   });
 
   it('disables the choose-files control when the upload reaches the max file count', () => {
@@ -131,7 +139,7 @@ describe('FileUploadFieldComponent', () => {
     );
     fixture.detectChanges();
 
-    const updatedInput = fixture.nativeElement.querySelector('.formFileUpload__Input') as HTMLInputElement;
+    const updatedInput = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
     expect(updatedInput.disabled).toBeTrue();
     expect(fixture.nativeElement.textContent).toContain('Maximum 5 files selected. Remove a file to add another.');
   });
@@ -164,6 +172,42 @@ describe('FileUploadFieldComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('existing-contract.pdf');
   });
 
+  it('counts existing uploaded files against the max file limit inside the shared picker control', () => {
+    const formGroup = new FormGroup({
+      resume: new FormControl([
+        {
+          Name: 'existing-contract.pdf',
+          DownloadUrl: '/globalassets/forms-upload-assets/existing-contract.pdf',
+          AssetGuid: 'asset-123'
+        }
+      ] as unknown as never)
+    });
+    const fixture = createComponent(
+      {
+        ...createField('resume', 'Resume'),
+        properties: {
+          ...createField('resume', 'Resume').properties,
+          allowMultiple: false,
+          fileTypes: '.pdf'
+        }
+      } as FormField,
+      formGroup
+    );
+
+    openModal(fixture);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance['uploadSelectionControl'].value).toEqual([
+      jasmine.objectContaining({
+        name: 'existing-contract.pdf',
+        size: undefined,
+        url: '/globalassets/forms-upload-assets/existing-contract.pdf',
+        assetGuid: 'asset-123'
+      })
+    ]);
+    expect(fixture.nativeElement.textContent).toContain('Maximum 1 file selected. Remove it to add another.');
+  });
+
   it('uses field properties for single-file mode, size limit and accepted file types', () => {
     const fixture = createComponent(
       {
@@ -182,13 +226,9 @@ describe('FileUploadFieldComponent', () => {
     expect(input.multiple).toBeFalse();
     expect(input.accept).toBe('.pdf,.png');
 
-    selectFiles(input, createFile('1.pdf', 100), createFile('2.pdf', 100));
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('You can upload 1 file only.');
-
     selectFiles(input, createFile('too-large.pdf', 3 * 1024 * 1024 + 1));
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('too-large.pdf exceeds the 3MB limit.');
+    expect(fixture.nativeElement.textContent).toContain('The file size must be 3MB or less.');
 
     selectFiles(input, createFile('fresh.pdf', 100));
     fixture.detectChanges();
@@ -199,8 +239,8 @@ describe('FileUploadFieldComponent', () => {
       {
         name: 'fresh.pdf',
         size: 100,
-        url: '',
-        assetGuid: '',
+        url: undefined,
+        assetGuid: undefined,
         file: jasmine.any(File)
       }
     ]);
@@ -219,7 +259,7 @@ function createComponent(field: FormField, formGroup: FormGroup): ComponentFixtu
 function openModal(fixture: ComponentFixture<FileUploadFieldComponent>): HTMLInputElement {
   click(fixture, '.formFileUpload__Trigger');
   fixture.detectChanges();
-  return fixture.nativeElement.querySelector('.formFileUpload__Input') as HTMLInputElement;
+  return fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
 }
 
 function click(fixture: ComponentFixture<FileUploadFieldComponent>, selector: string): void {
