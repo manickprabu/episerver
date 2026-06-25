@@ -214,6 +214,73 @@ describe('EpiserverFormComponent', () => {
     expect((successCase.component as any).statusMessage).toBe('Bad request');
   });
 
+  it('auto-saves 30 seconds after the user stops editing the form', () => {
+    jasmine.clock().install();
+    const { component, episerverFormService, formSubmissionService } = createComponent();
+    try {
+      (component as any).isReadOnlyMode = false;
+      (component as any).formGroup.enable({ emitEvent: false });
+
+      const sourceControl = (component as any).formGroup.get('source-guid') as FormControl;
+      sourceControl.setValue('Updated');
+      jasmine.clock().tick(29999);
+
+      expect(episerverFormService.savePartial).not.toHaveBeenCalled();
+
+      jasmine.clock().tick(1);
+
+      expect(formSubmissionService.buildSubmitModel).toHaveBeenCalled();
+      expect(episerverFormService.savePartial).toHaveBeenCalledTimes(1);
+    } finally {
+      jasmine.clock().uninstall();
+    }
+  });
+
+  it('cancels a pending auto-save when the user saves manually', () => {
+    jasmine.clock().install();
+    const { component, episerverFormService } = createComponent();
+    try {
+      (component as any).isReadOnlyMode = false;
+      (component as any).formGroup.enable({ emitEvent: false });
+
+      const sourceControl = (component as any).formGroup.get('source-guid') as FormControl;
+      sourceControl.setValue('Updated');
+      jasmine.clock().tick(10000);
+
+      (component as any).savePartial();
+      expect(episerverFormService.savePartial).toHaveBeenCalledTimes(1);
+
+      jasmine.clock().tick(20000);
+
+      expect(episerverFormService.savePartial).toHaveBeenCalledTimes(1);
+    } finally {
+      jasmine.clock().uninstall();
+    }
+  });
+
+  it('cancels a pending auto-save when the user submits the form', () => {
+    jasmine.clock().install();
+    const { component, episerverFormService, formSubmissionService } = createComponent();
+    try {
+      (component as any).isReadOnlyMode = false;
+      (component as any).formGroup.enable({ emitEvent: false });
+      formSubmissionService.validateStep.and.returnValue([]);
+
+      const sourceControl = (component as any).formGroup.get('source-guid') as FormControl;
+      sourceControl.setValue('Updated');
+      jasmine.clock().tick(10000);
+
+      (component as any).submitFinal();
+      expect(episerverFormService.submitFinal).toHaveBeenCalledTimes(1);
+
+      jasmine.clock().tick(20000);
+
+      expect(episerverFormService.savePartial).not.toHaveBeenCalled();
+    } finally {
+      jasmine.clock().uninstall();
+    }
+  });
+
   it('normalizes file upload source values into a list on load', () => {
     const uploadSource = {
       isFinalised: false,

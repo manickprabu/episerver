@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
+import { Subscription, timer } from 'rxjs';
 
 import { FieldVisibilityState, FormDependConditionsService, FormSubmission } from '../../episerver-forms/episerver-sdk';
 import { EpiserverFormAdapterService } from '../../episerver-forms/services/episerver-form-adapter.service';
@@ -19,6 +20,8 @@ import { EpiserverFormService } from './episerver-form.service';
   //changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EpiserverFormComponent {
+  private static readonly AUTO_SAVE_DELAY_MS = 30000;
+
   protected isLoading = true;
   protected source!: EpiserverFormDefinition;
   protected form!: FormSchema;
@@ -36,6 +39,7 @@ export class EpiserverFormComponent {
   protected submissionKey = '';
   protected visibilityState: FieldVisibilityState = { visibilityByGuid: {}, visibilityByContentLinkId: {}, evaluations: [] };
   private readonly dependencyDisabledKeys = new Set<string>();
+  private autoSaveSubscription?: Subscription;
 
   constructor(
     @Inject(DOCUMENT) private readonly document: Document,
@@ -152,6 +156,7 @@ export class EpiserverFormComponent {
       return;
     }
 
+    this.cancelAutoSave();
     this.submit(false);
   }
 
@@ -160,6 +165,7 @@ export class EpiserverFormComponent {
       return;
     }
 
+    this.cancelAutoSave();
     this.hasSubmitted = true;
 
     const fieldKeys = this.visibleFormFields().map(field => field.key);
@@ -231,6 +237,7 @@ export class EpiserverFormComponent {
     }
 
     this.setupVisibilityTracking();
+    this.setupAutoSave();
     this.isLoading = false;
     this.changeDetectorRef.markForCheck();
   }
@@ -441,6 +448,36 @@ export class EpiserverFormComponent {
         this.formDependConditionsService.syncHiddenControls(this.form.formElements, this.formGroup, state, this.dependencyDisabledKeys);
         this.changeDetectorRef.markForCheck();
       });
+  }
+
+  private setupAutoSave(): void {
+    this.formGroup.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (this.isReadOnlyMode || this.isSubmitting || !this.source) {
+        return;
+      }
+
+      this.scheduleAutoSave();
+    });
+  }
+
+  private scheduleAutoSave(): void {
+    this.cancelAutoSave();
+    this.autoSaveSubscription = timer(EpiserverFormComponent.AUTO_SAVE_DELAY_MS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.autoSaveSubscription = undefined;
+
+        if (this.isReadOnlyMode || this.isSubmitting || !this.source) {
+          return;
+        }
+
+        this.submit(false);
+      });
+  }
+
+  private cancelAutoSave(): void {
+    this.autoSaveSubscription?.unsubscribe();
+    this.autoSaveSubscription = undefined;
   }
 
   private currentPageUrl(): string {

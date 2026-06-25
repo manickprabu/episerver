@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { Subscription, timer } from 'rxjs';
 
 import { EpiserverFieldDefinitionLike, FieldVisibilityState, FormDependConditionsService, FormSubmission } from '../../episerver-forms/episerver-sdk';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -22,6 +23,8 @@ import { EpiserverFormAccordionService } from './episerver-form-accordion.servic
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EpiserverFormAccordionComponent {
+  private static readonly AUTO_SAVE_DELAY_MS = 30000;
+
   protected isLoading = true;
   protected source!: EpiserverFormDefinition;
   protected form!: FormSchema;
@@ -41,6 +44,7 @@ export class EpiserverFormAccordionComponent {
   protected statusMessage = '';
   protected submissionKey = '';
   protected visibilityState: FieldVisibilityState = { visibilityByGuid: {}, visibilityByContentLinkId: {}, evaluations: [] };
+  private autoSaveSubscription?: Subscription;
 
   constructor(
     @Inject(DOCUMENT) private readonly document: Document,
@@ -207,6 +211,7 @@ export class EpiserverFormAccordionComponent {
   }
 
   protected savePartial(): void {
+    this.cancelAutoSave();
     const stepIndexAtSubmit = this.currentStepIndex;
     const nextStepIndex = this.canGoNext ? Math.min(this.currentStepIndex + 1, this.steps.length - 1) : null;
 
@@ -219,6 +224,7 @@ export class EpiserverFormAccordionComponent {
   }
 
   protected submitFinal(): void {
+    this.cancelAutoSave();
     this.hasSubmitted = true;
 
     const fieldKeys = this.visibleFormFields().map(field => field.key);
@@ -353,6 +359,7 @@ export class EpiserverFormAccordionComponent {
     this.previousButtonLabel = this.form.localizations?.['previousButtonLabel'] || 'Previous';
 
     this.setupVisibilityTracking();
+    this.setupAutoSave();
     this.currentStepIndex = this.formNavigationService.resolveInitialStepIndex(this.form, this.currentPageUrl());
     this.isLoading = false;
   }
@@ -365,6 +372,36 @@ export class EpiserverFormAccordionComponent {
 
     const invalidElement = this.document.getElementById(invalidKey) as HTMLElement | null;
     invalidElement?.focus();
+  }
+
+  private setupAutoSave(): void {
+    this.formGroup.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (this.isSubmitting || !this.source) {
+        return;
+      }
+
+      this.scheduleAutoSave();
+    });
+  }
+
+  private scheduleAutoSave(): void {
+    this.cancelAutoSave();
+    this.autoSaveSubscription = timer(EpiserverFormAccordionComponent.AUTO_SAVE_DELAY_MS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.autoSaveSubscription = undefined;
+
+        if (this.isSubmitting || !this.source) {
+          return;
+        }
+
+        this.submit(false);
+      });
+  }
+
+  private cancelAutoSave(): void {
+    this.autoSaveSubscription?.unsubscribe();
+    this.autoSaveSubscription = undefined;
   }
 
   private controlsForStep(step: FormStep) {
