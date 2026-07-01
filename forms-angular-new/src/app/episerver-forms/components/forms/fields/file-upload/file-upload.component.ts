@@ -34,14 +34,27 @@ export class FileUploadComponent implements OnChanges {
   }
 
   get allowedFileExtensions(): string[] {
-    return this.acceptedFileTypes
-      .split(',')
-      .map(type => type.trim().replace(/^\./, '').toLowerCase())
-      .filter(Boolean);
+    return this.acceptTokens
+      .filter(token => token.kind === 'extension')
+      .map(token => token.value);
   }
 
   get hasError(): boolean {
     return Boolean(this.fileUploadErrorMsg);
+  }
+
+  get normalizedAcceptedFileTypes(): string {
+    return this.acceptTokens
+      .map(token => {
+        switch (token.kind) {
+          case 'extension':
+            return `.${token.value}`;
+          case 'mime':
+          case 'mimeWildcard':
+            return token.value;
+        }
+      })
+      .join(',');
   }
 
   handleFileInput(event: Event): void {
@@ -109,10 +122,7 @@ export class FileUploadComponent implements OnChanges {
       return this.maxFiles === 1 ? 'You can upload 1 file only.' : `You can upload up to ${this.maxFiles} files.`;
     }
 
-    const invalidExtensionFile = files.find(file => {
-      const extension = (file.name ?? file.file?.name ?? '').split('.').pop()?.toLowerCase() ?? '';
-      return !this.allowedFileExtensions.includes(extension);
-    });
+    const invalidExtensionFile = files.find(file => !this.isAllowedFileType(file));
     if (invalidExtensionFile) {
       return 'The selected file type is not allowed.';
     }
@@ -186,6 +196,59 @@ export class FileUploadComponent implements OnChanges {
 
   private fileSize(file: FormUploadedFile): number {
     return typeof file.size === 'number' ? file.size : (file.file?.size ?? 0);
+  }
+
+  private isAllowedFileType(file: FormUploadedFile): boolean {
+    if (this.acceptTokens.length === 0) {
+      return true;
+    }
+
+    const fileName = file.name ?? file.file?.name ?? '';
+    const extension = fileName.includes('.') ? fileName.split('.').pop()?.toLowerCase() ?? '' : '';
+    const mimeType = file.file?.type?.toLowerCase() ?? '';
+
+    return this.acceptTokens.some(token => {
+      switch (token.kind) {
+        case 'extension':
+          return !!extension && extension === token.value;
+        case 'mime':
+          return !!mimeType && mimeType === token.value;
+        case 'mimeWildcard':
+          return !!mimeType && mimeType.startsWith(`${token.value}/`);
+      }
+    });
+  }
+
+  private get acceptTokens(): Array<{ kind: 'extension' | 'mime' | 'mimeWildcard'; value: string }> {
+    return this.acceptedFileTypes
+      .split(',')
+      .map(type => this.normalizeAcceptToken(type))
+      .filter((token): token is { kind: 'extension' | 'mime' | 'mimeWildcard'; value: string } => token !== null);
+  }
+
+  private normalizeAcceptToken(value: string): { kind: 'extension' | 'mime' | 'mimeWildcard'; value: string } | null {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) {
+      return null;
+    }
+
+    if (/^[a-z0-9]+$/.test(normalized)) {
+      return { kind: 'extension', value: normalized };
+    }
+
+    if (normalized.startsWith('.')) {
+      return { kind: 'extension', value: normalized.replace(/^\./, '') };
+    }
+
+    if (/^[a-z0-9!#$&^_.+-]+\/\*$/.test(normalized)) {
+      return { kind: 'mimeWildcard', value: normalized.slice(0, normalized.indexOf('/')) };
+    }
+
+    if (/^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/.test(normalized)) {
+      return { kind: 'mime', value: normalized };
+    }
+
+    return null;
   }
 
   private readString(source: Record<string, unknown>, keys: string[]): string | null {

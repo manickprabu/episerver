@@ -245,6 +245,35 @@ describe('FileUploadFieldComponent', () => {
       }
     ]);
   });
+
+  it('normalizes extension-only file types and rejects unsupported files after selection', () => {
+    const fixture = createComponent(
+      {
+        ...createField('resume', 'Resume'),
+        properties: {
+          ...createField('resume', 'Resume').properties,
+          fileTypes: 'pdf,doc,txt'
+        }
+      } as FormField,
+      new FormGroup({ resume: new FormControl([]) })
+    );
+
+    const input = openModal(fixture);
+    expect(input.accept).toBe('.pdf,.doc,.txt');
+
+    selectFiles(input, createFile('malware.exe', 100));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('The selected file type is not allowed.');
+    expect((fixture.componentInstance.formGroup.get('resume')?.value as unknown[]).length).toBe(0);
+
+    selectFiles(input, createFile('notes.txt', 100));
+    fixture.detectChanges();
+    click(fixture, '.formFileUpload__PrimaryAction');
+    fixture.detectChanges();
+
+    expect((fixture.componentInstance.formGroup.get('resume')?.value as Array<{ name: string }>)[0].name).toBe('notes.txt');
+  });
 });
 
 function createComponent(field: FormField, formGroup: FormGroup): ComponentFixture<FileUploadFieldComponent> {
