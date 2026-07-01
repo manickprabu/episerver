@@ -57,7 +57,7 @@ export class FileUploadComponent implements OnChanges {
       .join(',');
   }
 
-  handleFileInput(event: Event): void {
+  async handleFileInput(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files ?? []);
     if (!files.length) {
@@ -71,6 +71,7 @@ export class FileUploadComponent implements OnChanges {
       assetGuid: '',
       file
     }));
+    const previousFiles = [...this.draggedFiles];
     const nextFiles = this.multiple ? [...this.draggedFiles, ...newEntries] : [newEntries[0]];
     const error = this.validateFiles(nextFiles);
     if (error) {
@@ -86,8 +87,22 @@ export class FileUploadComponent implements OnChanges {
     this.tooltipText = 'File is valid';
     this.selectedFilesChange.emit([...this.draggedFiles]);
     this.syncControlValue();
-    input.value = '';
-    this.cdr.markForCheck();
+
+    try {
+      const suspiciousContentError = await this.validateFileContents(newEntries);
+      if (suspiciousContentError) {
+        this.draggedFiles = previousFiles;
+        this.fileUploadErrorMsg = suspiciousContentError;
+        this.tooltipText = 'Invalid file selected';
+        this.selectedFilesChange.emit([...this.draggedFiles]);
+        this.syncControlValue();
+      }
+    } catch {
+      // Keep uploads working when the browser cannot expose file headers for best-effort inspection.
+    } finally {
+      input.value = '';
+      this.cdr.markForCheck();
+    }
   }
 
   deleteFile(index: number): void {
@@ -130,6 +145,21 @@ export class FileUploadComponent implements OnChanges {
     const oversizedFile = files.find(file => this.fileSize(file) > this.maxFileSize);
     if (oversizedFile) {
       return `The file size must be ${this.formatLimitLabel(this.maxFileSize)} or less.`;
+    }
+
+    return '';
+  }
+
+  private async validateFileContents(files: FormUploadedFile[]): Promise<string> {
+    for (const file of files) {
+      if (!file.file) {
+        continue;
+      }
+
+      const header = await this.readFileHeader(file.file, 16);
+      if (this.looksLikeExecutable(header)) {
+        return 'The selected file content is not allowed.';
+      }
     }
 
     return '';
@@ -217,6 +247,56 @@ export class FileUploadComponent implements OnChanges {
           return !!mimeType && mimeType.startsWith(`${token.value}/`);
       }
     });
+  }
+
+  private async readFileHeader(file: File, length: number): Promise<Uint8Array> {
+    const headerBlob = file.slice(0, length);
+
+    if (typeof headerBlob.arrayBuffer === 'function') {
+      const bytes = await headerBlob.arrayBuffer();
+      return new Uint8Array(bytes);
+    }
+
+    if (typeof FileReader === 'undefined') {
+      return new Uint8Array();
+    }
+
+    return await new Promise<Uint8Array>(resolve => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const result = reader.result;
+        resolve(result instanceof ArrayBuffer ? new Uint8Array(result) : new Uint8Array());
+      };
+
+      reader.onerror = () => resolve(new Uint8Array());
+      reader.readAsArrayBuffer(headerBlob);
+    });
+  }
+
+  private looksLikeExecutable(header: Uint8Array): boolean {
+    if (header.length < 4) {
+      return false;
+    }
+
+    return (
+      this.matchesBytes(header, [0x4d, 0x5a]) ||
+      this.matchesBytes(header, [0x7f, 0x45, 0x4c, 0x46]) ||
+      this.matchesBytes(header, [0xfe, 0xed, 0xfa, 0xce]) ||
+      this.matchesBytes(header, [0xfe, 0xed, 0xfa, 0xcf]) ||
+      this.matchesBytes(header, [0xce, 0xfa, 0xed, 0xfe]) ||
+      this.matchesBytes(header, [0xcf, 0xfa, 0xed, 0xfe]) ||
+      this.matchesBytes(header, [0xca, 0xfe, 0xba, 0xbe]) ||
+      this.matchesBytes(header, [0xbe, 0xba, 0xfe, 0xca])
+    );
+  }
+
+  private matchesBytes(header: Uint8Array, signature: number[]): boolean {
+    if (header.length < signature.length) {
+      return false;
+    }
+
+    return signature.every((byte, index) => header[index] === byte);
   }
 
   private get acceptTokens(): Array<{ kind: 'extension' | 'mime' | 'mimeWildcard'; value: string }> {

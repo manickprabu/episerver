@@ -41,7 +41,7 @@ describe('FileUploadFieldComponent', () => {
     }).compileComponents();
   });
 
-  it('confirms selected files and keeps each upload question independent', () => {
+  it('confirms selected files and keeps each upload question independent', async () => {
     const formGroup = new FormGroup({
       resume: new FormControl([]),
       portfolio: new FormControl([])
@@ -51,6 +51,7 @@ describe('FileUploadFieldComponent', () => {
 
     const resumeInput = openModal(resumeFixture);
     selectFiles(resumeInput, createFile('resume.pdf', 1024), createFile('cover-letter.pdf', 2048));
+    await resumeFixture.whenStable();
     resumeFixture.detectChanges();
 
     expect(resumeFixture.nativeElement.textContent).toContain('resume.pdf');
@@ -66,6 +67,7 @@ describe('FileUploadFieldComponent', () => {
 
     const portfolioInput = openModal(portfolioFixture);
     selectFiles(portfolioInput, createFile('portfolio.pdf', 4096));
+    await portfolioFixture.whenStable();
     portfolioFixture.detectChanges();
     click(portfolioFixture, '.formFileUpload__PrimaryAction');
     resumeFixture.detectChanges();
@@ -87,7 +89,7 @@ describe('FileUploadFieldComponent', () => {
     expect(resumeFixture.nativeElement.querySelectorAll('.formFileUpload__DraftItem').length).toBe(1);
   });
 
-  it('shows a validation error when more than five files are selected', () => {
+  it('shows a validation error when more than five files are selected', async () => {
     const fixture = createComponent(createField('resume', 'Resume'), new FormGroup({ resume: new FormControl([]) }));
     const input = openModal(fixture);
 
@@ -100,6 +102,7 @@ describe('FileUploadFieldComponent', () => {
       createFile('5.txt', 100),
       createFile('6.txt', 100)
     );
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('You can upload up to 5 files.');
@@ -107,11 +110,12 @@ describe('FileUploadFieldComponent', () => {
     expect(fixture.nativeElement.querySelectorAll('.formFileUpload__DraftItem').length).toBe(0);
   });
 
-  it('shows a validation error when a selected file exceeds 20MB', () => {
+  it('shows a validation error when a selected file exceeds 20MB', async () => {
     const fixture = createComponent(createField('resume', 'Resume'), new FormGroup({ resume: new FormControl([]) }));
     const input = openModal(fixture);
 
     selectFiles(input, createFile('too-large.pdf', 20 * 1024 * 1024 + 1));
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('The file size must be 20MB or less.');
@@ -125,7 +129,7 @@ describe('FileUploadFieldComponent', () => {
     expect(input.accept).toBe('.pdf,.doc,.txt');
   });
 
-  it('disables the choose-files control when the upload reaches the max file count', () => {
+  it('disables the choose-files control when the upload reaches the max file count', async () => {
     const fixture = createComponent(createField('resume', 'Resume'), new FormGroup({ resume: new FormControl([]) }));
     const input = openModal(fixture);
 
@@ -137,6 +141,7 @@ describe('FileUploadFieldComponent', () => {
       createFile('4.txt', 100),
       createFile('5.txt', 100)
     );
+    await fixture.whenStable();
     fixture.detectChanges();
 
     const updatedInput = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
@@ -208,7 +213,7 @@ describe('FileUploadFieldComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Maximum 1 file selected. Remove it to add another.');
   });
 
-  it('uses field properties for single-file mode, size limit and accepted file types', () => {
+  it('uses field properties for single-file mode, size limit and accepted file types', async () => {
     const fixture = createComponent(
       {
         ...createField('resume', 'Resume'),
@@ -227,10 +232,12 @@ describe('FileUploadFieldComponent', () => {
     expect(input.accept).toBe('.pdf,.png');
 
     selectFiles(input, createFile('too-large.pdf', 3 * 1024 * 1024 + 1));
+    await fixture.whenStable();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('The file size must be 3MB or less.');
 
     selectFiles(input, createFile('fresh.pdf', 100));
+    await fixture.whenStable();
     fixture.detectChanges();
     click(fixture, '.formFileUpload__PrimaryAction');
     fixture.detectChanges();
@@ -246,7 +253,7 @@ describe('FileUploadFieldComponent', () => {
     ]);
   });
 
-  it('normalizes extension-only file types and rejects unsupported files after selection', () => {
+  it('normalizes extension-only file types and rejects unsupported files after selection', async () => {
     const fixture = createComponent(
       {
         ...createField('resume', 'Resume'),
@@ -262,17 +269,42 @@ describe('FileUploadFieldComponent', () => {
     expect(input.accept).toBe('.pdf,.doc,.txt');
 
     selectFiles(input, createFile('malware.exe', 100));
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('The selected file type is not allowed.');
     expect((fixture.componentInstance.formGroup.get('resume')?.value as unknown[]).length).toBe(0);
 
     selectFiles(input, createFile('notes.txt', 100));
+    await fixture.whenStable();
     fixture.detectChanges();
     click(fixture, '.formFileUpload__PrimaryAction');
     fixture.detectChanges();
 
     expect((fixture.componentInstance.formGroup.get('resume')?.value as Array<{ name: string }>)[0].name).toBe('notes.txt');
+  });
+
+  it('rejects a renamed executable even when its extension matches an allowed file type', async () => {
+    const fixture = createComponent(
+      {
+        ...createField('resume', 'Resume'),
+        properties: {
+          ...createField('resume', 'Resume').properties,
+          fileTypes: '.txt'
+        }
+      } as FormField,
+      new FormGroup({ resume: new FormControl([]) })
+    );
+
+    const input = openModal(fixture);
+    selectFiles(input, createFileWithBytes('safe-looking.txt', [0x4d, 0x5a, 0x90, 0x00]));
+    await fixture.whenStable();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('The selected file content is not allowed.');
+    expect((fixture.componentInstance.formGroup.get('resume')?.value as unknown[]).length).toBe(0);
   });
 });
 
@@ -305,5 +337,26 @@ function selectFiles(input: HTMLInputElement, ...files: File[]): void {
 }
 
 function createFile(name: string, sizeInBytes: number): File {
-  return new File([new Uint8Array(sizeInBytes)], name, { type: 'application/octet-stream' });
+  return new File([new Uint8Array(sizeInBytes)], name, { type: mimeTypeFor(name) });
+}
+
+function createFileWithBytes(name: string, bytes: number[]): File {
+  return new File([new Uint8Array(bytes)], name, { type: mimeTypeFor(name) });
+}
+
+function mimeTypeFor(name: string): string {
+  const extension = name.split('.').pop()?.toLowerCase() ?? '';
+
+  switch (extension) {
+    case 'pdf':
+      return 'application/pdf';
+    case 'doc':
+      return 'application/msword';
+    case 'txt':
+      return 'text/plain';
+    case 'png':
+      return 'image/png';
+    default:
+      return 'application/octet-stream';
+  }
 }
