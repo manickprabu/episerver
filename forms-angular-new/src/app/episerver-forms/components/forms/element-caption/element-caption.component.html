@@ -1,13 +1,31 @@
 @if (field.properties.label) {
   @switch (variant) {
     @case ('legend') {
-      <legend class="form__Element__Caption form__Element__Caption--legend">{{ field.properties.label }}</legend>
+      <legend class="form__Element__Caption form__Element__Caption--legend">
+        {{ field.properties.label }}
+        @if (isRequired) {
+          <i class="info form__Element__RequiredIndicator" aria-hidden="true"></i>
+          <span class="form__Element__RequiredText">Required</span>
+        }
+      </legend>
     }
     @case ('div') {
-      <div class="form__Element__Caption form__Element__Caption--div">{{ field.properties.label }}</div>
+      <div class="form__Element__Caption form__Element__Caption--div">
+        {{ field.properties.label }}
+        @if (isRequired) {
+          <i class="info form__Element__RequiredIndicator" aria-hidden="true"></i>
+          <span class="form__Element__RequiredText">Required</span>
+        }
+      </div>
     }
     @default {
-      <label [for]="forId || field.key" class="form__Element__Caption form__Element__Caption--label">{{ field.properties.label }}</label>
+      <label [for]="forId || field.key" class="form__Element__Caption form__Element__Caption--label">
+        {{ field.properties.label }}
+        @if (isRequired) {
+          <i class="info form__Element__RequiredIndicator" aria-hidden="true"></i>
+          <span class="form__Element__RequiredText">Required</span>
+        }
+      </label>
     }
   }
 }

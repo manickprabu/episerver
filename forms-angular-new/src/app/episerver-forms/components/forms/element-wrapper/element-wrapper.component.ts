@@ -1,12 +1,11 @@
 import { AbstractControl } from '@angular/forms';
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'lib-element-wrapper',
   standalone: false,
   templateUrl: './element-wrapper.component.html',
-  styleUrl: './element-wrapper.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrl: './element-wrapper.component.scss'
 })
 export class ElementWrapperComponent {
   @Input() className = '';
@@ -16,8 +15,9 @@ export class ElementWrapperComponent {
 
   protected get wrapperClass(): string {
     const control = this.control;
-    const isFail = !!control && control.invalid && (control.touched || this.submitted);
-    const classes = ['form__Element'];
+    const isRequiredInvalid = !!control && control.hasError('required');
+    const isFail = !!control && control.invalid && (isRequiredInvalid || control.touched || this.submitted);
+    const classes = ['element-wrapper', 'form__Element'];
 
     if (this.className) {
       classes.push(this.className);

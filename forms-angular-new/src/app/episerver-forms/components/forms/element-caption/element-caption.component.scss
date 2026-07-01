@@ -12,3 +12,27 @@
   width: 100%;
   max-width: 100%;
 }
+
+.form__Element__RequiredIndicator {
+  color: #dc2626;
+  display: inline-block;
+  font-style: normal;
+  margin-left: 4px;
+}
+
+.form__Element__RequiredIndicator::before {
+  content: '*';
+}
+
+.form__Element__RequiredText {
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}

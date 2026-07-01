@@ -24,6 +24,23 @@ describe('ElementCaptionComponent', () => {
     expect(element?.getAttribute('for')).toBe('email');
   });
 
+  it('renders the required suffix icon for required fields', () => {
+    const fixture = TestBed.createComponent(ElementCaptionComponent);
+    fixture.componentRef.setInput('field', {
+      key: 'email',
+      properties: {
+        label: 'Email address',
+        description: '',
+        validators: [{ type: 'RequiredValidator', model: { message: 'Required.' } }]
+      }
+    } as FormField);
+    fixture.detectChanges();
+
+    const indicator = fixture.nativeElement.querySelector('.form__Element__RequiredIndicator') as HTMLElement;
+    expect(indicator).not.toBeNull();
+    expect(indicator.className).toContain('info');
+  });
+
   it('renders a legend when requested', () => {
     const fixture = TestBed.createComponent(ElementCaptionComponent);
     fixture.componentRef.setInput('field', {

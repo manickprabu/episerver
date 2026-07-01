@@ -12,4 +12,8 @@ export class ElementCaptionComponent {
   @Input() field!: FormField;
   @Input() forId: string | null = null;
   @Input() variant: 'label' | 'legend' | 'div' = 'label';
+
+  protected get isRequired(): boolean {
+    return (this.field?.properties.validators ?? []).some(validator => validator.type === 'RequiredValidator');
+  }
 }
