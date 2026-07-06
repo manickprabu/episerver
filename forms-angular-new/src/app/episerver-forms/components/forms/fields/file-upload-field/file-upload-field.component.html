@@ -48,18 +48,31 @@
           </div>
 
           <div class="formFileUpload__ModalBody">
-            <lib-file-upload
-              [title]="field.properties.label"
-              [control]="uploadSelectionControl"
-              [maxFileSize]="maxUploadFileSizeBytes"
-              [acceptedFileTypes]="acceptedFileTypes"
-              [multiple]="allowMultipleUploads"
-              [maxFiles]="maxUploadFiles"
-              [selectedFiles]="draftFiles"
-              [disabled]="hasReachedFileLimit"
-              [showTitle]="false"
-              [showSelectedFiles]="false"
-              (selectedFilesChange)="onDraftLocalFilesChange($event)" />
+            <div class="formFileUpload__Picker">
+              <h4 class="formFileUpload__PickerTitle">Drag files here</h4>
+              <p class="formFileUpload__PickerText">
+                only {{ allowedFileExtensions.join(', ') }} files at {{ maxUploadFileSizeLabel }} or less
+                @if (allowMultipleUploads) {
+                  <br />
+                  up to {{ maxUploadFiles }} files
+                }
+                <br />
+                or
+              </p>
+              <label class="formFileUpload__Input">
+                <span>Select a file from your device</span>
+                <input
+                  type="file"
+                  [multiple]="allowMultipleUploads"
+                  [disabled]="hasReachedFileLimit"
+                  [attr.accept]="normalizedAcceptedFileTypes"
+                  (change)="handleDraftFileInput($event)" />
+              </label>
+            </div>
+
+            @if (draftUploadErrorMsg) {
+              <div class="form__Element__ValidationError" role="alert">{{ draftUploadErrorMsg }}</div>
+            }
 
             @if (hasReachedFileLimit) {
               <p class="formFileUpload__Hint">

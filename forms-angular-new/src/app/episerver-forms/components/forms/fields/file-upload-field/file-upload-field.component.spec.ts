@@ -6,7 +6,6 @@ import { ElementWrapperComponent } from '../../element-wrapper/element-wrapper.c
 import { ValidationMessageComponent } from '../../validation-message/validation-message.component';
 import { FormField } from '../../../../models/form-schema.model';
 import { FormSchemaFormService } from '../../../../services/form-schema-form.service';
-import { FileUploadComponent } from '../file-upload/file-upload.component';
 import { FileUploadFieldComponent } from './file-upload-field.component';
 
 function createField(key: string, label: string): FormField {
@@ -28,7 +27,7 @@ describe('FileUploadFieldComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
-      declarations: [FileUploadFieldComponent, FileUploadComponent, ElementWrapperComponent, ElementCaptionComponent, ValidationMessageComponent],
+      declarations: [FileUploadFieldComponent, ElementWrapperComponent, ElementCaptionComponent, ValidationMessageComponent],
       providers: [
         {
           provide: FormSchemaFormService,
@@ -177,7 +176,7 @@ describe('FileUploadFieldComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('existing-contract.pdf');
   });
 
-  it('counts existing uploaded files against the max file limit inside the shared picker control', () => {
+  it('counts existing uploaded files against the max file limit inside the field-owned picker', () => {
     const formGroup = new FormGroup({
       resume: new FormControl([
         {
@@ -202,7 +201,7 @@ describe('FileUploadFieldComponent', () => {
     openModal(fixture);
     fixture.detectChanges();
 
-    expect(fixture.componentInstance['uploadSelectionControl'].value).toEqual([
+    expect(fixture.componentInstance['draftFiles']).toEqual([
       jasmine.objectContaining({
         name: 'existing-contract.pdf',
         size: undefined,
@@ -341,7 +340,27 @@ function createFile(name: string, sizeInBytes: number): File {
 }
 
 function createFileWithBytes(name: string, bytes: number[]): File {
-  return new File([new Uint8Array(bytes)], name, { type: mimeTypeFor(name) });
+  const file = new File([new Uint8Array(bytes)], name, { type: mimeTypeFor(name) });
+  const originalSlice = file.slice.bind(file);
+
+  Object.defineProperty(file, 'slice', {
+    configurable: true,
+    value: (start?: number, end?: number, contentType?: string) => {
+      const blob = originalSlice(start, end, contentType);
+      const normalizedStart = start ?? 0;
+      const normalizedEnd = end ?? bytes.length;
+      const sliceBytes = bytes.slice(normalizedStart, normalizedEnd);
+
+      Object.defineProperty(blob, 'arrayBuffer', {
+        configurable: true,
+        value: async () => new Uint8Array(sliceBytes).buffer
+      });
+
+      return blob;
+    }
+  });
+
+  return file;
 }
 
 function mimeTypeFor(name: string): string {

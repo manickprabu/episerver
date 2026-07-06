@@ -20,7 +20,7 @@
       id="fileUpload"
       [multiple]="multiple"
       [disabled]="disabled"
-      [attr.accept]="normalizedAcceptedFileTypes"
+      [attr.accept]="acceptedFileTypes"
       (change)="handleFileInput($event)"
       [title]="tooltipText" />
   </div>

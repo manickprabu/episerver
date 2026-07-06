@@ -133,11 +133,11 @@ describe('low coverage components', () => {
     (imageChoice as any).toggleValue('next', true);
     expect(control.value).toBe('next');
 
-    const fileUpload = new FileUploadFieldComponent(formSchemaFormService);
+    const fileUpload = new FileUploadFieldComponent(formSchemaFormService, { markForCheck: () => undefined } as any);
     fileUpload.field = createField({ contentType: 'FileUploadElementBlock' });
     fileUpload.formGroup = formGroup;
     const file = new File(['body'], 'doc.txt');
-    (fileUpload as any).onDraftLocalFilesChange([file]);
+    (fileUpload as any).draftFiles = (fileUpload as any).normalizeFiles([file]);
     expect((fileUpload as any).draftFiles).toEqual([{ name: 'doc.txt', size: file.size, url: undefined, assetGuid: undefined, file }]);
 
     const hidden = new HiddenFieldComponent(formSchemaFormService);

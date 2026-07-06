@@ -55,20 +55,40 @@
     margin: 0.5rem 0 0;
   }
 
+  &__Picker {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: 1px dashed var(--grey);
+    border-radius: var(--form-border-radius);
+    background: var(--athens-grey);
+  }
+
+  &__PickerTitle,
+  &__PickerText {
+    margin: 0;
+  }
+
   &__Hint {
     color: var(--grey);
     font-size: 0.875rem;
   }
 
   &__Input {
-    display: block;
-    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    width: fit-content;
+    max-width: 100%;
     padding: 0.75rem 0.9rem;
     color: var(--dark-grey);
     font: inherit;
-    background: var(--athens-grey);
-    border: 1px dashed var(--grey);
+    background: #fff;
+    border: 1px solid var(--grey);
     border-radius: var(--form-border-radius);
+    cursor: pointer;
     transition:
       border-color 160ms ease,
       box-shadow 160ms ease,
@@ -88,6 +108,13 @@
     .form__Element--validationFail & {
       border-color: var(--red);
       box-shadow: 0 0 0 3px var(--form-danger-shadow);
+    }
+
+    input[type='file'] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
     }
   }
 
