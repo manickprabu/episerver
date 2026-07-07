@@ -31,7 +31,7 @@ export class ChoiceFieldComponent {
 
   protected toggleValue(value?: string, checked?: boolean): void {
     const control = this.control;
-    if (!control || !value) {
+    if (!control || control.disabled || !value) {
       return;
     }
 

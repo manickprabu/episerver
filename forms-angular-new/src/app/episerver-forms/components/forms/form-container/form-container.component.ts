@@ -273,6 +273,7 @@ export class FormContainerComponent implements OnChanges, OnDestroy {
         this.isSubmitting = false;
 
         if (this.isFormFinalized) {
+          this.formGroup.disable({ emitEvent: false });
           this.formNavigationService.clearNavigationState(form);
           this.clearStoredSubmissionKey();
         }

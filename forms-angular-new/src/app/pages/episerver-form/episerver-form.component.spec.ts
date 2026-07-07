@@ -214,6 +214,18 @@ describe('EpiserverFormComponent', () => {
     expect((successCase.component as any).statusMessage).toBe('Bad request');
   });
 
+  it('disables the form after a successful finalized submit', () => {
+    const { component, episerverFormService } = createComponent();
+    (component as any).isReadOnlyMode = false;
+    (component as any).formGroup.enable({ emitEvent: false });
+    episerverFormService.submitFinal.and.returnValue(of({ success: true, submissionKey: 'final-key', validationFail: false, messages: [] }));
+
+    (component as any).submitFinal();
+
+    expect((component as any).isReadOnlyMode).toBeTrue();
+    expect((component as any).formGroup.disabled).toBeTrue();
+  });
+
   it('auto-saves 30 seconds after the user stops editing the form', () => {
     jasmine.clock().install();
     const { component, episerverFormService, formSubmissionService } = createComponent();

@@ -10,6 +10,7 @@
             [type]="field.properties.allowMultiSelect ? 'checkbox' : 'radio'"
             [class]="field.properties.allowMultiSelect ? 'formChoice__Input formChoice__Input--Checkbox' : 'formChoice__Input formChoice__Input--Radio'"
             [checked]="isChecked(item.value)"
+            [disabled]="control?.disabled"
             [value]="item.value || ''"
             [attr.title]="field.properties.description || null"
             (change)="toggleValue(item.value, $any($event.target).checked)" />

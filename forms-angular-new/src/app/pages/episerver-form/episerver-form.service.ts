@@ -13,7 +13,7 @@ const DEBUG_EPISERVER_FORM: EpiserverFormDefinition = {
   formGuid: '38087b68-9215-4af8-9463-4d62850666ed',
   contentGuid: '38087b68-9215-4af8-9463-4d62850666ed',
   name: 'Freehold Property Information Form',
-  isFinalised:false,
+  isFinalised:true,
   totalSteps: 5,
   fields: [
     {

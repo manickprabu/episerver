@@ -287,6 +287,7 @@ export class EpiserverFormAccordionComponent {
         this.isSubmitting = false;
 
         if (isFinalized && result.success) {
+          this.formGroup.disable({ emitEvent: false });
           this.formNavigationService.clearNavigationState(this.form);
         } else {
           this.persistNavigationState();

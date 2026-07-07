@@ -8,6 +8,7 @@
             [id]="field.key + '_' + idx"
             [type]="field.properties.allowMultiSelect ? 'checkbox' : 'radio'"
             [checked]="isChecked(item.text)"
+            [disabled]="control?.disabled"
             [value]="item.text || ''"
             [class]="field.properties.allowMultiSelect ? 'formChoice__Input formChoice__Input--Checkbox' : 'formChoice__Input formChoice__Input--Radio'"
             [class.visually-hidden]="field.properties.showSelectionInputControl === false"

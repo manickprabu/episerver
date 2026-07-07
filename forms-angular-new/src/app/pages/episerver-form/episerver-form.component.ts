@@ -199,9 +199,15 @@ export class EpiserverFormComponent {
       next: result => {
         this.submissionKey = result.submissionKey ?? this.submissionKey;
         this.submitSucceeded = Boolean(result.success && isFinalized);
+        this.isReadOnlyMode = Boolean(isFinalized && result.success);
         this.isWarningStatus = false;
         this.statusMessage = result.messages?.map(message => message.message).join('<br>') || (isFinalized ? this.form.properties.submitSuccessMessage || 'Thanks, your form has been submitted.' : 'Draft saved.');
         this.isSubmitting = false;
+
+        if (this.isReadOnlyMode) {
+          this.formGroup.disable({ emitEvent: false });
+        }
+
         this.changeDetectorRef.markForCheck();
       },
       error: (error: unknown) => {

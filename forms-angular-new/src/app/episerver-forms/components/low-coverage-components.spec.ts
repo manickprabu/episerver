@@ -119,6 +119,10 @@ describe('low coverage components', () => {
     expect(control.value as unknown as string[]).toEqual(['A', 'B']);
     (choice as any).toggleValue('A', false);
     expect(control.value as unknown as string[]).toEqual(['B']);
+    control.disable();
+    (choice as any).toggleValue('C', true);
+    expect(control.value as unknown as string[]).toEqual(['B']);
+    control.enable();
     choice.field = createField();
     control.setValue('B');
     expect((choice as any).isChecked('B')).toBeTrue();
@@ -130,6 +134,10 @@ describe('low coverage components', () => {
     imageChoice.formGroup = formGroup;
     control.setValue('img');
     expect((imageChoice as any).isChecked('img')).toBeTrue();
+    control.disable();
+    (imageChoice as any).toggleValue('blocked', true);
+    expect(control.value).toBe('img');
+    control.enable();
     (imageChoice as any).toggleValue('next', true);
     expect(control.value).toBe('next');
 
