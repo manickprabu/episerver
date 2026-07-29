@@ -46,6 +46,16 @@
                   [apiBaseURLPrefix]="apiBaseURLPrefix"
                   (reset)="handleReset()" />
               }
+
+              <div class="episerver-form-accordion-page__step-actions">
+                <button
+                  type="button"
+                  class="episerver-form-accordion-page__draft"
+                  [disabled]="isSubmitting || formGroup.disabled"
+                  (click)="savePartial()">
+                  Save progress
+                </button>
+              </div>
             </section>
           </lib-accordion>
         }

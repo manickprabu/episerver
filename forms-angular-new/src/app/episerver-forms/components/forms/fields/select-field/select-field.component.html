@@ -1,37 +1,20 @@
 <lib-element-wrapper className="formSelection" [control]="resolvedControl" [submitted]="submitted">
   <lib-element-caption [field]="field" [forId]="field.key" />
   <div class="element-field">
-    @if (field.properties.allowMultiSelect) {
-      <select
-        [id]="field.key"
-        class="element-field__control"
-        multiple
-        [formControl]="$any(resolvedControl)"
-        [attr.aria-describedby]="field.key + '_desc'"
-        [attr.autocomplete]="field.properties.autoComplete || null"
-        [attr.title]="field.properties.description || null"
-        (blur)="markTouched()">
-        @for (item of field.properties.items || []; track item.value) {
-          <option [value]="item.value || ''">{{ item.caption }}</option>
-        }
-      </select>
-    } @else {
-      <select
-        [id]="field.key"
-        class="element-field__control"
-        [formControl]="$any(resolvedControl)"
-        [attr.aria-describedby]="field.key + '_desc'"
-        [attr.autocomplete]="field.properties.autoComplete || null"
-        [attr.title]="field.properties.description || null"
-        (blur)="markTouched()">
-        <option value="" [disabled]="$any(resolvedControl)?.value !== ''">
-          {{ placeholderLabel }}
-        </option>
-        @for (item of field.properties.items || []; track item.value) {
-          <option [value]="item.value || ''">{{ item.caption }}</option>
-        }
-      </select>
-    }
+    <ng-select
+      [items]="items"
+      bindLabel="caption"
+      bindValue="value"
+      [multiple]="!!field.properties.allowMultiSelect"
+      [searchable]="true"
+      [clearable]="false"
+      [closeOnSelect]="!field.properties.allowMultiSelect"
+      [formControl]="$any(resolvedControl)"
+      [labelForId]="field.key"
+      [inputAttrs]="{ id: field.key, 'aria-describedby': field.key + '_desc', autocomplete: field.properties.autoComplete || '', title: field.properties.description || '' }"
+      [placeholder]="placeholderLabel"
+      (blur)="markTouched()">
+    </ng-select>
     <lib-validation-message [field]="field" [control]="resolvedControl" [submitted]="submitted" />
   </div>
 </lib-element-wrapper>

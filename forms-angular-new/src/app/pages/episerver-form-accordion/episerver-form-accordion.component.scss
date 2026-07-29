@@ -27,6 +27,12 @@
   margin: 1rem 0 0;
 }
 
+.episerver-form-accordion-page__step-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
 .episerver-form-accordion-page__draft {
   border: 1px solid rgba(15, 23, 42, 0.18);
   border-radius: 999px;

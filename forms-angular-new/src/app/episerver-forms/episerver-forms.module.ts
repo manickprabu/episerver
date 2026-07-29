@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 import { EpiserverFormsSdkModule } from './episerver-sdk';
 import { FormBodyComponent } from './components/form-body/form-body.component';
@@ -82,8 +83,8 @@ const EPISERVER_FORMS_COMPONENTS = [
 
 @NgModule({
   declarations: [...EPISERVER_FORMS_COMPONENTS],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule, EpiserverFormsSdkModule],
-  exports: [CommonModule, FormsModule, ReactiveFormsModule, ...EPISERVER_FORMS_COMPONENTS],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule, EpiserverFormsSdkModule, NgSelectModule],
+  exports: [CommonModule, FormsModule, ReactiveFormsModule, NgSelectModule, ...EPISERVER_FORMS_COMPONENTS],
   providers: [EpiserverFormAdapterService, FormAuthService, FormConfirmationService, FormLoaderService, FormLoginStateService, FormNavigationService, FormSchemaFormService, FormSubmissionService]
 })
 export class EpiserverFormsModule {}

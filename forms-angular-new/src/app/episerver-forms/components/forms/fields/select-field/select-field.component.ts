@@ -30,6 +30,10 @@ export class SelectFieldComponent {
     return this.formSchemaFormService.controlFor(this.formGroup, this.field) as FormControl<unknown> | null;
   }
 
+  protected get items() {
+    return this.field.properties.items ?? [];
+  }
+
   protected markTouched(): void {
     this.resolvedControl?.markAsTouched();
   }

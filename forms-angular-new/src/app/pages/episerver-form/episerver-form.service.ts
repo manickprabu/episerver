@@ -13,7 +13,7 @@ const DEBUG_EPISERVER_FORM: EpiserverFormDefinition = {
   formGuid: '38087b68-9215-4af8-9463-4d62850666ed',
   contentGuid: '38087b68-9215-4af8-9463-4d62850666ed',
   name: 'Freehold Property Information Form',
-  isFinalised:true,
+  isFinalised:false,
   totalSteps: 5,
   fields: [
     {
@@ -134,6 +134,7 @@ const DEBUG_EPISERVER_FORM: EpiserverFormDefinition = {
       type: 'SelectionElementBlockProxy',
       value: 'Yes',
       properties: {
+        AllowMultiSelect: false,
         Label: 'Is the property a probate sale, in receivership, held by a Trust or owned by a developer? If you have difficulty completing this form due to one of these reasons, please contact us directly.  (please select your answer) ',
         Validators: 'EPiServer.Forms.Implementation.Validation.RequiredValidator',
         Feed: 'FormsFeed_UseManualInput',

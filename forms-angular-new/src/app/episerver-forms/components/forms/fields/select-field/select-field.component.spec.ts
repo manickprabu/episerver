@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+import { NgSelectModule, NgSelectComponent } from '@ng-select/ng-select';
 
 import { FormField } from '../../../../models/form-schema.model';
 import { FormSchemaFormService } from '../../../../services/form-schema-form.service';
@@ -50,7 +51,7 @@ describe('SelectFieldComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [SelectFieldComponent, MockElementWrapperComponent, MockElementCaptionComponent, MockValidationMessageComponent],
-      imports: [ReactiveFormsModule],
+      imports: [ReactiveFormsModule, NgSelectModule],
       providers: [
         {
           provide: FormSchemaFormService,
@@ -88,18 +89,21 @@ describe('SelectFieldComponent', () => {
     fixture.detectChanges();
   });
 
-  function getSelect(): HTMLSelectElement {
-    return fixture.debugElement.query(By.css('select')).nativeElement as HTMLSelectElement;
+  function getSelect(): NgSelectComponent {
+    return fixture.debugElement.query(By.directive(NgSelectComponent)).componentInstance as NgSelectComponent;
   }
 
-  function getSelectedText(): string {
-    const select = getSelect();
-    return select.options[select.selectedIndex]?.text ?? '';
+  function getSelectedValue(): unknown {
+    return getSelect().selectedValues[0]?.value ?? null;
+  }
+
+  function getSelectedValues(): unknown[] {
+    return getSelect().selectedValues.map(item => item?.value ?? item);
   }
 
   it('shows the initial preselected value', () => {
     expect(control.value).toBe('Leasehold');
-    expect(getSelectedText()).toBe('Leasehold');
+    expect(getSelectedValue()).toBe('Leasehold');
   });
 
   it('falls back to resolving the control from formGroup and field', () => {
@@ -111,7 +115,7 @@ describe('SelectFieldComponent', () => {
     fixture.detectChanges();
 
     expect(control.value).toBe('Share of freehold');
-    expect(getSelectedText()).toBe('Share of freehold');
+    expect(getSelectedValue()).toBe('Share of freehold');
   });
 
   it('reflects setValue from the parent form control', () => {
@@ -119,25 +123,24 @@ describe('SelectFieldComponent', () => {
     fixture.detectChanges();
 
     expect(control.value).toBe('Freehold');
-    expect(getSelectedText()).toBe('Freehold');
+    expect(getSelectedValue()).toBe('Freehold');
   });
 
   it('updates the parent form control when the user selects an option', () => {
     const select = getSelect();
-    select.selectedIndex = 1;
-    select.value = select.options[1].value;
-    select.dispatchEvent(new Event('change'));
+    const option = select.itemsList.findItem('Freehold');
+    select.toggleItem(option);
     fixture.detectChanges();
 
     expect(control.value).toBe('Freehold');
-    expect(getSelectedText()).toBe('Freehold');
+    expect(getSelectedValue()).toBe('Freehold');
   });
 
   it('reflects the disabled state from the parent form control', () => {
     control.disable();
     fixture.detectChanges();
 
-    expect(getSelect().disabled).toBe(true);
+    expect(getSelect().disabled()).toBe(true);
   });
 
   it('marks the control as touched on blur and preserves validation state', () => {
@@ -145,7 +148,7 @@ describe('SelectFieldComponent', () => {
     control.markAsUntouched();
     fixture.detectChanges();
 
-    getSelect().dispatchEvent(new Event('blur'));
+    getSelect().blurEvent.emit({} as FocusEvent);
     fixture.detectChanges();
 
     expect(control.touched).toBe(true);
@@ -167,7 +170,32 @@ describe('SelectFieldComponent', () => {
     directControl.setValue('Freehold');
     directFixture.detectChanges();
 
-    const select = directFixture.debugElement.query(By.css('select')).nativeElement as HTMLSelectElement;
-    expect(select.options[select.selectedIndex]?.text ?? '').toBe('Freehold');
+    const directSelect = directFixture.debugElement.query(By.directive(NgSelectComponent)).componentInstance as NgSelectComponent;
+    expect(directSelect.selectedValues[0]?.value).toBe('Freehold');
+  });
+
+  it('binds array values for multi select fields', () => {
+    const multiControl = new FormControl<string[] | null>(['Freehold']);
+    const multiFixture = TestBed.createComponent(SelectFieldComponent);
+    const multiComponent = multiFixture.componentInstance;
+    multiComponent.field = {
+      ...field,
+      properties: {
+        ...field.properties,
+        allowMultiSelect: true
+      }
+    };
+    multiComponent.controlInput = multiControl as unknown as FormControl<unknown>;
+    multiFixture.detectChanges();
+
+    const multiSelect = multiFixture.debugElement.query(By.directive(NgSelectComponent)).componentInstance as NgSelectComponent;
+
+    expect(multiSelect.multiple()).toBe(true);
+    expect(multiSelect.selectedValues.map(item => item?.value ?? item)).toEqual(['Freehold']);
+
+    multiSelect.select({ value: 'Leasehold', caption: 'Leasehold' });
+    multiFixture.detectChanges();
+
+    expect(multiControl.value).toEqual(['Freehold', 'Leasehold']);
   });
 });
